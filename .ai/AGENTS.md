@@ -42,7 +42,7 @@ This document defines mandatory rules, design patterns, architectural guardrails
 
 ## 4. AI Agent Workflow Instructions
 
-1. **Read Task & Target Feature**: Inspect `.frontend-ai/FEATURES.md` and `.frontend-ai/ROUTES.md` before implementing any page or component.
-2. **Verify API Endpoints**: Cross-reference `.frontend-ai/API_INTEGRATION.md` for exact URLs, request payloads, response data structures, and query key invalidation targets.
-3. **Check Permission Matrix**: Inspect `.frontend-ai/PERMISSION_MATRIX.md` to ensure correct RBAC checks (Owner, Admin, Member) are rendered using permission hooks.
-4. **Verify WebSocket Sync**: Check `.frontend-ai/WEBSOCKET_EVENTS.md` if the feature requires real-time presence or live board/task synchronization.
+1. **Read Task & Target Feature**: Inspect `.ai/FEATURES.md` and `.ai/ROUTES.md` before implementing any page or component.
+2. **Verify API Endpoints**: Cross-reference `.ai/API_INTEGRATION.md` for exact URLs, request payloads, response data structures, and query key invalidation targets.
+3. **Check Permission Matrix**: Inspect `.ai/PERMISSION_MATRIX.md` to ensure correct RBAC checks (Owner, Admin, Member) are rendered using permission hooks.
+4. **Verify WebSocket Sync**: Check `.ai/WEBSOCKET_EVENTS.md` if the feature requires real-time presence or live board/task synchronization.

@@ -32,5 +32,5 @@ The frontend client application can consume the backend without needing any back
 ## 4. Final Integration Readiness Verdict
 
 - **API Completeness**: 100% (Phases 1 through 14 fully functional).
-- **Documentation Compatibility**: 100% aligned with `.frontend-ai` specifications.
-- **Actionable Next Step**: Future AI coding agents or frontend developers can proceed directly to Milestone 1 in `.frontend-ai/TODO.md` to build the Next.js 15 client.
+- **Documentation Compatibility**: 100% aligned with `.ai` specifications.
+- **Actionable Next Step**: Future AI coding agents or frontend developers can proceed directly to Milestone 1 in `.ai/TODO.md` to build the Next.js 15 client.
