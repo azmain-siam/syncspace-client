@@ -1,806 +1,448 @@
 # DESIGN_SYSTEM.md — SyncSpace Design System
 
-Version: 1.0
+Version: 3.0
+Visual Language: **Quiet Precision** (See `VISUAL_IDENTITY.md`)
 
 ---
 
 # Overview
 
-SyncSpace is a modern SaaS productivity platform inspired by:
+The SyncSpace Design System translates the **Quiet Precision** visual identity into implementable tokens, component patterns, and layout rules for the Next.js / Tailwind CSS v4 frontend.
 
-- Linear
-- Notion
-- Vercel Dashboard
-- GitHub
-- Slack
-
-The UI should feel:
-
-- Professional
-- Calm
-- Premium
-- Fast
-- Minimal
-- Focused
-
-The interface should never distract users from their work.
-
-Every design decision should prioritize usability over decoration.
+This document is the single source of truth for all visual implementation decisions. When in doubt, refer here — not to any external reference.
 
 ---
 
-# Design Philosophy
+# 1. CSS Token Implementation
 
-## Core Principles
-
-- Simplicity over complexity.
-- Clarity over decoration.
-- Speed over animations.
-- Consistency over creativity.
-- Accessibility by default.
-- Dark mode first.
-- Mobile responsive.
-- Keyboard friendly.
-
-Every screen should answer four questions:
-
-1. Where am I?
-2. What can I do?
-3. What changed?
-4. What should I do next?
-
----
-
-# Visual Identity
-
-## Personality
-
-The product should feel like:
-
-- Linear
-- Vercel
-- Notion
-
-Avoid looking like:
-
-- Bootstrap admin templates
-- Material Design dashboards
-- Glassmorphism showcases
-- Crypto dashboards
-- Gaming interfaces
-
-The UI should disappear into the background so users can focus on completing work.
-
----
-
-# Color System
-
-Use Tailwind CSS v4 CSS Variables.
+### Tailwind CSS v4 OKLCH Variables (`src/app/globals.css`)
 
 ```css
-:root {
-  --background: oklch(0.985 0.002 260);
-  --foreground: oklch(0.16 0.01 260);
+@layer base {
+  :root {
+    /* ─── Light Mode: "Paper Studio" ─── */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.01 260);
+    /* Surfaces */
+    --background: oklch(0.965 0.005 260);        /* #F4F6FA  Canvas */
+    --foreground: oklch(0.15 0.02 260);           /* #0A1029  Primary Text */
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.01 260);
+    --card: oklch(1 0 0);                         /* #FFFFFF  Elevated Surface */
+    --card-foreground: oklch(0.15 0.02 260);
 
-  --primary: oklch(0.58 0.22 262);
-  --primary-foreground: oklch(0.99 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0.02 260);
 
-  --secondary: oklch(0.95 0.01 260);
-  --secondary-foreground: oklch(0.22 0.01 260);
+    /* Primary: Sapphire Blue (262°) */
+    --primary: oklch(0.55 0.24 262);              /* Deep Sapphire */
+    --primary-foreground: oklch(0.99 0 0);        /* White */
 
-  --muted: oklch(0.96 0.005 260);
-  --muted-foreground: oklch(0.52 0.015 260);
+    /* Secondary */
+    --secondary: oklch(0.95 0.008 260);           /* Soft Slate */
+    --secondary-foreground: oklch(0.20 0.015 260);
 
-  --accent: oklch(0.95 0.015 260);
-  --accent-foreground: oklch(0.2 0.02 260);
+    /* Muted */
+    --muted: oklch(0.96 0.005 260);
+    --muted-foreground: oklch(0.55 0.02 260);     /* #64748B  Captions */
 
-  --success: oklch(0.72 0.18 150);
-  --warning: oklch(0.78 0.18 80);
-  --danger: oklch(0.65 0.22 28);
+    /* Accent */
+    --accent: oklch(0.95 0.012 260);
+    --accent-foreground: oklch(0.18 0.02 260);
 
-  --border: oklch(0.9 0.01 260);
+    /* Semantic: Soft Pastel Fill + Deep Saturated Text */
+    --success: oklch(0.95 0.05 155);
+    --success-foreground: oklch(0.45 0.15 155);
 
-  --input: oklch(0.9 0.01 260);
+    --warning: oklch(0.95 0.05 85);
+    --warning-foreground: oklch(0.48 0.14 85);
 
-  --ring: var(--primary);
+    --danger: oklch(0.95 0.05 25);
+    --danger-foreground: oklch(0.48 0.18 25);
 
-  --radius: 0.5rem;
-}
+    --destructive: oklch(0.95 0.05 25);
+    --destructive-foreground: oklch(0.48 0.18 25);
 
-.dark {
-  --background: oklch(0.13 0.02 260);
-  --foreground: oklch(0.97 0.01 260);
+    /* Structural */
+    --border: oklch(0.92 0.008 260);
+    --input: oklch(0.92 0.008 260);
+    --ring: var(--primary);
+    --radius: 0.75rem;                            /* 12px Base Radius */
+  }
 
-  --card: oklch(0.17 0.02 260);
-  --card-foreground: oklch(0.97 0.01 260);
+  .dark {
+    /* ─── Dark Mode: "Midnight Workshop" ─── */
 
-  --popover: oklch(0.17 0.02 260);
-  --popover-foreground: oklch(0.97 0.01 260);
+    /* Surfaces */
+    --background: oklch(0.13 0.02 260);           /* #0C1222  Canvas */
+    --foreground: oklch(0.95 0.008 260);          /* #F1F5F9  Primary Text */
 
-  --primary: oklch(0.68 0.22 262);
-  --primary-foreground: oklch(0.99 0 0);
+    --card: oklch(0.17 0.025 260);                /* #141B2D  Surface */
+    --card-foreground: oklch(0.95 0.008 260);
 
-  --secondary: oklch(0.23 0.02 260);
-  --secondary-foreground: oklch(0.97 0.01 260);
+    --popover: oklch(0.20 0.025 260);             /* #1A2338  Elevated */
+    --popover-foreground: oklch(0.95 0.008 260);
 
-  --muted: oklch(0.21 0.02 260);
-  --muted-foreground: oklch(0.7 0.01 260);
+    /* Primary: Brighter Sapphire for dark backgrounds */
+    --primary: oklch(0.62 0.22 262);
+    --primary-foreground: oklch(0.99 0 0);
 
-  --accent: oklch(0.24 0.02 260);
-  --accent-foreground: oklch(0.97 0.01 260);
+    /* Secondary */
+    --secondary: oklch(0.22 0.025 260);
+    --secondary-foreground: oklch(0.95 0.008 260);
 
-  --success: oklch(0.7 0.18 150);
-  --warning: oklch(0.78 0.18 80);
-  --danger: oklch(0.65 0.22 28);
+    /* Muted */
+    --muted: oklch(0.21 0.02 260);
+    --muted-foreground: oklch(0.65 0.015 260);    /* #94A3B8 */
 
-  --border: oklch(0.26 0.01 260);
+    /* Accent */
+    --accent: oklch(0.23 0.02 260);
+    --accent-foreground: oklch(0.95 0.008 260);
 
-  --input: oklch(0.26 0.01 260);
+    /* Semantic: Deep Jewel Fill + Bright Pastel Text */
+    --success: oklch(0.23 0.06 155);
+    --success-foreground: oklch(0.75 0.16 155);
 
-  --ring: var(--primary);
+    --warning: oklch(0.23 0.06 85);
+    --warning-foreground: oklch(0.82 0.14 85);
+
+    --danger: oklch(0.23 0.06 25);
+    --danger-foreground: oklch(0.75 0.18 25);
+
+    --destructive: oklch(0.23 0.06 25);
+    --destructive-foreground: oklch(0.75 0.18 25);
+
+    /* Structural */
+    --border: oklch(0.25 0.02 260);
+    --input: oklch(0.25 0.02 260);
+    --ring: var(--primary);
+  }
 }
 ```
 
 ---
 
-# Color Usage
+# 2. Tailwind Theme Bridge
 
-Primary
+Map CSS custom properties to Tailwind v4's `@theme inline` directive:
 
-- Main actions
-- Active navigation
-- Primary buttons
-- Selected items
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
-Success
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-- Completed tasks
-- Success alerts
-- Positive status
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-Warning
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
-- Due soon
-- Pending review
-- Warnings
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
-Danger
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
 
-- Delete
-- Errors
-- Critical actions
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
-Muted
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
 
-- Secondary text
-- Metadata
-- Placeholders
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
----
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
 
-# Status Colors
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
-## Priority
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-| Priority | Color |
-| -------- | ----- |
-| Low      | Gray  |
-| Medium   | Blue  |
-| High     | Amber |
-| Urgent   | Red   |
-
-## Task Status
-
-| Status      | Color   |
-| ----------- | ------- |
-| Todo        | Gray    |
-| In Progress | Primary |
-| Review      | Amber   |
-| Done        | Green   |
+  --radius-sm: calc(var(--radius) - 4px);    /* 8px  */
+  --radius-md: calc(var(--radius) - 2px);    /* 10px */
+  --radius-lg: var(--radius);                /* 12px */
+  --radius-xl: calc(var(--radius) + 4px);    /* 16px */
+  --radius-2xl: calc(var(--radius) + 8px);   /* 20px */
+  --radius-full: 9999px;
+}
+```
 
 ---
 
-# Typography
+# 3. Typography Implementation
 
-Font Family
+- **Font Family**: `Inter` (Google Fonts). Fallback: `system-ui, -apple-system, sans-serif`.
+- **Font Variable**: `--font-sans` set via `next/font/google`.
 
-Inter
+### Type Scale Reference
 
-Fallback
+| Class Pattern | Size | Weight | Tracking | Context |
+|---|---|---|---|---|
+| `text-4xl font-extrabold tracking-tight` | 2.25rem | 800 | tight | Landing hero (mobile) |
+| `text-5xl font-extrabold tracking-tight` | 3rem | 800 | tight | Landing hero (desktop) |
+| `text-2xl font-bold tracking-tight` | 1.5rem | 700 | tight | Page titles |
+| `text-xl font-semibold tracking-tight` | 1.25rem | 600 | tight | Section headings |
+| `text-base font-semibold` | 1rem | 600 | normal | Card titles |
+| `text-sm` | 0.875rem | 400 | normal | Body text |
+| `text-xs font-medium` | 0.75rem | 500 | wide | Captions, timestamps |
+| `text-[11px] font-semibold uppercase tracking-widest` | 0.6875rem | 600 | widest | Overline labels |
+| `text-2xl font-bold tracking-tight` | 1.5rem | 700 | tight | Metric KPI values |
+| `text-[11px] font-semibold` | 0.6875rem | 600 | normal | Badge pill text |
 
-system-ui
+### Text Color Hierarchy
 
-sans-serif
-
-## Type Scale
-
-Display
-
-36px
-
-Page Title
-
-30px
-
-Section Title
-
-24px
-
-Card Title
-
-18px
-
-Body
-
-14px
-
-Small Text
-
-13px
-
-Caption
-
-12px
-
-Badge
-
-12px
-
-Buttons
-
-14px Medium
-
-Code
-
-JetBrains Mono
+| Level | Token | Usage |
+|---|---|---|
+| Primary | `text-foreground` | Headings, important values, primary labels |
+| Secondary | `text-muted-foreground` | Descriptions, captions, timestamps, breadcrumbs |
+| Interactive | `text-primary` | Links, active navigation items, actionable text |
+| Disabled | `text-muted-foreground/50` | Disabled controls, placeholder text |
+| Inverse | `text-primary-foreground` | Text on primary-colored backgrounds |
 
 ---
 
-# Font Weights
+# 4. Component Styling Patterns
 
-Regular
+### 4.1 Cards
 
-400
+The fundamental container unit. Cards float on canvas with subtle elevation.
 
-Medium
+```
+┌─────────────────────────────────────────┐
+│  Card Container                         │
+│  bg-card                                │
+│  border border-border                   │
+│  rounded-xl (12px)                      │
+│  shadow-sm (light) / no shadow (dark)   │
+│  p-5 (20px padding)                     │
+│                                         │
+│  ┌──────────────────────────────────┐   │
+│  │ Inner Content Block              │   │
+│  │ rounded-lg (8px)                 │   │
+│  │ bg-muted/40 or bg-secondary/40  │   │
+│  │ p-4 (16px padding)              │   │
+│  └──────────────────────────────────┘   │
+└─────────────────────────────────────────┘
+```
 
-500
+- **Hover state**: `hover:shadow-md` (light mode), `hover:border-border/80 hover:bg-accent/30` (dark mode).
+- **Rule**: Inner elements always use a smaller radius than the parent card.
 
-Semibold
+### 4.2 Metric Cards (Dashboard)
 
-600
+```
+Pattern: [Icon] + [Label] + [Value] + [Change Badge]
 
-Bold
+┌─────────────────────────────────┐
+│  📊 Total Tasks                 │
+│                                 │
+│  248                            │ ← text-2xl font-bold
+│  ┌──────────┐                   │
+│  │ ↑ +12.8% │                   │ ← rounded-full badge
+│  └──────────┘                   │
+└─────────────────────────────────┘
+```
 
-700
+- **Label**: `text-xs font-medium text-muted-foreground`
+- **Value**: `text-2xl font-bold text-foreground tracking-tight`
+- **Change badge**: `rounded-full px-2 py-0.5 text-[11px] font-semibold`
+  - Positive: `bg-success text-success-foreground`
+  - Negative: `bg-danger text-danger-foreground`
+  - Neutral: `bg-muted text-muted-foreground`
+
+### 4.3 Buttons
+
+| Variant | Background | Text | Border | Hover |
+|---|---|---|---|---|
+| `default` | `bg-primary` | `text-primary-foreground` | none | `bg-primary/90` + slight lift |
+| `secondary` | `bg-secondary` | `text-secondary-foreground` | none | `bg-secondary/80` |
+| `outline` | `bg-transparent` | `text-foreground` | `border-border` | `bg-accent` |
+| `ghost` | `bg-transparent` | `text-muted-foreground` | none | `bg-accent text-accent-foreground` |
+| `destructive` | `bg-destructive` | `text-destructive-foreground` | none | `bg-destructive/90` |
+
+**Sizes**:
+- `sm`: `h-8 px-3 text-xs rounded-lg gap-1.5`
+- `default`: `h-9 px-4 text-sm rounded-xl gap-2`
+- `lg`: `h-10 px-6 text-sm rounded-xl gap-2`
+- `icon`: `h-9 w-9 rounded-xl` (square, icon-only)
+
+**Loading state**: Replace button label with `<Loader2 className="h-4 w-4 animate-spin" />`, set `pointer-events-none opacity-70`.
+
+### 4.4 Form Inputs
+
+```
+bg-background (not bg-card — creates recessed feel)
+border border-input
+rounded-lg (8px)
+h-9 px-3 text-sm
+transition-colors duration-150
+
+Focus: ring-2 ring-ring ring-offset-2 ring-offset-background
+Error: border-danger ring-danger
+Disabled: opacity-50 cursor-not-allowed
+```
+
+- **Labels**: `text-sm font-medium text-foreground` — placed above input, `space-y-1.5` gap.
+- **Helper text**: `text-xs text-muted-foreground` — below input.
+- **Error text**: `text-xs text-danger-foreground` — replaces helper text.
+
+### 4.5 Status Badges (Pills)
+
+All status indicators use full pill geometry. Color is semantic.
+
+```
+rounded-full px-2.5 py-0.5 text-[11px] font-semibold
+inline-flex items-center gap-1
+```
+
+| Status | Light Style | Dark Style |
+|---|---|---|
+| `TODO` | `bg-muted text-muted-foreground` | `bg-muted text-muted-foreground` |
+| `IN_PROGRESS` | `bg-primary/10 text-primary` | `bg-primary/15 text-primary` |
+| `REVIEW` | `bg-warning text-warning-foreground` | `bg-warning text-warning-foreground` |
+| `DONE` | `bg-success text-success-foreground` | `bg-success text-success-foreground` |
+
+| Priority | Light Style | Dark Style |
+|---|---|---|
+| `LOW` | `bg-muted text-muted-foreground` | `bg-muted text-muted-foreground` |
+| `MEDIUM` | `bg-primary/10 text-primary` | `bg-primary/15 text-primary` |
+| `HIGH` | `bg-warning text-warning-foreground` | `bg-warning text-warning-foreground` |
+| `URGENT` | `bg-danger text-danger-foreground` | `bg-danger text-danger-foreground` |
+
+### 4.6 Sidebar Navigation
+
+Inspired by Linear's compact density. The sidebar is a quiet navigation rail, not a feature billboard.
+
+```
+Width: 240px (desktop), collapsible to 0px (mobile)
+Background: bg-card (light) / bg-card (dark)
+Border: border-r border-border
+```
+
+- **Workspace switcher**: Top of sidebar. Logo + name + chevron dropdown.
+- **Section labels**: `overline` type scale, `text-muted-foreground`, `px-3 pt-4 pb-1`.
+- **Nav items**:
+  - Rest: `text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150`
+  - Active: `text-primary bg-primary/10 font-semibold rounded-lg px-3 py-2`
+- **Icons**: `18px`, left-aligned with `gap-3` to label.
+
+### 4.7 Tables
+
+Minimal, scannable data presentation.
+
+```
+Header row: text-xs font-medium text-muted-foreground uppercase tracking-wider
+Body rows: text-sm text-foreground
+Row borders: border-b border-border/60 (not full opacity)
+Row hover: bg-accent/50 transition-colors duration-150
+Cell padding: px-4 py-3
+```
+
+- No zebra striping — rely on hover for row identification.
+- Status and priority columns use pill badges.
+- Action columns use ghost icon buttons.
+
+### 4.8 Modals / Dialogs
+
+```
+Overlay: bg-black/50 (light) / bg-black/60 (dark), backdrop-blur-sm
+Container: bg-card border border-border rounded-xl shadow-xl
+Animation: fade-in + scale from 0.96 → 1 (200ms ease-out)
+Max width: sm (400px), md (500px), lg (640px), xl (800px)
+Padding: p-6
+```
+
+- **Header**: `text-xl font-semibold` + optional close button (ghost, top-right)
+- **Footer**: `flex justify-end gap-3 pt-4 border-t border-border`
 
 ---
 
-# Spacing System
+# 5. Layout Grid
 
-Use an 8px grid.
+### App Shell Layout
 
-Allowed spacing values:
+```
+┌──────────────────────────────────────────────────────────────┐
+│ [Sidebar 240px] │ [Content Area: flex-1]                     │
+│                 │ ┌──────────────────────────────────────┐   │
+│ Workspace Logo  │ │ Top Header Bar (h-14)                │   │
+│ ─────────────── │ │ Breadcrumb + Search + Notif + Avatar │   │
+│ Nav Items       │ ├──────────────────────────────────────┤   │
+│ ...             │ │                                      │   │
+│                 │ │ Page Content Area                    │   │
+│ ─────────────── │ │ max-w-7xl mx-auto px-6 py-6         │   │
+│ Section Label   │ │                                      │   │
+│ Nav Items       │ │                                      │   │
+│ ...             │ │                                      │   │
+└──────────────────────────────────────────────────────────────┘
+```
 
-4
+- **Sidebar**: Fixed left, full height, `border-r border-border`.
+- **Header**: Sticky top within content area, `h-14`, `border-b border-border`, `bg-card/80 backdrop-blur-xl`.
+- **Content area**: Scrollable, max-width constrained, comfortable padding.
 
-8
+### Auth Layout
 
-12
+```
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│          ┌─────────────────────────────┐                     │
+│          │                             │                     │
+│          │   Logo + App Name           │                     │
+│          │   ─────────────────         │                     │
+│          │   Form Card (max-w-md)      │                     │
+│          │   bg-card rounded-xl p-8    │                     │
+│          │   shadow-lg                 │                     │
+│          │                             │                     │
+│          └─────────────────────────────┘                     │
+│                                                              │
+│          bg-background (full page canvas)                    │
+└──────────────────────────────────────────────────────────────┘
+```
 
-16
-
-20
-
-24
-
-32
-
-40
-
-48
-
-64
-
-96
-
-Avoid arbitrary spacing values.
-
----
-
-# Border Radius
-
-Small
-
-6px
-
-Medium
-
-8px
-
-Large
-
-12px
-
-Extra Large
-
-16px
-
-Cards should use Medium.
-
-Dialogs should use Large.
+- Centered vertically and horizontally.
+- Single column. No split-panel hero — keep auth screens focused and fast.
+- Card width: `max-w-[420px]` for login/register, `max-w-sm` for simpler forms.
 
 ---
 
-# Shadows
+# 6. Responsive Breakpoints
 
-Small
+| Breakpoint | Width | Behavior |
+|---|---|---|
+| `sm` | `640px` | Stack auth form cards, single-column metric grids |
+| `md` | `768px` | Show sidebar as overlay drawer, 2-column grids |
+| `lg` | `1024px` | Persistent sidebar, 3-column metric grids |
+| `xl` | `1280px` | Full app shell, 4-column grids where applicable |
 
-Cards
-
-Medium
-
-Dropdowns
-
-Large
-
-Dialogs
-
-Extra Large
-
-Command Palette
-
-Avoid heavy shadows.
+### Mobile Sidebar Behavior
+- Below `lg`: Sidebar hidden by default. Hamburger menu in header triggers slide-in drawer overlay.
+- Above `lg`: Sidebar always visible. No hamburger.
 
 ---
 
-# Borders
+# 7. Z-Index Scale
 
-Default
-
-1px
-
-Use subtle borders instead of shadows whenever possible.
-
-Cards should always have borders.
-
----
-
-# Elevation
-
-Level 0
-
-Background
-
-Level 1
-
-Sidebar
-
-Cards
-
-Tables
-
-Level 2
-
-Dropdown
-
-Popover
-
-Tooltip
-
-Level 3
-
-Drawer
-
-Dialog
-
-Level 4
-
-Toast
-
-Command Palette
+| Layer | Value | Usage |
+|---|---|---|
+| `z-0` | `0` | Page content |
+| `z-10` | `10` | Sticky headers, floating action buttons |
+| `z-20` | `20` | Dropdowns, popovers, tooltips |
+| `z-30` | `30` | Sidebar overlay (mobile) |
+| `z-40` | `40` | Modal overlay + dialog |
+| `z-50` | `50` | Toast notifications, command palette |
 
 ---
 
-# Icons
-
-Use only:
-
-Lucide Icons
-
-Sizes
-
-16
-
-18
-
-20
-
-24
-
-Never mix icon libraries.
-
----
-
-# Layout Rules
-
-Maximum content width
-
-1600px
-
-Header height
-
-64px
-
-Sidebar width
-
-280px
-
-Collapsed sidebar
-
-72px
-
-Page padding
-
-24px
-
-Card spacing
-
-16px
-
-Section spacing
-
-32px
-
----
-
-# Responsive Breakpoints
-
-Mobile
-
-<768px
-
-Tablet
-
-768px+
-
-Desktop
-
-1024px+
-
-Wide
-
-1440px+
-
-Ultra Wide
-
-1600px+
-
----
-
-# Component Principles
-
-Every reusable component should:
-
-- Support dark mode
-- Support loading state
-- Support disabled state
-- Support error state
-- Support empty state
-- Support keyboard navigation
-
-Never create one-off components.
-
----
-
-# Buttons
-
-Variants
-
-Primary
-
-Secondary
-
-Outline
-
-Ghost
-
-Destructive
-
-Link
-
-Sizes
-
-Small
-
-Medium
-
-Large
-
-Icon
-
-Loading state required.
-
----
-
-# Cards
-
-Cards should be:
-
-- Flat
-- Minimal
-- Border first
-- Small shadow only
-
-Never use glassmorphism for standard cards.
-
----
-
-# Forms
-
-Use:
-
-React Hook Form
-
-Zod
-
-Inline validation.
-
-Validation should appear while typing when appropriate.
-
----
-
-# Tables
-
-Use TanStack Table.
-
-Support:
-
-- Sorting
-- Pagination
-- Filtering
-- Empty state
-- Skeleton loading
-
----
-
-# Empty States
-
-Every page must define:
-
-Illustration
-
-Title
-
-Description
-
-Primary Action
-
-Optional Secondary Action
-
----
-
-# Loading States
-
-Prefer skeletons over spinners.
-
-Use:
-
-- Skeleton
-- Optimistic updates
-- Button loading
-- Infinite loading
-
-Avoid full-page loading screens.
-
----
-
-# Animations
-
-Duration
-
-150–200ms
-
-Timing
-
-ease-out
-
-Allowed animations
-
-Fade
-
-Opacity
-
-Scale
-
-Translate
-
-Subtle slide
-
-Avoid
-
-Bounce
-
-Spin
-
-Elastic
-
-Long animations
-
----
-
-# Interaction Principles
-
-Every interaction should feel immediate.
-
-Use optimistic UI whenever possible.
-
-Never block the interface for background operations.
-
-Always provide feedback after actions.
-
-Confirm destructive actions.
-
-Preserve user context after updates.
-
-Support keyboard shortcuts.
-
----
-
-# Accessibility
-
-Support:
-
-- WCAG AA contrast
-- Keyboard navigation
-- Focus rings
-- Screen readers
-- Reduced motion
-- Proper ARIA labels
-
-Never remove focus outlines.
-
----
-
-# Dark Mode
-
-Dark mode is the default experience.
-
-Light mode should feel identical in layout and hierarchy.
-
-Only colors should change.
-
----
-
-# Performance
-
-Keep UI responsive.
-
-Lazy load heavy components.
-
-Virtualize large lists.
-
-Memoize expensive renders.
-
-Avoid unnecessary re-renders.
-
-Use optimistic updates with TanStack Query.
-
----
-
-# Micro-interactions
-
-Hover
-
-Subtle background change.
-
-Active
-
-Slight scale (0.98).
-
-Focus
-
-Visible ring.
-
-Drag
-
-Smooth lift with shadow.
-
-Drop
-
-Short easing animation.
-
-Toast
-
-Slide + Fade.
-
-Dialogs
-
-Fade + Scale.
-
----
-
-# Reusable Components
-
-Core UI
-
-- Button
-- Input
-- Textarea
-- Select
-- Checkbox
-- Switch
-- Badge
-- Avatar
-- Tooltip
-- Dropdown
-- Dialog
-- Drawer
-- Popover
-- Tabs
-- Breadcrumb
-- Skeleton
-- Empty State
-- Error State
-- Spinner
-- Toast
-
-Application Components
-
-- Sidebar
-- Header
-- Workspace Switcher
-- Project Card
-- Board
-- Column
-- Task Card
-- Task Modal
-- Comment
-- Activity Timeline
-- Notification Item
-- Member Avatar Group
-- File Attachment Card
-
----
-
-# Do Not
-
-❌ Use Bootstrap components
-
-❌ Use Material UI
-
-❌ Use heavy gradients
-
-❌ Use glassmorphism everywhere
-
-❌ Use inconsistent spacing
-
-❌ Mix icon libraries
-
-❌ Overuse colors
-
-❌ Create decorative animations
-
-❌ Sacrifice usability for aesthetics
-
----
-
-# Success Criteria
-
-A user should describe SyncSpace as:
-
-- Fast
-- Clean
-- Professional
-- Intuitive
-- Premium
-- Focused
-- Modern
-
-The interface should resemble the quality of Linear or Vercel rather than a typical admin dashboard.
+# 8. Accessibility Checklist
+
+- **Focus rings**: `ring-2 ring-ring ring-offset-2 ring-offset-background` on all interactive elements.
+- **Color contrast**: All text-on-background combinations meet WCAG 2.1 AA (4.5:1 for body text, 3:1 for large text).
+- **Keyboard navigation**: All interactive elements reachable via Tab. `Escape` closes modals/dropdowns.
+- **ARIA labels**: All icon-only buttons must have `aria-label`. All form inputs must have associated `<Label>`.
+- **Reduced motion**: Wrap animations in `@media (prefers-reduced-motion: no-preference)`.

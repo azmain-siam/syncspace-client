@@ -1,13 +1,14 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { useAuthStore } from '@/features/auth/stores/use-auth-store';
-import type { ApiResponse } from '@/types/domain';
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import type { ApiResponse } from "@/types/domain";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005/api/v1";
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true,
 });
@@ -54,9 +55,13 @@ apiClient.interceptors.response.use(
     };
 
     // If 401 Unauthorized and request hasn't been retried yet
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
       // Avoid looping refresh request itself
-      if (originalRequest.url?.includes('/auth/refresh')) {
+      if (originalRequest.url?.includes("/auth/refresh")) {
         useAuthStore.getState().logout();
         return Promise.reject(error);
       }

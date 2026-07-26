@@ -18,9 +18,9 @@ Phase-by-phase implementation checklist for building the SyncSpace frontend clie
 - [x] ✅ Set up global providers (`QueryProvider`, `ThemeProvider`).
 
 # Phase 2 — Authentication & Session Management
-- [ ] ⏳ Build Auth Layout and screens (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/verify-email`).
-- [ ] ⏳ Implement Google OAuth button and callback page handler (`/auth/google/callback`).
-- [ ] ⏳ Build guest and authenticated route protection wrappers.
+- [x] ✅ Build Auth Layout and screens (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/verify-email`).
+- [x] ✅ Implement Google OAuth button and callback page handler (`/auth/google/callback`).
+- [x] ✅ Build guest and authenticated route protection wrappers (`GuestGuard`, `AuthGuard`).
 
 # Phase 3 — App Shell & Workspace Management
 - [ ] ⏳ Implement `WorkspaceAppLayout` with responsive Sidebar, Top Navigation Bar, and User Profile Menu.

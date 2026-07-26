@@ -7,7 +7,7 @@ Detailed UI/UX specifications for every major view, modal, drawer, and layout in
 ## 1. Authentication Screens
 
 ### 1.1 Login Screen (`/login`)
-- **Layout**: Centered glassmorphic card on dark background.
+- **Layout**: Centered elevated card (`bg-card rounded-xl shadow-sm max-w-[420px]`) on tinted canvas (`bg-background`).
 - **Form Controls**: Email input (`@IsEmail`), Password input, "Sign in" submit button, Google OAuth button (`/api/v1/auth/google`), "Forgot Password?" link, "Register" link.
 - **States**: Default, Submitting (disabled button with spinner), Error toast / helper text (`Invalid credentials`, `Please verify your email`).
 

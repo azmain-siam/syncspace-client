@@ -1,782 +1,239 @@
 # UX_PRINCIPLES.md — SyncSpace User Experience Guidelines
 
-Version: 1.0
+Version: 3.0
+Visual Foundation: **Quiet Precision** (See `VISUAL_IDENTITY.md` & `DESIGN_SYSTEM.md`)
 
 ---
 
 # Purpose
 
-This document defines the interaction principles, usability standards, and user experience guidelines for SyncSpace.
+This document defines how SyncSpace **behaves** — the interaction patterns, feedback strategies, and usability standards that make the product feel responsive, trustworthy, and effortless.
 
-While `DESIGN_SYSTEM.md` defines how the application looks, this document defines how the application behaves.
-
-Every feature should prioritize:
-
-- Simplicity
-- Speed
-- Clarity
-- Predictability
-- Accessibility
-- Efficiency
-
-The goal is to help users complete work with the fewest possible interactions.
+`VISUAL_IDENTITY.md` defines what it looks like. `DESIGN_SYSTEM.md` defines how to build it. This document defines how it feels to use.
 
 ---
 
-# UX Philosophy
+# 1. Core UX Principles
 
-SyncSpace is inspired by:
+## 1.1 Content-First Hierarchy
 
-- Linear
-- Notion
-- GitHub
-- Slack
-- Vercel Dashboard
+The interface serves the content. UI chrome (sidebars, headers, navigation, borders) should be visually quieter than the user's work (tasks, boards, comments, data).
 
-The application should feel:
+**Rules**:
+- Navigation uses `--muted-foreground` at rest. Only the active item uses `--primary`.
+- Borders are structural, never decorative — `--border` at low opacity.
+- Data values (task counts, KPI metrics, usernames) are always the most visually prominent elements on screen.
+- Empty states are invitations, not dead ends — always provide a clear CTA.
 
-- Fast
-- Calm
-- Professional
-- Confident
-- Responsive
-- Invisible
+## 1.2 Progressive Disclosure
 
-Users should focus on their work—not the interface.
+Show the minimum information needed for each context level. Details appear on demand, not upfront.
 
----
+**Rules**:
+- Task cards show title + priority + assignee. Full details open in the intercepted modal.
+- Sidebar shows navigation labels only. Counts/badges appear only when relevant (unread notifications, new items).
+- Project cards show title + status. Description, dates, and member lists are inside the detail view.
+- Use tooltips for icon-only actions. Never require the user to guess what an icon does.
 
-# Core UX Principles
+## 1.3 Spatial Consistency
 
-## 1. Minimize User Effort
+Users build spatial memory. Elements must be in the same place every time.
 
-Reduce clicks whenever possible.
+**Rules**:
+- Sidebar is always left. Header is always top. Action buttons are always right-aligned.
+- Primary actions ("Create", "Save", "Submit") are always rightmost in button groups.
+- Destructive actions ("Delete", "Remove") are always leftmost and use `destructive` variant.
+- Modal close is always top-right. Modal confirm/cancel buttons are always bottom-right.
 
-Prefer:
+## 1.4 Zero-Latency Perception
 
-- Inline editing
-- Keyboard shortcuts
-- Context menus
-- Drag & Drop
-- Bulk actions
+The interface should feel instant, even when network operations are pending.
 
-Avoid forcing users through unnecessary dialogs.
+**Rules**:
+- **Optimistic mutations**: Moving a Kanban card, posting a comment, or toggling a status updates the UI immediately via `onMutate`. Network failure triggers a silent rollback with an error toast.
+- **Skeleton loading**: On initial page load, render page-shaped skeleton placeholders within `50ms`. Never show a blank white screen.
+- **Button loading state**: Replace button label with a spinning `Loader2` icon and disable pointer events. Button never visually "jumps" in size.
+- **Instant feedback**: Hover effects respond in `150ms`. Focus rings appear immediately. Toasts appear in `300ms`.
 
----
+## 1.5 Error Recovery, Not Error Punishment
 
-## 2. Immediate Feedback
+Errors should be recoverable, specific, and never blame the user.
 
-Every interaction should produce visual feedback.
-
-Examples:
-
-- Button loading state
-- Toast notifications
-- Success indicators
-- Error messages
-- Optimistic updates
-
-The user should never wonder whether an action succeeded.
+**Rules**:
+- Validation errors appear inline below the specific field, not as a page-level alert.
+- API errors appear as Sonner toast notifications with specific messages from the backend `message` field.
+- Network failures show a toast: "Something went wrong. Please try again." — never a raw error code.
+- Optimistic UI rollbacks are silent unless the user needs to retry the action.
+- Form data is never lost on error — all inputs retain their values after a failed submission.
 
 ---
 
-## 3. Preserve User Context
+# 2. Interaction Patterns
 
-Never unexpectedly navigate away.
+## 2.1 Navigation
 
-Examples:
+| Interaction | Behavior |
+|---|---|
+| Sidebar nav click | Instant route transition. Active item highlights immediately. |
+| Breadcrumb click | Navigate to parent context. Breadcrumb always shows full path. |
+| Workspace switcher | Dropdown with all user workspaces. Selection changes active context and reloads sidebar. |
+| Back button / `Alt+←` | Standard browser back. No custom history management. |
+| `Ctrl+K` / `⌘+K` | Opens command palette (global search). Closes with `Escape`. |
 
-✓ Editing a task should keep the user on the board.
+## 2.2 Forms & Validation
 
-✓ Closing a modal should preserve scroll position.
+| Pattern | Implementation |
+|---|---|
+| Validation timing | Validate on `blur` for first touch, then `onChange` after first error. |
+| Submit behavior | Disable button + show spinner. Re-enable on response (success or error). |
+| Success feedback | Sonner success toast + redirect to appropriate page. |
+| Error feedback | Inline field errors (Zod) + API error toast (Sonner). |
+| Password fields | Toggle visibility icon (Eye/EyeOff) inside input. Hidden by default. |
 
-✓ Refreshing data should not reset filters.
+## 2.3 Modals & Dialogs
 
-✓ Switching tabs should preserve state whenever possible.
+| Pattern | Behavior |
+|---|---|
+| Open | Fade-in overlay (`200ms`) + scale-in dialog from `0.96` (`200ms`). |
+| Close triggers | Click overlay, press `Escape`, click close button. |
+| Close | Fade-out + scale-down (`150ms`). |
+| Scroll | Modal body scrolls independently. Overlay and header/footer stay fixed. |
+| Confirmation | Destructive actions always require a confirmation dialog with explicit action name. |
+| Task detail modal | Intercepted route modal — URL updates to `?taskId=xxx` without losing board scroll context. |
 
----
+## 2.4 Kanban Board (dnd-kit)
 
-## 4. Progressive Disclosure
+| Interaction | Behavior |
+|---|---|
+| Card pickup | Instant grab — `0ms` delay. Cursor changes to `grabbing`. |
+| Drag indicator | Card lifts with `shadow-lg`. Origin slot shows a ghost placeholder. |
+| Column hover | Target column shows a subtle drop indicator line at the insertion point. |
+| Card drop | Animate card to final position (`200ms ease-out`). Ghost disappears. |
+| Network sync | Optimistic update on drop → `PATCH /tasks/:id/move` → rollback if `4xx`/`5xx`. |
+| Horizontal scroll | Board columns scroll horizontally. Each column scrolls vertically for tasks. |
 
-Only show advanced options when needed.
+## 2.5 Toast Notifications (Sonner)
 
-Examples:
+| Type | Duration | Behavior |
+|---|---|---|
+| Success | `3s` | Auto-dismiss. Green left accent. |
+| Error | `5s` | Auto-dismiss. Red left accent. Has dismiss button. |
+| Warning | `4s` | Auto-dismiss. Amber left accent. |
+| Info | `3s` | Auto-dismiss. Blue left accent. |
+| Loading | Persists | Stays until resolved. Shows spinner. |
 
-Basic task form:
-
-- Title
-- Description
-
-Advanced options:
-
-- Due Date
-- Priority
-- Assignee
-- Labels
-- Attachments
-
-Do not overwhelm new users.
-
----
-
-## 5. Consistency
-
-Identical actions should always behave identically.
-
-Examples:
-
-Delete confirmation
-
-Button placement
-
-Keyboard shortcuts
-
-Modal layout
-
-Error messages
-
-Loading indicators
-
-Consistency builds confidence.
-
----
-
-# Navigation Principles
-
-Navigation should always answer:
-
-- Where am I?
-- What workspace am I in?
-- Which project is active?
-- What page am I viewing?
-
-Navigation hierarchy:
-
-Workspace
-
-↓
-
-Project
-
-↓
-
-Board
-
-↓
-
-Task
-
-Always display breadcrumbs when appropriate.
+- **Position**: `top-right`.
+- **Stacking**: Max 3 visible. Older toasts slide up.
+- **Rich content**: May include action buttons (e.g., "Undo" for destructive operations).
 
 ---
 
-# Page Loading
+# 3. State Management UX
 
-Prefer progressive rendering.
+## 3.1 Loading States
 
-Good:
+| Context | Loading Pattern |
+|---|---|
+| Initial page load | Full-page skeleton matching final layout shape |
+| Data refetch | No skeleton — existing data stays visible. Subtle spinner in header if long. |
+| Mutation pending | Button spinner (forms). Optimistic UI (Kanban). |
+| Image/avatar | Blur placeholder → sharp image on load |
 
-Skeleton
+## 3.2 Empty States
 
-↓
+When a list, grid, or board has no content, show an empty state component — never a blank area.
 
-Data loads
+**Structure**:
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│            [Illustration Icon]          │ ← Lucide icon, 48px, muted-foreground
+│                                         │
+│         "No projects yet"               │ ← text-lg font-semibold
+│   "Create your first project to get     │ ← text-sm text-muted-foreground
+│    started with your team."             │
+│                                         │
+│        [+ Create Project]               │ ← Primary button CTA
+│                                         │
+└─────────────────────────────────────────┘
+```
 
-↓
+- Centered in the content area.
+- Friendly, specific copy — never generic "No data found."
+- Always include a CTA to create the missing resource.
 
-Interactive UI
+## 3.3 Error States
 
-Avoid:
-
-Blank page
-
-↓
-
-Spinner
-
-↓
-
-Everything appears
-
-The interface should appear instantly.
-
----
-
-# Loading States
-
-Every async operation must provide feedback.
-
-Examples:
-
-Loading workspace
-
-Loading board
-
-Loading comments
-
-Loading attachments
-
-Loading notifications
-
-Loading profile
-
-Use:
-
-Skeletons
-
-Button loading
-
-Inline loaders
-
-Avoid blocking the whole screen.
+| Scenario | Display |
+|---|---|
+| 404 route | Full-page "Page not found" with illustration + "Go home" button |
+| API fetch error | Inline error card in the content area: "Failed to load [resource]. Try again." |
+| Permission denied | Inline error card: "You don't have access to this resource." |
+| Network offline | Persistent toast banner: "You're offline. Changes will sync when reconnected." |
 
 ---
 
-# Optimistic UI
+# 4. Keyboard Accessibility
 
-Use optimistic updates whenever safe.
+## 4.1 Global Shortcuts
 
-Examples:
+| Shortcut | Action |
+|---|---|
+| `Ctrl+K` / `⌘+K` | Open command palette |
+| `Escape` | Close topmost modal, dropdown, or popover |
 
-Move task
+## 4.2 Focus Management
 
-Update title
+- **Tab order**: Follows visual reading order (left-to-right, top-to-bottom).
+- **Focus rings**: `ring-2 ring-ring ring-offset-2 ring-offset-background` on all interactive elements. Visible on `:focus-visible` only (not on mouse click).
+- **Focus trap**: Modals and dialogs trap focus. Tab cycles within the dialog until closed.
+- **Auto-focus**: Modals focus the first interactive element on open. Search palette focuses the search input.
 
-Comment
+## 4.3 Screen Reader
 
-Archive task
-
-Mark notification as read
-
-Update profile
-
-If the server fails:
-
-Rollback gracefully.
-
-Notify the user.
-
----
-
-# Forms
-
-Forms should feel effortless.
-
-Guidelines:
-
-Validate while typing when appropriate.
-
-Disable submit during requests.
-
-Highlight invalid fields.
-
-Focus the first invalid field.
-
-Preserve entered values after errors.
-
-Never erase user input unexpectedly.
+- All icon-only buttons have `aria-label`.
+- All form inputs have associated `<Label>` with `htmlFor`.
+- Dynamic content updates use `aria-live="polite"` regions.
+- Badge counts announce via `aria-label` (e.g., "3 unread notifications").
 
 ---
 
-# Validation
+# 5. Responsive Behavior
 
-Show validation close to the field.
+| Viewport | Sidebar | Metric Grid | Kanban Board | Task Modal |
+|---|---|---|---|---|
+| Mobile (< 640px) | Hidden (hamburger) | 1 column | Horizontal scroll | Full-screen sheet |
+| Tablet (640–1023px) | Overlay drawer | 2 columns | Horizontal scroll | Centered dialog (lg) |
+| Desktop (≥ 1024px) | Persistent rail | 3–4 columns | Full horizontal layout | Centered dialog (xl) |
 
-Example:
-
-Email
-
-❌ Invalid email address
-
-Never display generic alerts.
-
-Use friendly language.
-
----
-
-# Error Handling
-
-Errors should explain:
-
-What happened
-
-Why
-
-How to fix it
-
-Good:
-
-"This workspace no longer exists."
-
-Bad:
-
-"Request failed."
+**Touch considerations**:
+- Kanban drag-and-drop works on touch via `dnd-kit`'s touch sensor with `250ms` activation delay to distinguish scroll from drag.
+- All interactive targets are minimum `44px` touch area.
+- No hover-only interactions — everything accessible via tap/click.
 
 ---
 
-# Success Feedback
+# 6. Theme Switching
 
-Always acknowledge successful actions.
-
-Examples:
-
-Workspace created
-
-Task updated
-
-Comment added
-
-Invitation sent
-
-Profile updated
-
-Use:
-
-Toast
-
-Subtle animation
-
-Visual confirmation
-
-Avoid intrusive popups.
+- Managed by `next-themes` with `attribute="class"` strategy.
+- **Default**: System preference (`enableSystem`).
+- **Toggle location**: User profile menu dropdown.
+- **Transition**: `disableTransitionOnChange` set to `true` — no flash or transition on theme toggle. Instant swap.
+- **Persistence**: Theme choice stored in `localStorage` via `next-themes` default.
 
 ---
 
-# Empty States
-
-Every empty page should include:
-
-Illustration
-
-Title
-
-Description
-
-Primary action
-
-Optional secondary action
-
-Examples:
-
-No Projects
-
-Create your first project.
-
-No Tasks
-
-Create a new task.
-
-No Notifications
-
-You're all caught up.
-
----
-
-# Destructive Actions
-
-Dangerous actions must require confirmation.
-
-Examples:
-
-Delete Workspace
-
-Delete Project
-
-Delete Task
-
-Remove Member
-
-Transfer Ownership
-
-Delete Account
-
-Confirmation dialog should explain:
-
-What will happen
-
-Whether the action is reversible
-
----
-
-# Search Experience
-
-Search should be fast.
-
-Support:
-
-Instant results
-
-Keyboard navigation
-
-Highlight matches
-
-Recent searches
-
-Empty search state
-
-No unnecessary submit button.
-
----
-
-# Keyboard Experience
-
-Keyboard-first users should feel at home.
-
-Examples:
-
-Ctrl/Cmd + K
-
-Open Command Palette
-
-Esc
-
-Close Dialog
-
-Enter
-
-Submit
-
-Arrow Keys
-
-Navigate lists
-
-Tab
-
-Logical navigation
-
-Future shortcuts should be documented.
-
----
-
-# Drag & Drop
-
-Dragging should feel smooth.
-
-Requirements:
-
-Lift animation
-
-Placeholder position
-
-Auto-scroll
-
-Drop indicator
-
-Undo support (future)
-
-Never lose task state during drag.
-
----
-
-# Notifications
-
-Notifications should be useful.
-
-Avoid spam.
-
-Group similar events.
-
-Examples:
-
-3 new comments
-
-instead of
-
-3 separate notifications
-
-Unread notifications should stand out.
-
-Read notifications should fade subtly.
-
----
-
-# Modals
-
-Use modals only when appropriate.
-
-Good:
-
-Task details
-
-Delete confirmation
-
-Invite member
-
-Bad:
-
-Large multi-step workflows
-
-Settings pages
-
-Long forms
-
-Prefer dedicated pages for complex workflows.
-
----
-
-# Tables
-
-Tables should support:
-
-Sorting
-
-Filtering
-
-Pagination
-
-Column resizing (future)
-
-Column visibility (future)
-
-Responsive layout
-
----
-
-# Mobile Experience
-
-Mobile is not desktop.
-
-Use:
-
-Bottom sheets
-
-Drawer navigation
-
-Large touch targets
-
-Responsive modals
-
-Stacked layouts
-
-Avoid horizontal scrolling.
-
----
-
-# Accessibility
-
-Every feature must support:
-
-Keyboard navigation
-
-Focus visibility
-
-Screen readers
-
-ARIA labels
-
-Reduced motion
-
-High contrast
-
-Color should never be the only indicator.
-
----
-
-# Real-Time Updates
-
-Real-time updates should feel natural.
-
-Examples:
-
-Task moved
-
-↓
-
-Animate movement
-
-↓
-
-Update board
-
-↓
-
-Show activity
-
-Avoid sudden content jumps.
-
-Highlight updated items briefly.
-
----
-
-# Performance
-
-The interface should feel instant.
-
-Targets:
-
-Initial load < 2s
-
-Page transition < 300ms
-
-Interaction feedback < 100ms
-
-Drag response < 16ms/frame
-
-Prefer:
-
-Lazy loading
-
-Code splitting
-
-Virtualized lists
-
-Optimistic updates
-
----
-
-# User Trust
-
-Never surprise the user.
-
-Always:
-
-Explain destructive actions.
-
-Keep user data safe.
-
-Avoid losing unsaved work.
-
-Provide recovery when possible.
-
-Show meaningful feedback.
-
----
-
-# Interaction Patterns
-
-Hover
-
-Subtle background change
-
-Focus
-
-Visible outline
-
-Pressed
-
-Slight scale
-
-Disabled
-
-Lower opacity
-
-Drag
-
-Lift with shadow
-
-Drop
-
-Smooth settle animation
-
-Success
-
-Toast + subtle highlight
-
-Error
-
-Inline message + toast (if appropriate)
-
----
-
-# Feature-Specific UX
-
-## Workspace
-
-Creating a workspace should take less than one minute.
-
-Immediately guide the user to create their first project.
-
----
-
-## Projects
-
-Creating a project should automatically navigate to it.
-
-Offer to create the first board.
-
----
-
-## Boards
-
-Support drag-and-drop.
-
-Remember scroll position.
-
-Maintain column order.
-
----
-
-## Tasks
-
-Opening a task should never lose board context.
-
-Task details should appear in a modal or side panel.
-
-Support quick editing.
-
----
-
-## Comments
-
-New comments should appear instantly.
-
-Auto-scroll only when appropriate.
-
-Highlight newly added comments briefly.
-
----
-
-## Attachments
-
-Show upload progress.
-
-Allow preview when supported.
-
-Display file type and size.
-
-Handle upload failures gracefully.
-
----
-
-## Notifications
-
-Unread first.
-
-Newest first.
-
-Mark all as read.
-
-Deep-link to the related content.
-
----
-
-# AI Agent Guidelines
-
-When generating frontend code:
-
-- Prioritize usability over visual effects.
-- Follow the Design System.
-- Avoid unnecessary complexity.
-- Prefer reusable components.
-- Use optimistic updates where appropriate.
-- Preserve user context after actions.
-- Keep interactions predictable.
-- Make keyboard accessibility a first-class citizen.
-- Ensure every component has loading, error, and empty states.
-
----
-
-# Success Criteria
-
-A successful SyncSpace experience should make users feel:
-
-- I always know where I am.
-- I always know what to do next.
-- The interface never gets in my way.
-- Everything responds immediately.
-- Collaboration feels effortless.
-- The product feels polished and reliable.
-
-The highest compliment a user can give is:
-
-> "I forgot I was using the software and just focused on my work."
+# 7. Performance UX
+
+| Metric | Target | Strategy |
+|---|---|---|
+| First Contentful Paint | < 1.5s | Server-rendered layout shell, client-side data fetch |
+| Largest Contentful Paint | < 2.5s | Skeleton placeholders, lazy-loaded heavy components |
+| Cumulative Layout Shift | < 0.1 | Fixed sidebar width, skeleton dimensions match content |
+| Interaction to Next Paint | < 200ms | Optimistic mutations, local state updates |
+
+**Rules**:
+- Never block rendering on data fetches. Show skeleton → swap with real data.
+- Heavy components (rich text editor, chart libraries) are `React.lazy()` + `Suspense`.
+- Images use `next/image` with `blur` placeholder.
+- Query cache (`staleTime: 5min`) prevents redundant refetches on navigation.
