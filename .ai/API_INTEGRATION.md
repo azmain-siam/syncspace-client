@@ -1,6 +1,6 @@
 # API_INTEGRATION.md — Complete Backend API Mapping & Hooks
 
-Mapping of all 35+ backend REST API endpoints to frontend components, TanStack Query hooks, cache key strategies, and optimistic updates.
+Mapping of all backend REST API endpoints to frontend components, TanStack Query hooks, cache key strategies, and route parameter assembly rules.
 
 ---
 
@@ -18,6 +18,8 @@ Mapping of all 35+ backend REST API endpoints to frontend components, TanStack Q
 | `POST` | `/auth/reset-password` | `useResetPasswordMutation` | Mutation | Reset password with token | None |
 | `GET` | `/user/me` | `useCurrentUserQuery` | Query | Get logged in user profile | `['user', 'me']` |
 
+> **Note on Profile Updates**: `GET /user/me` is currently read-only. Profile editing is disabled until a `PATCH /user/me` endpoint is explicitly added to the backend.
+
 ---
 
 ## 2. Workspace Endpoints
@@ -34,6 +36,8 @@ Mapping of all 35+ backend REST API endpoints to frontend components, TanStack Q
 | `PATCH` | `/workspaces/:id/settings` | `useUpdateWorkspaceMutation` | Mutation | Update workspace settings | Invalidates `['workspaces', wId]` |
 | `POST` | `/workspaces/:id/transfer-ownership` | `useTransferOwnershipMutation` | Mutation | Transfer workspace ownership | Invalidates `['workspaces', wId, 'members']` |
 
+> **Note on Single Workspace Lookup**: Single workspace details (`useWorkspaceQuery`) are resolved client-side by selecting from the cached array returned by `GET /workspaces`.
+
 ---
 
 ## 3. Projects, Boards & Columns
@@ -48,12 +52,15 @@ Mapping of all 35+ backend REST API endpoints to frontend components, TanStack Q
 | `POST` | `/workspaces/:wId/projects/:pId/boards` | `useCreateBoardMutation` | Mutation | Create Kanban board | Invalidates `['boards', pId]` |
 | `GET` | `/workspaces/:wId/projects/:pId/boards` | `useBoardsQuery` | Query | List project boards | `['boards', pId]` |
 | `POST` | `/workspaces/:wId/projects/:pId/boards/:bId/columns` | `useCreateColumnMutation` | Mutation | Create board column | Invalidates `['board', bId]` |
+| `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/reorder` | `useReorderColumnsMutation` | Mutation | Reorder columns | Invalidates `['board', bId]` |
 | `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId` | `useUpdateColumnMutation` | Mutation | Update column title | Invalidates `['board', bId]` |
 | `DELETE` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId` | `useDeleteColumnMutation` | Mutation | Delete column | Invalidates `['board', bId]` |
 
 ---
 
 ## 4. Tasks & Task Links
+
+> **Full Path Rule**: Backend task and sub-resource routes require all parent IDs in the URL path (`/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/...`).
 
 | Method | Endpoint Path | Hook Name | Type | Purpose | Cache Key / Invalidation |
 |---|---|---|---|---|---|
@@ -62,19 +69,30 @@ Mapping of all 35+ backend REST API endpoints to frontend components, TanStack Q
 | `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId` | `useUpdateTaskMutation` | Mutation | Update task details | Invalidates `['task', tId]` |
 | `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/move` | `useMoveTaskMutation` | Mutation | Move task across columns/orders | Optimistic updates on `['tasks', cId]` |
 | `DELETE` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId` | `useDeleteTaskMutation` | Mutation | Soft delete task | Invalidates `['tasks', cId]` |
-| `POST` | `.../tasks/:tId/links` | `useCreateTaskLinkMutation` | Mutation | Attach external URL link | Invalidates `['task-links', tId]` |
-| `GET` | `.../tasks/:tId/links` | `useTaskLinksQuery` | Query | Get task links | `['task-links', tId]` |
+| `POST` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/links` | `useCreateTaskLinkMutation` | Mutation | Attach external URL link | Invalidates `['task-links', tId]` |
+| `GET` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/links` | `useTaskLinksQuery` | Query | Get task links | `['task-links', tId]` |
+| `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/links/:lId` | `useUpdateTaskLinkMutation` | Mutation | Update task link | Invalidates `['task-links', tId]` |
+| `DELETE` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/links/:lId` | `useDeleteTaskLinkMutation` | Mutation | Delete task link | Invalidates `['task-links', tId]` |
 
 ---
 
-## 5. Comments, Attachments, Notifications & Search
+## 5. Comments, Attachments, Notifications, Search & Analytics
 
 | Method | Endpoint Path | Hook Name | Type | Purpose | Cache Key / Invalidation |
 |---|---|---|---|---|---|
-| `POST` | `.../tasks/:tId/comments` | `useCreateCommentMutation` | Mutation | Post comment with `@mentions` | Invalidates `['comments', tId]` |
-| `GET` | `.../tasks/:tId/comments` | `useTaskCommentsInfiniteQuery` | Infinite Query | Cursor paginated task comments | `['comments', tId]` |
-| `POST` | `.../tasks/:tId/attachments` | `useUploadAttachmentMutation` | Mutation | Upload Cloudinary attachment | Invalidates `['attachments', tId]` |
+| `POST` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/comments` | `useCreateCommentMutation` | Mutation | Post comment with `@mentions` | Invalidates `['comments', tId]` |
+| `GET` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/comments` | `useTaskCommentsInfiniteQuery` | Infinite Query | Cursor paginated task comments | `['comments', tId]` |
+| `PATCH` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/comments/:cId` | `useUpdateCommentMutation` | Mutation | Update comment content | Invalidates `['comments', tId]` |
+| `DELETE` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/comments/:cId` | `useDeleteCommentMutation` | Mutation | Delete comment | Invalidates `['comments', tId]` |
+| `POST` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/attachments` | `useUploadAttachmentMutation` | Mutation | Upload Cloudinary attachment | Invalidates `['attachments', tId]` |
+| `GET` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/attachments` | `useTaskAttachmentsQuery` | Query | Get task attachments | `['attachments', tId]` |
+| `DELETE` | `/workspaces/:wId/projects/:pId/boards/:bId/columns/:cId/tasks/:tId/attachments/:aId` | `useDeleteAttachmentMutation` | Mutation | Delete attachment | Invalidates `['attachments', tId]` |
+| `GET` | `/workspaces/:wId/activities` | `useWorkspaceActivitiesQuery` | Query | Activity feed stream | `['activities', wId]` |
 | `GET` | `/notifications` | `useNotificationsQuery` | Query | List user notifications | `['notifications']` |
 | `PATCH` | `/notifications/:id/read` | `useMarkNotificationReadMutation` | Mutation | Mark notification read | Invalidates `['notifications']` |
+| `PATCH` | `/notifications/read-all` | `useMarkAllNotificationsReadMutation` | Mutation | Mark all read | Invalidates `['notifications']` |
 | `GET` | `/workspaces/:wId/search` | `useWorkspaceSearchQuery` | Query | Global workspace search | `['search', wId, query]` |
 | `GET` | `/workspaces/:wId/dashboard/summary` | `useDashboardSummaryQuery` | Query | Analytics summary KPIs | `['dashboard', 'summary', wId]` |
+| `GET` | `/workspaces/:wId/dashboard/task-distribution` | `useTaskDistributionQuery` | Query | Status/priority distribution | `['dashboard', 'distribution', wId]` |
+| `GET` | `/workspaces/:wId/dashboard/productivity` | `useProductivityQuery` | Query | Tasks created vs completed | `['dashboard', 'productivity', wId]` |
+| `GET` | `/workspaces/:wId/dashboard/member-workload` | `useMemberWorkloadQuery` | Query | Workload per member | `['dashboard', 'workload', wId]` |
