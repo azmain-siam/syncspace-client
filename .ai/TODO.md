@@ -23,11 +23,11 @@ Phase-by-phase implementation checklist for building the SyncSpace frontend clie
 - [x] ✅ Build guest and authenticated route protection wrappers (`GuestGuard`, `AuthGuard`).
 
 # Phase 3 — App Shell & Workspace Management
-- [ ] ⏳ Implement `WorkspaceAppLayout` with responsive Sidebar, Top Navigation Bar, and User Profile Menu.
-- [ ] ⏳ Build Workspace Creation Modal (`/workspaces/create`).
-- [ ] ⏳ Build Workspace Selector Dropdown and Active Workspace Store (`useWorkspaceStore`).
-- [ ] ⏳ Build Workspace Members Table (`/workspaces/:workspaceId/members`) & Email Invitation Modal.
-- [ ] ⏳ Build Workspace Invitation Acceptance Landing Page (`/invitations/accept?token=...`).
+- [x] ✅ Implement `WorkspaceAppLayout` with responsive Sidebar (2px Electric Indigo active leading edge), Top Navigation Bar, and User Profile Menu.
+- [x] ✅ Build Workspace Creation Modal (`create-workspace-modal.tsx`) & Standalone View (`/workspaces/create`).
+- [x] ✅ Build Workspace Selector Dropdown and Active Workspace Store (`useWorkspaceStore`).
+- [x] ✅ Build Workspace Members Table (`/workspaces/:workspaceId/members`) & Email Invitation Modal.
+- [x] ✅ Build Workspace Invitation Acceptance Landing Page (`/invitations/accept?token=...`).
 
 # Phase 4 — Projects, Boards & Kanban (`dnd-kit`)
 - [ ] ⏳ Build Projects Grid View & New Project Modal (`/workspaces/:workspaceId/projects`).

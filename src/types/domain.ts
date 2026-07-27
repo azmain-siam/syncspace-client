@@ -1,6 +1,13 @@
 // SyncSpace Global Domain & API Interfaces
 
 export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+
+export const WorkspaceRole = {
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER',
+} as const;
+
 export type WorkspaceVisibility = 'PRIVATE' | 'PUBLIC';
 
 export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'ARCHIVED';
@@ -60,6 +67,21 @@ export interface WorkspaceMember {
   role: WorkspaceRole;
   joinedAt: string;
   user: User;
+}
+
+export interface WorkspaceInvitation {
+  id: string;
+  workspaceId: string;
+  email: string;
+  role: WorkspaceRole;
+  token: string;
+  invitedById: string;
+  expiresAt: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+  createdAt: string;
+  updatedAt: string;
+  workspace?: Workspace;
+  invitedBy?: User;
 }
 
 export interface Project {
