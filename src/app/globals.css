@@ -2,104 +2,116 @@
 
 @layer base {
   :root {
-    /* ─── Light Mode: "Paper Studio" ─── */
+    /* ─── Light Mode: "Stark Studio" (DESIGN.md) ─── */
 
-    /* Surfaces */
-    --background: oklch(0.965 0.005 260);        /* #F4F6FA  Canvas */
-    --foreground: oklch(0.15 0.02 260);          /* #0A1029  Primary Text */
+    /* Surfaces (M3 Tonal Layering) */
+    --background: #fcf8ff;                        /* Canvas */
+    --foreground: #1b1b23;                        /* On-Surface Text */
 
-    --card: oklch(1 0 0);                        /* #FFFFFF  Elevated Surface */
-    --card-foreground: oklch(0.15 0.02 260);
+    --card: #ffffff;                              /* Container Lowest */
+    --card-foreground: #1b1b23;
 
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.15 0.02 260);
+    --popover: #ffffff;
+    --popover-foreground: #1b1b23;
 
-    /* Primary: Sapphire Blue (262°) */
-    --primary: oklch(0.55 0.24 262);             /* Deep Sapphire */
-    --primary-foreground: oklch(0.99 0 0);       /* White */
+    /* Primary: Electric Indigo */
+    --primary: #4648d4;
+    --primary-foreground: #ffffff;
+    --primary-container: #6063ee;
+    --on-primary-container: #fffbff;
 
-    /* Secondary */
-    --secondary: oklch(0.95 0.008 260);          /* Soft Slate */
-    --secondary-foreground: oklch(0.20 0.015 260);
+    /* Secondary: Emerald Green */
+    --secondary: #006c49;
+    --secondary-foreground: #ffffff;
+    --secondary-container: #6cf8bb;
+    --on-secondary-container: #00714d;
 
-    /* Muted */
-    --muted: oklch(0.96 0.005 260);
-    --muted-foreground: oklch(0.55 0.02 260);    /* #64748B  Captions */
+    /* Tertiary: Warm Amber */
+    --tertiary: #904900;
+    --tertiary-container: #b55d00;
 
-    /* Accent */
-    --accent: oklch(0.95 0.012 260);
-    --accent-foreground: oklch(0.18 0.02 260);
+    /* Muted & Accents */
+    --muted: #f5f2fe;                             /* Container Low */
+    --muted-foreground: #464554;                    /* On-Surface Variant */
 
-    /* Semantic: Soft Pastel Fill + Deep Saturated Text */
-    --success: oklch(0.95 0.05 155);
-    --success-foreground: oklch(0.45 0.15 155);
+    --accent: #efecf8;                            /* Container Standard */
+    --accent-foreground: #1b1b23;
 
-    --warning: oklch(0.95 0.05 85);
-    --warning-foreground: oklch(0.48 0.14 85);
+    /* Semantic Feedback */
+    --success: #e6f9f0;
+    --success-foreground: #00714d;
 
-    --danger: oklch(0.95 0.05 25);
-    --danger-foreground: oklch(0.48 0.18 25);
+    --warning: #fff4e5;
+    --warning-foreground: #904900;
 
-    --destructive: oklch(0.95 0.05 25);
-    --destructive-foreground: oklch(0.48 0.18 25);
+    --danger: #ffdad6;
+    --danger-foreground: #93000a;
 
-    /* Structural */
-    --border: oklch(0.92 0.008 260);
-    --input: oklch(0.92 0.008 260);
-    --ring: var(--primary);
-    --radius: 0.75rem;                           /* 12px Base Radius */
+    --destructive: #ba1a1a;
+    --destructive-foreground: #ffffff;
+
+    /* Structural outlines */
+    --border: #e2e8f0;                            /* Neutral Border */
+    --input: #e2e8f0;
+    --outline: #767586;
+    --outline-variant: #c7c4d7;
+    --ring: #4648d4;
+    --radius: 0.5rem;                             /* 8px Standard Base Radius */
   }
 
   .dark {
     /* ─── Dark Mode: "Midnight Workshop" ─── */
 
     /* Surfaces */
-    --background: oklch(0.13 0.02 260);          /* #0C1222  Canvas */
-    --foreground: oklch(0.95 0.008 260);         /* #F1F5F9  Primary Text */
+    --background: #09090b;                        /* Dark Canvas */
+    --foreground: #f4f4f5;                        /* Crisp Text */
 
-    --card: oklch(0.17 0.025 260);               /* #141B2D  Surface */
-    --card-foreground: oklch(0.95 0.008 260);
+    --card: #18181b;                              /* Dark Container */
+    --card-foreground: #f4f4f5;
 
-    --popover: oklch(0.20 0.025 260);            /* #1A2338  Elevated */
-    --popover-foreground: oklch(0.95 0.008 260);
+    --popover: #27272a;                           /* Elevated Surface */
+    --popover-foreground: #f4f4f5;
 
-    /* Primary: Brighter Sapphire for dark backgrounds */
-    --primary: oklch(0.62 0.22 262);
-    --primary-foreground: oklch(0.99 0 0);
+    /* Primary: Electric Indigo */
+    --primary: #4648d4;
+    --primary-foreground: #ffffff;
+    --primary-container: #6063ee;
 
     /* Secondary */
-    --secondary: oklch(0.22 0.025 260);
-    --secondary-foreground: oklch(0.95 0.008 260);
+    --secondary: #4edea3;
+    --secondary-foreground: #002113;
 
     /* Muted */
-    --muted: oklch(0.21 0.02 260);
-    --muted-foreground: oklch(0.65 0.015 260);   /* #94A3B8 */
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
 
     /* Accent */
-    --accent: oklch(0.23 0.02 260);
-    --accent-foreground: oklch(0.95 0.008 260);
+    --accent: #27272a;
+    --accent-foreground: #f4f4f5;
 
-    /* Semantic: Deep Jewel Fill + Bright Pastel Text */
-    --success: oklch(0.23 0.06 155);
-    --success-foreground: oklch(0.75 0.16 155);
+    /* Semantic Feedback */
+    --success: #003824;
+    --success-foreground: #4edea3;
 
-    --warning: oklch(0.23 0.06 85);
-    --warning-foreground: oklch(0.82 0.14 85);
+    --warning: #4a2300;
+    --warning-foreground: #ffb783;
 
-    --danger: oklch(0.23 0.06 25);
-    --danger-foreground: oklch(0.75 0.18 25);
+    --danger: #680007;
+    --danger-foreground: #ffb4ab;
 
-    --destructive: oklch(0.23 0.06 25);
-    --destructive-foreground: oklch(0.75 0.18 25);
+    --destructive: #ffb4ab;
+    --destructive-foreground: #690005;
 
     /* Structural */
-    --border: oklch(0.25 0.02 260);
-    --input: oklch(0.25 0.02 260);
-    --ring: var(--primary);
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #4648d4;
   }
 }
 
 @theme inline {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -137,12 +149,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 4px);    /* 8px  */
-  --radius-md: calc(var(--radius) - 2px);    /* 10px */
-  --radius-lg: var(--radius);                /* 12px */
-  --radius-xl: calc(var(--radius) + 4px);    /* 16px */
-  --radius-2xl: calc(var(--radius) + 8px);   /* 20px */
-  --radius-full: 9999px;
+  --radius-sm: 0.25rem;                      /* 4px */
+  --radius-DEFAULT: 0.5rem;                  /* 8px Base */
+  --radius-md: 0.75rem;                      /* 12px */
+  --radius-lg: 1.0rem;                       /* 16px Container */
+  --radius-xl: 1.5rem;                       /* 24px */
+  --radius-full: 9999px;                     /* Full Pill */
 }
 
 body {

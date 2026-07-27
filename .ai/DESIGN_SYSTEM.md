@@ -1,119 +1,129 @@
 # DESIGN_SYSTEM.md — SyncSpace Design System
 
-Version: 3.0
-Visual Language: **Quiet Precision** (See `VISUAL_IDENTITY.md`)
+Version: 4.0  
+Visual Language Reference: **SyncSpace Signature — Serious Software** (See `DESIGN.md` & `VISUAL_IDENTITY.md`)
 
 ---
 
 # Overview
 
-The SyncSpace Design System translates the **Quiet Precision** visual identity into implementable tokens, component patterns, and layout rules for the Next.js / Tailwind CSS v4 frontend.
+The SyncSpace Design System translates the **Serious Software** visual identity into implementable tokens, component patterns, and layout rules for the Next.js 15 / Tailwind CSS v4 client (`/client`).
 
-This document is the single source of truth for all visual implementation decisions. When in doubt, refer here — not to any external reference.
+This document is the single source of truth for all visual implementation decisions.
 
 ---
 
 # 1. CSS Token Implementation
 
-### Tailwind CSS v4 OKLCH Variables (`src/app/globals.css`)
+### Tailwind CSS v4 Theme Variables (`src/app/globals.css`)
 
 ```css
 @layer base {
   :root {
-    /* ─── Light Mode: "Paper Studio" ─── */
+    /* ─── Light Mode: "Stark Studio" ─── */
 
-    /* Surfaces */
-    --background: oklch(0.965 0.005 260);        /* #F4F6FA  Canvas */
-    --foreground: oklch(0.15 0.02 260);           /* #0A1029  Primary Text */
+    /* Surfaces (M3 Tonal Layering) */
+    --background: #fcf8ff;                        /* Canvas */
+    --foreground: #1b1b23;                        /* On-Surface Text */
 
-    --card: oklch(1 0 0);                         /* #FFFFFF  Elevated Surface */
-    --card-foreground: oklch(0.15 0.02 260);
+    --card: #ffffff;                              /* Container Lowest */
+    --card-foreground: #1b1b23;
 
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.15 0.02 260);
+    --popover: #ffffff;
+    --popover-foreground: #1b1b23;
 
-    /* Primary: Sapphire Blue (262°) */
-    --primary: oklch(0.55 0.24 262);              /* Deep Sapphire */
-    --primary-foreground: oklch(0.99 0 0);        /* White */
+    /* Primary: Electric Indigo */
+    --primary: #4648d4;
+    --primary-foreground: #ffffff;
+    --primary-container: #6063ee;
+    --on-primary-container: #fffbff;
 
-    /* Secondary */
-    --secondary: oklch(0.95 0.008 260);           /* Soft Slate */
-    --secondary-foreground: oklch(0.20 0.015 260);
+    /* Secondary: Emerald Green */
+    --secondary: #006c49;
+    --secondary-foreground: #ffffff;
+    --secondary-container: #6cf8bb;
+    --on-secondary-container: #00714d;
 
-    /* Muted */
-    --muted: oklch(0.96 0.005 260);
-    --muted-foreground: oklch(0.55 0.02 260);     /* #64748B  Captions */
+    /* Tertiary: Warm Amber */
+    --tertiary: #904900;
+    --tertiary-container: #b55d00;
 
-    /* Accent */
-    --accent: oklch(0.95 0.012 260);
-    --accent-foreground: oklch(0.18 0.02 260);
+    /* Muted & Accents */
+    --muted: #f5f2fe;                             /* Container Low */
+    --muted-foreground: #464554;                    /* On-Surface Variant */
 
-    /* Semantic: Soft Pastel Fill + Deep Saturated Text */
-    --success: oklch(0.95 0.05 155);
-    --success-foreground: oklch(0.45 0.15 155);
+    --accent: #efecf8;                            /* Container Standard */
+    --accent-foreground: #1b1b23;
 
-    --warning: oklch(0.95 0.05 85);
-    --warning-foreground: oklch(0.48 0.14 85);
+    /* Semantic Feedback */
+    --success: #e6f9f0;
+    --success-foreground: #00714d;
 
-    --danger: oklch(0.95 0.05 25);
-    --danger-foreground: oklch(0.48 0.18 25);
+    --warning: #fff4e5;
+    --warning-foreground: #904900;
 
-    --destructive: oklch(0.95 0.05 25);
-    --destructive-foreground: oklch(0.48 0.18 25);
+    --danger: #ffdad6;
+    --danger-foreground: #93000a;
 
-    /* Structural */
-    --border: oklch(0.92 0.008 260);
-    --input: oklch(0.92 0.008 260);
-    --ring: var(--primary);
-    --radius: 0.75rem;                            /* 12px Base Radius */
+    --destructive: #ba1a1a;
+    --destructive-foreground: #ffffff;
+
+    /* Structural outlines */
+    --border: #e2e8f0;                            /* Neutral Border */
+    --input: #e2e8f0;
+    --outline: #767586;
+    --outline-variant: #c7c4d7;
+    --ring: #4648d4;
+    --radius: 0.5rem;                             /* 8px Base Radius */
   }
 
   .dark {
     /* ─── Dark Mode: "Midnight Workshop" ─── */
 
     /* Surfaces */
-    --background: oklch(0.13 0.02 260);           /* #0C1222  Canvas */
-    --foreground: oklch(0.95 0.008 260);          /* #F1F5F9  Primary Text */
+    --background: #09090b;                        /* Dark Canvas */
+    --foreground: #f4f4f5;                        /* Crisp Text */
 
-    --card: oklch(0.17 0.025 260);                /* #141B2D  Surface */
-    --card-foreground: oklch(0.95 0.008 260);
+    --card: #18181b;                              /* Dark Container */
+    --card-foreground: #f4f4f5;
 
-    --popover: oklch(0.20 0.025 260);             /* #1A2338  Elevated */
-    --popover-foreground: oklch(0.95 0.008 260);
+    --popover: #27272a;                           /* Elevated Surface */
+    --popover-foreground: #f4f4f5;
 
-    /* Primary: Brighter Sapphire for dark backgrounds */
-    --primary: oklch(0.62 0.22 262);
-    --primary-foreground: oklch(0.99 0 0);
+    /* Primary: Electric Indigo */
+    --primary: #4648d4;
+    --primary-foreground: #ffffff;
+    --primary-container: #6063ee;
 
     /* Secondary */
-    --secondary: oklch(0.22 0.025 260);
-    --secondary-foreground: oklch(0.95 0.008 260);
+    --secondary: #4edea3;
+    --secondary-foreground: #002113;
 
     /* Muted */
-    --muted: oklch(0.21 0.02 260);
-    --muted-foreground: oklch(0.65 0.015 260);    /* #94A3B8 */
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
 
     /* Accent */
-    --accent: oklch(0.23 0.02 260);
-    --accent-foreground: oklch(0.95 0.008 260);
+    --accent: #27272a;
+    --accent-foreground: #f4f4f5;
 
-    /* Semantic: Deep Jewel Fill + Bright Pastel Text */
-    --success: oklch(0.23 0.06 155);
-    --success-foreground: oklch(0.75 0.16 155);
+    /* Semantic Feedback */
+    --success: #003824;
+    --success-foreground: #4edea3;
 
-    --warning: oklch(0.23 0.06 85);
-    --warning-foreground: oklch(0.82 0.14 85);
+    --warning: #4a2300;
+    --warning-foreground: #ffb783;
 
-    --danger: oklch(0.23 0.06 25);
-    --danger-foreground: oklch(0.75 0.18 25);
+    --danger: #680007;
+    --danger-foreground: #ffb4ab;
 
-    --destructive: oklch(0.23 0.06 25);
-    --destructive-foreground: oklch(0.75 0.18 25);
+    --destructive: #ffb4ab;
+    --destructive-foreground: #690005;
 
     /* Structural */
-    --border: oklch(0.25 0.02 260);
-    --input: oklch(0.25 0.02 260);
-    --ring: var(--primary);
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #4648d4;
   }
 }
 ```
@@ -126,6 +136,8 @@ Map CSS custom properties to Tailwind v4's `@theme inline` directive:
 
 ```css
 @theme inline {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -163,286 +175,110 @@ Map CSS custom properties to Tailwind v4's `@theme inline` directive:
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 4px);    /* 8px  */
-  --radius-md: calc(var(--radius) - 2px);    /* 10px */
-  --radius-lg: var(--radius);                /* 12px */
-  --radius-xl: calc(var(--radius) + 4px);    /* 16px */
-  --radius-2xl: calc(var(--radius) + 8px);   /* 20px */
-  --radius-full: 9999px;
+  /* Radius System (DESIGN.md) */
+  --radius-sm: 0.25rem;                      /* 4px */
+  --radius-DEFAULT: 0.5rem;                  /* 8px Base */
+  --radius-md: 0.75rem;                      /* 12px */
+  --radius-lg: 1.0rem;                       /* 16px Container */
+  --radius-xl: 1.5rem;                       /* 24px */
+  --radius-full: 9999px;                     /* Full Pill */
 }
 ```
 
 ---
 
-# 3. Typography Implementation
+# 3. Typography Scale (Plus Jakarta Sans)
 
-- **Font Family**: `Inter` (Google Fonts). Fallback: `system-ui, -apple-system, sans-serif`.
-- **Font Variable**: `--font-sans` set via `next/font/google`.
+- **Font Family**: `Plus Jakarta Sans`
+- **Line Height**: Generous body line-height (`1.6`) for legibility; tight headline leading (`1.1`–`1.3`).
 
 ### Type Scale Reference
 
-| Class Pattern | Size | Weight | Tracking | Context |
-|---|---|---|---|---|
-| `text-4xl font-extrabold tracking-tight` | 2.25rem | 800 | tight | Landing hero (mobile) |
-| `text-5xl font-extrabold tracking-tight` | 3rem | 800 | tight | Landing hero (desktop) |
-| `text-2xl font-bold tracking-tight` | 1.5rem | 700 | tight | Page titles |
-| `text-xl font-semibold tracking-tight` | 1.25rem | 600 | tight | Section headings |
-| `text-base font-semibold` | 1rem | 600 | normal | Card titles |
-| `text-sm` | 0.875rem | 400 | normal | Body text |
-| `text-xs font-medium` | 0.75rem | 500 | wide | Captions, timestamps |
-| `text-[11px] font-semibold uppercase tracking-widest` | 0.6875rem | 600 | widest | Overline labels |
-| `text-2xl font-bold tracking-tight` | 1.5rem | 700 | tight | Metric KPI values |
-| `text-[11px] font-semibold` | 0.6875rem | 600 | normal | Badge pill text |
-
-### Text Color Hierarchy
-
-| Level | Token | Usage |
-|---|---|---|
-| Primary | `text-foreground` | Headings, important values, primary labels |
-| Secondary | `text-muted-foreground` | Descriptions, captions, timestamps, breadcrumbs |
-| Interactive | `text-primary` | Links, active navigation items, actionable text |
-| Disabled | `text-muted-foreground/50` | Disabled controls, placeholder text |
-| Inverse | `text-primary-foreground` | Text on primary-colored backgrounds |
+| Token Name | Class Combination | Size | Weight | Tracking | Usage |
+|---|---|---|---|---|---|
+| `display` | `text-5xl font-extrabold tracking-[-0.04em] leading-[1.1]` | 48px | 800 | -0.04em | Landing page hero title |
+| `headline-lg` | `text-3xl font-bold tracking-[-0.03em] leading-[1.2]` | 32px | 700 | -0.03em | Page titles (Desktop) |
+| `headline-lg-mobile` | `text-2xl font-bold tracking-[-0.02em] leading-[1.2]` | 28px | 700 | -0.02em | Page titles (Mobile) |
+| `headline-md` | `text-xl font-bold tracking-[-0.02em] leading-[1.3]` | 24px | 700 | -0.02em | Section titles, Card headers |
+| `body-lg` | `text-lg font-normal tracking-[-0.01em] leading-[1.6]` | 18px | 400 | -0.01em | Subtitles, intro copy |
+| `body-md` | `text-base font-normal tracking-normal leading-[1.6]` | 16px | 400 | 0 | Standard body copy |
+| `label-md` | `text-sm font-semibold tracking-[0.01em] leading-[1.4]` | 14px | 600 | 0.01em | Form labels, button text |
+| `label-sm` | `text-xs font-bold tracking-[0.05em] leading-[1.2]` | 12px | 700 | 0.05em | Badges, status chips, overlines |
 
 ---
 
-# 4. Component Styling Patterns
+# 4. Component Styling Specifications
 
-### 4.1 Cards
+### 4.1 Buttons
 
-The fundamental container unit. Cards float on canvas with subtle elevation.
+Primary buttons feature an Electric Indigo background with white text and a **1px inset top-border** (`border-t border-white/20`) for a premium tactile feel. All buttons scale to `98%` on active click (`active:scale-[0.98]`).
 
-```
-┌─────────────────────────────────────────┐
-│  Card Container                         │
-│  bg-card                                │
-│  border border-border                   │
-│  rounded-xl (12px)                      │
-│  shadow-sm (light) / no shadow (dark)   │
-│  p-5 (20px padding)                     │
-│                                         │
-│  ┌──────────────────────────────────┐   │
-│  │ Inner Content Block              │   │
-│  │ rounded-lg (8px)                 │   │
-│  │ bg-muted/40 or bg-secondary/40  │   │
-│  │ p-4 (16px padding)              │   │
-│  └──────────────────────────────────┘   │
-└─────────────────────────────────────────┘
+```tsx
+// Primary Button Example
+<button className="bg-primary text-primary-foreground border-t border-white/20 rounded-lg px-4 py-2 text-sm font-semibold shadow-xs hover:bg-primary/90 active:scale-[0.98] transition-all">
+  Save Changes
+</button>
+
+// Secondary Button Example (Ghost style with 1px border)
+<button className="border border-border bg-transparent text-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground active:scale-[0.98] transition-all">
+  Cancel
+</button>
 ```
 
-- **Hover state**: `hover:shadow-md` (light mode), `hover:border-border/80 hover:bg-accent/30` (dark mode).
-- **Rule**: Inner elements always use a smaller radius than the parent card.
+### 4.2 Form Input Fields
 
-### 4.2 Metric Cards (Dashboard)
+Inputs feature a 1px border (`border-input`) that transitions to **Electric Indigo** on focus. The focus state uses a **subtle 10% opacity indigo glow** rather than a harsh outline ring.
 
-```
-Pattern: [Icon] + [Label] + [Value] + [Change Badge]
-
-┌─────────────────────────────────┐
-│  📊 Total Tasks                 │
-│                                 │
-│  248                            │ ← text-2xl font-bold
-│  ┌──────────┐                   │
-│  │ ↑ +12.8% │                   │ ← rounded-full badge
-│  └──────────┘                   │
-└─────────────────────────────────┘
+```tsx
+<input className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/60 transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(70,72,212,0.1)] focus:outline-none" />
 ```
 
-- **Label**: `text-xs font-medium text-muted-foreground`
-- **Value**: `text-2xl font-bold text-foreground tracking-tight`
-- **Change badge**: `rounded-full px-2 py-0.5 text-[11px] font-semibold`
-  - Positive: `bg-success text-success-foreground`
-  - Negative: `bg-danger text-danger-foreground`
-  - Neutral: `bg-muted text-muted-foreground`
+### 4.3 Cards & Containers
 
-### 4.3 Buttons
+Cards have **no shadow by default**, relying on a 1px neutral border (`border border-border`). They gain a soft ambient shadow (`hover:shadow-md`) on hover to signal interactivity.
 
-| Variant | Background | Text | Border | Hover |
-|---|---|---|---|---|
-| `default` | `bg-primary` | `text-primary-foreground` | none | `bg-primary/90` + slight lift |
-| `secondary` | `bg-secondary` | `text-secondary-foreground` | none | `bg-secondary/80` |
-| `outline` | `bg-transparent` | `text-foreground` | `border-border` | `bg-accent` |
-| `ghost` | `bg-transparent` | `text-muted-foreground` | none | `bg-accent text-accent-foreground` |
-| `destructive` | `bg-destructive` | `text-destructive-foreground` | none | `bg-destructive/90` |
-
-**Sizes**:
-- `sm`: `h-8 px-3 text-xs rounded-lg gap-1.5`
-- `default`: `h-9 px-4 text-sm rounded-xl gap-2`
-- `lg`: `h-10 px-6 text-sm rounded-xl gap-2`
-- `icon`: `h-9 w-9 rounded-xl` (square, icon-only)
-
-**Loading state**: Replace button label with `<Loader2 className="h-4 w-4 animate-spin" />`, set `pointer-events-none opacity-70`.
-
-### 4.4 Form Inputs
-
-```
-bg-background (not bg-card — creates recessed feel)
-border border-input
-rounded-lg (8px)
-h-9 px-3 text-sm
-transition-colors duration-150
-
-Focus: ring-2 ring-ring ring-offset-2 ring-offset-background
-Error: border-danger ring-danger
-Disabled: opacity-50 cursor-not-allowed
+```tsx
+<div className="rounded-2xl border border-border bg-card p-6 transition-shadow duration-200 hover:shadow-md">
+  {/* Card Content */}
+</div>
 ```
 
-- **Labels**: `text-sm font-medium text-foreground` — placed above input, `space-y-1.5` gap.
-- **Helper text**: `text-xs text-muted-foreground` — below input.
-- **Error text**: `text-xs text-danger-foreground` — replaces helper text.
+### 4.4 Status Chips & Badges
 
-### 4.5 Status Badges (Pills)
+Status chips use **full pill geometry (`rounded-full`)** and low-saturation background tints.
 
-All status indicators use full pill geometry. Color is semantic.
-
-```
-rounded-full px-2.5 py-0.5 text-[11px] font-semibold
-inline-flex items-center gap-1
+```tsx
+// Success Status Chip
+<span className="inline-flex items-center rounded-full bg-success px-2.5 py-0.5 text-xs font-bold tracking-wider text-success-foreground">
+  ACTIVE
+</span>
 ```
 
-| Status | Light Style | Dark Style |
-|---|---|---|
-| `TODO` | `bg-muted text-muted-foreground` | `bg-muted text-muted-foreground` |
-| `IN_PROGRESS` | `bg-primary/10 text-primary` | `bg-primary/15 text-primary` |
-| `REVIEW` | `bg-warning text-warning-foreground` | `bg-warning text-warning-foreground` |
-| `DONE` | `bg-success text-success-foreground` | `bg-success text-success-foreground` |
+### 4.5 Navigation Sidebar
 
-| Priority | Light Style | Dark Style |
-|---|---|---|
-| `LOW` | `bg-muted text-muted-foreground` | `bg-muted text-muted-foreground` |
-| `MEDIUM` | `bg-primary/10 text-primary` | `bg-primary/15 text-primary` |
-| `HIGH` | `bg-warning text-warning-foreground` | `bg-warning text-warning-foreground` |
-| `URGENT` | `bg-danger text-danger-foreground` | `bg-danger text-danger-foreground` |
+Active items in the sidebar feature a **2px vertical bar in Electric Indigo** on the leading edge.
 
-### 4.6 Sidebar Navigation
-
-Inspired by Linear's compact density. The sidebar is a quiet navigation rail, not a feature billboard.
-
+```tsx
+// Active Sidebar Item
+<div className="relative flex items-center gap-3 rounded-md bg-accent px-3 py-2 text-sm font-semibold text-primary">
+  <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 bg-primary rounded-r" />
+  <LayoutDashboard className="h-4 w-4 text-primary" />
+  <span>Dashboard</span>
+</div>
 ```
-Width: 240px (desktop), collapsible to 0px (mobile)
-Background: bg-card (light) / bg-card (dark)
-Border: border-r border-border
-```
-
-- **Workspace switcher**: Top of sidebar. Logo + name + chevron dropdown.
-- **Section labels**: `overline` type scale, `text-muted-foreground`, `px-3 pt-4 pb-1`.
-- **Nav items**:
-  - Rest: `text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150`
-  - Active: `text-primary bg-primary/10 font-semibold rounded-lg px-3 py-2`
-- **Icons**: `18px`, left-aligned with `gap-3` to label.
-
-### 4.7 Tables
-
-Minimal, scannable data presentation.
-
-```
-Header row: text-xs font-medium text-muted-foreground uppercase tracking-wider
-Body rows: text-sm text-foreground
-Row borders: border-b border-border/60 (not full opacity)
-Row hover: bg-accent/50 transition-colors duration-150
-Cell padding: px-4 py-3
-```
-
-- No zebra striping — rely on hover for row identification.
-- Status and priority columns use pill badges.
-- Action columns use ghost icon buttons.
-
-### 4.8 Modals / Dialogs
-
-```
-Overlay: bg-black/50 (light) / bg-black/60 (dark), backdrop-blur-sm
-Container: bg-card border border-border rounded-xl shadow-xl
-Animation: fade-in + scale from 0.96 → 1 (200ms ease-out)
-Max width: sm (400px), md (500px), lg (640px), xl (800px)
-Padding: p-6
-```
-
-- **Header**: `text-xl font-semibold` + optional close button (ghost, top-right)
-- **Footer**: `flex justify-end gap-3 pt-4 border-t border-border`
 
 ---
 
-# 5. Layout Grid
+# 5. Spacing & Grid System
 
-### App Shell Layout
+An **8px base unit** governs all layout dimensions:
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│ [Sidebar 240px] │ [Content Area: flex-1]                     │
-│                 │ ┌──────────────────────────────────────┐   │
-│ Workspace Logo  │ │ Top Header Bar (h-14)                │   │
-│ ─────────────── │ │ Breadcrumb + Search + Notif + Avatar │   │
-│ Nav Items       │ ├──────────────────────────────────────┤   │
-│ ...             │ │                                      │   │
-│                 │ │ Page Content Area                    │   │
-│ ─────────────── │ │ max-w-7xl mx-auto px-6 py-6         │   │
-│ Section Label   │ │                                      │   │
-│ Nav Items       │ │                                      │   │
-│ ...             │ │                                      │   │
-└──────────────────────────────────────────────────────────────┘
-```
-
-- **Sidebar**: Fixed left, full height, `border-r border-border`.
-- **Header**: Sticky top within content area, `h-14`, `border-b border-border`, `bg-card/80 backdrop-blur-xl`.
-- **Content area**: Scrollable, max-width constrained, comfortable padding.
-
-### Auth Layout
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                                                              │
-│          ┌─────────────────────────────┐                     │
-│          │                             │                     │
-│          │   Logo + App Name           │                     │
-│          │   ─────────────────         │                     │
-│          │   Form Card (max-w-md)      │                     │
-│          │   bg-card rounded-xl p-8    │                     │
-│          │   shadow-lg                 │                     │
-│          │                             │                     │
-│          └─────────────────────────────┘                     │
-│                                                              │
-│          bg-background (full page canvas)                    │
-└──────────────────────────────────────────────────────────────┘
-```
-
-- Centered vertically and horizontally.
-- Single column. No split-panel hero — keep auth screens focused and fast.
-- Card width: `max-w-[420px]` for login/register, `max-w-sm` for simpler forms.
-
----
-
-# 6. Responsive Breakpoints
-
-| Breakpoint | Width | Behavior |
-|---|---|---|
-| `sm` | `640px` | Stack auth form cards, single-column metric grids |
-| `md` | `768px` | Show sidebar as overlay drawer, 2-column grids |
-| `lg` | `1024px` | Persistent sidebar, 3-column metric grids |
-| `xl` | `1280px` | Full app shell, 4-column grids where applicable |
-
-### Mobile Sidebar Behavior
-- Below `lg`: Sidebar hidden by default. Hamburger menu in header triggers slide-in drawer overlay.
-- Above `lg`: Sidebar always visible. No hamburger.
-
----
-
-# 7. Z-Index Scale
-
-| Layer | Value | Usage |
-|---|---|---|
-| `z-0` | `0` | Page content |
-| `z-10` | `10` | Sticky headers, floating action buttons |
-| `z-20` | `20` | Dropdowns, popovers, tooltips |
-| `z-30` | `30` | Sidebar overlay (mobile) |
-| `z-40` | `40` | Modal overlay + dialog |
-| `z-50` | `50` | Toast notifications, command palette |
-
----
-
-# 8. Accessibility Checklist
-
-- **Focus rings**: `ring-2 ring-ring ring-offset-2 ring-offset-background` on all interactive elements.
-- **Color contrast**: All text-on-background combinations meet WCAG 2.1 AA (4.5:1 for body text, 3:1 for large text).
-- **Keyboard navigation**: All interactive elements reachable via Tab. `Escape` closes modals/dropdowns.
-- **ARIA labels**: All icon-only buttons must have `aria-label`. All form inputs must have associated `<Label>`.
-- **Reduced motion**: Wrap animations in `@media (prefers-reduced-motion: no-preference)`.
+- `xs`: `4px`
+- `base`: `8px`
+- `sm`: `12px`
+- `md`: `24px`
+- `lg`: `48px`
+- `xl`: `80px`
+- **Max Width**: `1280px` centered container.
+- **Margin**: `32px` desktop margins (`16px` mobile).
+- **Gutter**: `24px` column gaps.

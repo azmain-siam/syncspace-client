@@ -1,289 +1,122 @@
 # VISUAL_IDENTITY.md — SyncSpace Visual Identity & Design Language
 
-Version: 3.0
-Identity Concept: **Quiet Precision**
+Version: 4.0  
+Identity Concept: **SyncSpace Signature — Serious Software**  
+Reference Specification: `DESIGN.md`
 
 ---
 
 ## 1. Design Philosophy
 
-SyncSpace is a tool teams live in for hours every day. The interface must disappear — becoming a calm, precise instrument that lets work take center stage.
+SyncSpace is engineered for **"Serious Software"** — tools that demand high cognitive focus, extreme reliability, and structural speed without sacrificing a contemporary edge. The brand personality is authoritative yet approachable, characterized by a refined minimalism that prioritizes clarity over decoration.
 
-**Quiet Precision** means:
-- **Quiet**: The UI chrome (sidebars, headers, borders) is visually softer than the content it holds. No element competes for attention unless it carries semantic meaning.
-- **Precision**: Every spacing value, every shadow, every color choice follows a deliberate system. Nothing is arbitrary.
-
-This is not a "beautiful dashboard demo." It is a production workspace that earns trust through consistency and reduces cognitive load through visual hierarchy.
-
-### Core Visual Attributes
+The aesthetic sits at the intersection of **Modern Minimalism** and **Functional Precision**:
+- **Clarity Over Decoration**: UI chrome (sidebars, borders, headers) recedes into a monochromatic surface hierarchy, allowing content and work items to take center stage.
+- **Electric Indigo Signal**: Color is never arbitrary. Primary "Electric Indigo" (`#4648d4`) is used intentionally as a high-visibility signal for intelligence, active navigation, and primary user actions against a stark canvas.
+- **Spacious & Balanced Grid**: Utilizes an 8px base spacing grid with generous section breaks (48px–80px) to reduce visual fatigue, giving the application a high-end editorial feel.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  SYNCSPACE VISUAL DNA                                            │
+│  SYNCSPACE SIGNATURE VISUAL DNA                                 │
 ├──────────────────────────────────────────────────────────────────┤
-│  • Philosophy:       Content-first. Chrome recedes.              │
-│  • Surface Strategy: Three-tier depth (Canvas → Surface → Float) │
-│  • Primary Hue:      Sapphire Blue (262° OKLCH)                  │
-│  • Color Usage:      Semantic only. Color = Meaning.             │
-│  • Shape Language:   Mixed radii (16/12/8/full-pill)             │
-│  • Shadow System:    Ambient float, never harsh                  │
-│  • Border Style:     Ultra-thin, low-opacity, structural only    │
-│  • Typography:       Inter — tight headings, relaxed body        │
-│  • Density:          Spacious app shell, compact data regions    │
-│  • Motion:           Fast, smooth, invisible — 150ms default     │
+│  • Philosophy:       Serious Software — Content-first utility    │
+│  • Primary Signal:   Electric Indigo (#4648d4)                   │
+│  • Surface System:   M3 Tonal Layering (Lowest → Base → Elevated)  │
+│  • Typography:       Plus Jakarta Sans — Tight headlines, 1.6 body│
+│  • Standard Radius:  8px (0.5rem) base, 16px (1rem) containers   │
+│  • Pill Architecture: Full-pill (9999px) status chips only       │
+│  • Border Strategy:  1px neutral outline, hover-only shadow lift │
+│  • Tactile Motion:   Subtle press scale (98%) + 150ms transitions│
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Dual-Theme Architecture
+## 2. Dual-Theme Surface Architecture
 
-Light and Dark modes are **independently designed compositions**, not inversions of each other. Each has its own surface strategy, border approach, and shadow treatment.
+Light and Dark modes are independently crafted tonal compositions based on Material Design 3 surface container hierarchy.
 
-### Light Mode — "Paper Studio"
+### Light Mode — "Stark Studio"
+- **Background & Canvas**: Off-white `#fcf8ff` (or `#fcfcfd`) to reduce eye strain compared to blinding pure white.
+- **Primary Surfaces**: Containers and cards sit on `#ffffff` (Container Lowest) or `#f5f2fe` (Container Low) to create clear surface separation.
+- **Subtle Outline**: Structural 1px neutral borders (`#e2e8f0` / `#c7c4d7`) demarcate container boundaries without heavy shadows.
 
-An airy, tinted workspace that feels like a well-lit modern office. Content floats on elevated white surfaces against a cool-grey canvas.
-
-| Layer | Role | Value | Hex |
+| Surface Tier | Value / Token | Hex Equivalent | Role |
 |---|---|---|---|
-| Canvas | Page background | `oklch(0.965 0.005 260)` | `#F4F6FA` |
-| Surface | Cards, sidebars, panels | `oklch(1 0 0)` | `#FFFFFF` |
-| Recessed | Input fields, code blocks | `oklch(0.97 0.005 260)` | `#F8F9FC` |
-
-- **Borders**: `1px` at `oklch(0.92 0.008 260)` — barely visible, structural only.
-- **Shadows**: Multi-layer ambient float (see Section 6).
-- **Status badges**: Soft pastel fill + deep saturated text (e.g., mint green fill with forest green text).
+| Canvas / Background | `background` | `#fcf8ff` | Page background canvas |
+| Container Lowest | `surface-container-lowest` | `#ffffff` | Elevated pure white cards, inputs |
+| Container Low | `surface-container-low` | `#f5f2fe` | Recessed panels, table headers |
+| Container Standard | `surface-container` | `#efecf8` | Sidebar surface, toolbar panels |
+| Container High | `surface-container-high` | `#e9e6f3` | Hover highlights, active chips |
+| Container Highest | `surface-container-highest` | `#e4e1ed` | Modal overlays, popovers |
 
 ### Dark Mode — "Midnight Workshop"
-
-A low-fatigue deep slate environment for extended work sessions. Cards gain definition through subtle surface stepping and thin luminous borders, not shadows.
-
-| Layer | Role | Value | Hex |
-|---|---|---|---|
-| Canvas | Page background | `oklch(0.13 0.02 260)` | `#0C1222` |
-| Surface | Cards, sidebars, panels | `oklch(0.17 0.025 260)` | `#141B2D` |
-| Elevated | Popovers, dropdowns, modals | `oklch(0.20 0.025 260)` | `#1A2338` |
-
-- **Borders**: `1px` at `oklch(0.25 0.02 260)` — subtle separation, slightly luminous.
-- **Shadows**: Replaced by increased border visibility and surface stepping.
-- **Status badges**: Deep jewel-tone fill + bright pastel text (e.g., dark emerald fill with mint green text).
+- **Background & Canvas**: Deep, low-fatigue slate `#09090b` for maximum contrast during extended work sessions.
+- **Surfaces**: Floating panels sit on elevated dark surfaces (`#18181b` / `#27272a`) with subtle 1px luminous borders.
+- **High-Contrast Text**: Bright crisp text (`#f4f4f5`) ensures high legibility.
 
 ---
 
 ## 3. Color Token System
 
-### Primary Palette (Sapphire Blue)
+### Primary Palette (Electric Indigo)
+"Electric Indigo" serves as the precise signal for action and intelligence across the application.
 
-The primary color is a rich sapphire blue (hue 262°) — warmer and deeper than generic UI blue, conveying trust and focus without corporate coldness.
-
-| Token | Light Mode | Dark Mode | Usage |
-|---|---|---|---|
-| `--primary` | `oklch(0.55 0.24 262)` | `oklch(0.62 0.22 262)` | Primary buttons, active navigation, links, focus rings |
-| `--primary-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on primary buttons |
-| `--primary-hover` | `oklch(0.50 0.24 262)` | `oklch(0.57 0.22 262)` | Button hover state |
-| `--primary-muted` | `oklch(0.95 0.03 262)` | `oklch(0.22 0.06 262)` | Soft highlight fills, selected row backgrounds |
-
-### Neutral Palette (Cool Slate)
-
-All neutrals carry a `260°` hue tint for visual cohesion. No pure greys.
-
-| Token | Light Mode | Dark Mode | Usage |
-|---|---|---|---|
-| `--background` | `oklch(0.965 0.005 260)` | `oklch(0.13 0.02 260)` | Page canvas |
-| `--foreground` | `oklch(0.15 0.02 260)` | `oklch(0.95 0.008 260)` | Primary text, headings |
-| `--card` | `oklch(1 0 0)` | `oklch(0.17 0.025 260)` | Card/panel surfaces |
-| `--card-foreground` | `oklch(0.15 0.02 260)` | `oklch(0.95 0.008 260)` | Text on cards |
-| `--muted` | `oklch(0.96 0.005 260)` | `oklch(0.21 0.02 260)` | Disabled backgrounds, skeleton fills |
-| `--muted-foreground` | `oklch(0.55 0.02 260)` | `oklch(0.65 0.015 260)` | Secondary text, captions, timestamps |
-| `--accent` | `oklch(0.95 0.012 260)` | `oklch(0.23 0.02 260)` | Hover backgrounds, subtle highlights |
-| `--accent-foreground` | `oklch(0.18 0.02 260)` | `oklch(0.95 0.008 260)` | Text on accent backgrounds |
-
-### Semantic Palette (Status & Feedback)
-
-Color is reserved for meaning. These tokens drive all status indicators, priority badges, and data visualizations.
-
-| Semantic | Light Fill | Light Text | Dark Fill | Dark Text |
-|---|---|---|---|---|
-| **Success** | `oklch(0.95 0.05 155)` | `oklch(0.45 0.15 155)` | `oklch(0.23 0.06 155)` | `oklch(0.75 0.16 155)` |
-| **Warning** | `oklch(0.95 0.05 85)` | `oklch(0.48 0.14 85)` | `oklch(0.23 0.06 85)` | `oklch(0.82 0.14 85)` |
-| **Danger** | `oklch(0.95 0.05 25)` | `oklch(0.48 0.18 25)` | `oklch(0.23 0.06 25)` | `oklch(0.75 0.18 25)` |
-
-### Functional Tokens
-
-| Token | Light Mode | Dark Mode | Usage |
-|---|---|---|---|
-| `--border` | `oklch(0.92 0.008 260)` | `oklch(0.25 0.02 260)` | Container outlines, dividers |
-| `--input` | `oklch(0.92 0.008 260)` | `oklch(0.25 0.02 260)` | Form input borders |
-| `--ring` | `var(--primary)` | `var(--primary)` | Focus ring outline |
-| `--popover` | `oklch(1 0 0)` | `oklch(0.20 0.025 260)` | Dropdown, popover surfaces |
-| `--popover-foreground` | `oklch(0.15 0.02 260)` | `oklch(0.95 0.008 260)` | Text in popovers |
-| `--destructive` | `oklch(0.95 0.05 25)` | `oklch(0.23 0.06 25)` | Destructive action backgrounds |
-| `--destructive-foreground` | `oklch(0.48 0.18 25)` | `oklch(0.75 0.18 25)` | Destructive action text |
-| `--secondary` | `oklch(0.95 0.008 260)` | `oklch(0.22 0.025 260)` | Secondary button fills |
-| `--secondary-foreground` | `oklch(0.20 0.015 260)` | `oklch(0.95 0.008 260)` | Secondary button text |
-
----
-
-## 4. Corner Radius System
-
-Radii create visual rhythm through deliberate variation. Containers are generous, interactive elements are compact, status indicators are pills.
-
-| Scale | Value | Tailwind | Usage |
-|---|---|---|---|
-| `--radius` (base) | `0.75rem` (12px) | — | Default base radius |
-| `radius-sm` | `0.5rem` (8px) | `rounded-lg` | Inputs, small cards, inline tags |
-| `radius-md` | `0.625rem` (10px) | `rounded-xl` | Buttons, dropdowns, inner panels |
-| `radius-lg` | `0.75rem` (12px) | `rounded-xl` | Standard cards, modals, sidebars |
-| `radius-xl` | `1rem` (16px) | `rounded-2xl` | Hero containers, landing cards, large panels |
-| `radius-2xl` | `1.25rem` (20px) | `rounded-2xl` | Landing page feature sections |
-| `radius-full` | `9999px` | `rounded-full` | Badges, pills, avatars, status dots |
-
-**Rule**: Interior elements always use a smaller radius than their parent container. A card (`12px`) contains inputs (`8px`), not the reverse.
-
----
-
-## 5. Spacing System
-
-An 8px grid with deliberate density zones. The app shell is spacious; data regions (tables, kanban columns) are compact.
-
-| Token | Value | Usage |
+| Token Name | Hex Code | Role / Usage |
 |---|---|---|
-| `space-0.5` | `2px` | Dot separators, inline micro-gaps |
-| `space-1` | `4px` | Icon-to-label gaps, badge internal padding |
-| `space-1.5` | `6px` | Compact list item vertical padding |
-| `space-2` | `8px` | Standard internal gap, form field spacing |
-| `space-3` | `12px` | Card internal padding (compact), sidebar item padding |
-| `space-4` | `16px` | Standard card padding, section gaps |
-| `space-5` | `20px` | Card padding (comfortable), form group spacing |
-| `space-6` | `24px` | Section separators, panel padding |
-| `space-8` | `32px` | Page-level section spacing |
-| `space-10` | `40px` | Hero section vertical padding |
-| `space-12` | `48px` | Landing page section spacing |
-| `space-16` | `64px` | Major page section breaks |
+| `primary` | `#4648d4` | Primary buttons, active nav bars, key focus states |
+| `on-primary` | `#ffffff` | Text & icons on primary buttons |
+| `primary-container` | `#6063ee` | Prominent highlights, badge fills |
+| `on-primary-container` | `#fffbff` | High-contrast text on primary containers |
+| `surface-tint` | `#494bd6` | Primary focus rings & active indicator bars |
+| `inverse-primary` | `#c0c1ff` | Dark mode primary accents |
 
-### Density Zones
+### Secondary & Tertiary Palettes
+- **Secondary (Emerald Green)**: `#006c49` (Container `#6cf8bb`, text `#00714d`). Used for success states, completed tasks, positive metric badges (`+18.4%`).
+- **Tertiary (Warm Amber)**: `#904900` (Container `#b55d00`). Used for warnings, in-review status, urgent priority badges.
+- **Error (Crimson Red)**: `#ba1a1a` (Container `#ffdad6`, text `#93000a`). Used for danger actions, overdue tasks, invalid form inputs.
 
-- **Spacious**: Landing page, auth screens, empty states — generous padding (`space-8` to `space-16`), large type.
-- **Comfortable**: Dashboard, settings, member lists — balanced padding (`space-4` to `space-6`), standard type.
-- **Compact**: Kanban columns, task cards, comment threads, table rows — tight padding (`space-2` to `space-3`), smaller type.
-
----
-
-## 6. Elevation & Shadow Architecture
-
-Shadows create depth hierarchy. They are always soft, diffused, and multi-layered. Harsh drop shadows are never used.
-
-### Light Mode Shadows
-
-| Level | CSS Value | Usage |
-|---|---|---|
-| `shadow-xs` | `0 1px 2px 0 oklch(0.15 0.02 260 / 0.04)` | Subtle baseline lift for inputs, badges |
-| `shadow-sm` | `0 2px 8px -2px oklch(0.15 0.02 260 / 0.06), 0 1px 3px -1px oklch(0.15 0.02 260 / 0.04)` | Cards at rest |
-| `shadow-md` | `0 6px 20px -4px oklch(0.15 0.02 260 / 0.08), 0 2px 8px -2px oklch(0.15 0.02 260 / 0.04)` | Cards on hover, active states |
-| `shadow-lg` | `0 12px 32px -6px oklch(0.15 0.02 260 / 0.12), 0 4px 12px -2px oklch(0.15 0.02 260 / 0.06)` | Modals, floating panels, dragging elements |
-| `shadow-xl` | `0 20px 48px -8px oklch(0.15 0.02 260 / 0.16), 0 8px 20px -4px oklch(0.15 0.02 260 / 0.08)` | Command palette, overlay panels |
-
-### Dark Mode Shadows
-
-In dark mode, shadows become nearly invisible. Depth is communicated through **surface stepping** (progressively lighter surfaces) and **border luminance** instead.
-
-| Level | Approach |
-|---|---|
-| Rest | Surface `oklch(0.17)` on canvas `oklch(0.13)` — no shadow needed |
-| Hover | Surface lightens to `oklch(0.19)` + border brightens to `oklch(0.28)` |
-| Float | Surface `oklch(0.20)` + border `oklch(0.30)` + `0 4px 16px oklch(0 0 0 / 0.4)` |
+### Neutral & Border Tokens
+- `on-surface`: `#1b1b23` (Primary text)
+- `on-surface-variant`: `#464554` (Secondary text, captions, metadata)
+- `outline`: `#767586` (Subtle borders)
+- `outline-variant`: `#c7c4d7` (Dividers, container outlines)
 
 ---
 
-## 7. Typography Scale
+## 4. Typography System (Plus Jakarta Sans)
 
-Font: **Inter** (`--font-sans`). All sizes follow a modular scale with deliberate tracking and leading adjustments.
+SyncSpace uses **Plus Jakarta Sans** for a modern, slightly geometric aesthetic that remains highly readable at all scales.
 
-| Scale | Size | Weight | Tracking | Leading | Usage |
-|---|---|---|---|---|---|
-| `display` | `3rem` (48px) | `800` | `-0.025em` | `1.1` | Landing page hero heading |
-| `h1` | `2rem` (32px) | `700` | `-0.02em` | `1.2` | Page titles ("Dashboard", "Projects") |
-| `h2` | `1.5rem` (24px) | `700` | `-0.015em` | `1.25` | Section headings, card titles |
-| `h3` | `1.125rem` (18px) | `600` | `-0.01em` | `1.3` | Sub-section headings |
-| `body` | `0.875rem` (14px) | `400` | `0em` | `1.6` | Standard body text, descriptions |
-| `body-sm` | `0.8125rem` (13px) | `400` | `0em` | `1.5` | Comment text, table content |
-| `caption` | `0.75rem` (12px) | `500` | `0.01em` | `1.4` | Timestamps, metadata, breadcrumbs |
-| `overline` | `0.6875rem` (11px) | `600` | `0.05em` | `1.3` | Section labels ("MENU", "GENERAL"), uppercased |
-| `metric` | `1.75rem` (28px) | `700` | `-0.02em` | `1.1` | Dashboard KPI values |
-| `badge` | `0.6875rem` (11px) | `600` | `0.01em` | `1` | Pill badge text |
+### Type Scale
 
-### Typography Rules
-
-- **Headings**: Always use `font-bold` or `font-semibold` with negative tracking (`tracking-tight`).
-- **Metric values**: Large, bold, tight tracking — the most visually prominent element in data cards.
-- **Secondary text**: Always `--muted-foreground` — never the same color as primary text.
-- **Overline labels**: Always uppercased, wider tracking, `--muted-foreground`.
+| Scale Token | Font Family | Size | Weight | Tracking | Leading | Usage |
+|---|---|---|---|---|---|---|
+| `display` | Plus Jakarta Sans | `48px` (3rem) | `800` (ExtraBold) | `-0.04em` | `1.1` | Hero title |
+| `headline-lg` | Plus Jakarta Sans | `32px` (2rem) | `700` (Bold) | `-0.03em` | `1.2` | Page titles (Desktop) |
+| `headline-lg-mobile` | Plus Jakarta Sans | `28px` (1.75rem) | `700` (Bold) | `-0.02em` | `1.2` | Page titles (Mobile) |
+| `headline-md` | Plus Jakarta Sans | `24px` (1.5rem) | `700` (Bold) | `-0.02em` | `1.3` | Card headers, section titles |
+| `body-lg` | Plus Jakarta Sans | `18px` (1.125rem) | `400` (Regular) | `-0.01em` | `1.6` | Subtitles, intro text |
+| `body-md` | Plus Jakarta Sans | `16px` (1rem) | `400` (Regular) | `0em` | `1.6` | Body copy, descriptions |
+| `label-md` | Plus Jakarta Sans | `14px` (0.875rem) | `600` (SemiBold) | `0.01em` | `1.4` | Form labels, button text |
+| `label-sm` | Plus Jakarta Sans | `12px` (0.75rem) | `700` (Bold) | `0.05em` | `1.2` | Badges, overlines, status chips |
 
 ---
 
-## 8. Iconography
+## 5. Shape & Corner Radius Architecture
 
-- **Library**: Lucide React (outline, 1.5px stroke weight)
-- **Default size**: `16px` (inline text context), `20px` (buttons, navigation), `24px` (page headers)
-- **Color**: Inherits text color via `currentColor`. Never uses a separate icon color unless semantically meaningful.
-- **Sidebar icons**: `18px`, `--muted-foreground` at rest, `--foreground` when active.
-- **Inline icons**: Same size and color as adjacent text.
+SyncSpace enforces strict rules on component radii:
 
----
-
-## 9. Motion Design
-
-Motion is functional, not decorative. Every animation communicates state change.
-
-| Pattern | Duration | Easing | Usage |
-|---|---|---|---|
-| Micro-interaction | `150ms` | `ease-out` | Button hover, input focus, badge appear |
-| Panel transition | `200ms` | `ease-in-out` | Sidebar collapse, dropdown open, tab switch |
-| Modal enter | `200ms` | `ease-out` | Dialog fade-in + scale from `0.96` to `1` |
-| Modal exit | `150ms` | `ease-in` | Dialog fade-out + scale to `0.96` |
-| Page transition | `250ms` | `ease-in-out` | Route changes, skeleton → content |
-| Drag feedback | `0ms` (instant) | — | Card pickup is instant, drop animates `200ms` |
-| Toast enter | `300ms` | `spring(1, 80, 10)` | Slide-in from right |
-
-### Motion Rules
-
-- **No bounce**: Spring animations are critically damped. The interface is precise, not playful.
-- **No delay**: Interactions respond immediately. If async, show skeleton/spinner instantly.
-- **Hover transitions**: Always `150ms` — fast enough to feel instant, slow enough to be smooth.
-- **Reduced motion**: Respect `prefers-reduced-motion` — collapse all transitions to `0ms`.
+- **Standard Base (`8px` / `0.5rem`)**: Used for Buttons, Input fields, Dropdowns, and small Cards.
+- **Large Container (`16px` / `1rem`)**: Used for Main Content Cards, Modals, and Dashboard Widgets.
+- **Full Pill (`9999px`)**: Used **exclusively** for status chips (e.g., "Active", "Done", "High Priority") and toggle switches.
 
 ---
 
-## 10. Data Visualization
+## 6. Micro-Elevation & Tactile Motion
 
-Charts, graphs, and progress indicators follow the semantic palette.
-
-| Data Type | Color | Usage |
-|---|---|---|
-| Primary metric | `--primary` | Main data series, active bars |
-| Secondary metric | `oklch(0.68 0.12 262)` | Comparison series, lighter bars |
-| Positive trend | `--success-foreground` | Upward arrows, green sparklines |
-| Negative trend | `--danger-foreground` | Downward arrows, red sparklines |
-| Neutral/baseline | `--muted-foreground` | Grid lines, axis labels, zero line |
-| Area fill | `--primary` at `10%` opacity | Chart area fills |
-
-### Chart Typography
-- **Axis labels**: `caption` scale, `--muted-foreground`
-- **Tooltip values**: `body` scale, `--foreground`, bold
-- **Chart titles**: `h3` scale
-
----
-
-## 11. Landing Page vs. App Shell Distinction
-
-The marketing surface and the application surface have different visual temperatures.
-
-| Attribute | Landing Page | App Shell |
-|---|---|---|
-| Background | May use gradient washes, hero patterns | Flat canvas only (`--background`) |
-| Border radius | Generous (`16–20px`) | Standard (`8–12px`) |
-| Typography | Larger scale (`display`, `h1`) | Compact scale (`h2`, `body`) |
-| Spacing | Spacious density zone | Comfortable/Compact density |
-| Color | Primary + subtle gradient accents allowed | Semantic color only |
-| Shadows | More pronounced (`shadow-md` to `shadow-xl`) | Subtle (`shadow-xs` to `shadow-sm`) |
-| Animation | Scroll-triggered fade-ins allowed | Micro-interactions only |
+- **Cards at Rest**: Cards have **no shadow by default**, relying on a clean 1px border (`#e2e8f0`).
+- **Hover Lift**: Interactive cards gain a soft ambient shadow on hover (`shadow-md`).
+- **Tactile Feedback**: Buttons and interactive items utilize a subtle "pressed" transition — scaling to `98%` (`active:scale-[0.98]`) on click.
+- **Primary Button Inset**: Primary buttons incorporate a 1px inset top-border (`border-t border-white/20`) for a subtle, high-end editorial feel.
+- **Sidebar Leading Indicator**: Active navigation items display a 2px vertical bar in Electric Indigo (`#4648d4`) on the leading edge.

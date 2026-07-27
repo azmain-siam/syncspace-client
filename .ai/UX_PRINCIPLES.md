@@ -1,13 +1,13 @@
 # UX_PRINCIPLES.md — SyncSpace User Experience Guidelines
 
-Version: 3.0
-Visual Foundation: **Quiet Precision** (See `VISUAL_IDENTITY.md` & `DESIGN_SYSTEM.md`)
+Version: 4.0  
+Visual Foundation: **SyncSpace Signature — Serious Software** (See `DESIGN.md`, `VISUAL_IDENTITY.md` & `DESIGN_SYSTEM.md`)
 
 ---
 
 # Purpose
 
-This document defines how SyncSpace **behaves** — the interaction patterns, feedback strategies, and usability standards that make the product feel responsive, trustworthy, and effortless.
+This document defines how SyncSpace **behaves** — the interaction patterns, feedback strategies, and usability standards that make the product feel responsive, authoritative, trustworthy, and effortless.
 
 `VISUAL_IDENTITY.md` defines what it looks like. `DESIGN_SYSTEM.md` defines how to build it. This document defines how it feels to use.
 
@@ -15,56 +15,52 @@ This document defines how SyncSpace **behaves** — the interaction patterns, fe
 
 # 1. Core UX Principles
 
-## 1.1 Content-First Hierarchy
+## 1.1 Content-First Utility & Clarity
 
-The interface serves the content. UI chrome (sidebars, headers, navigation, borders) should be visually quieter than the user's work (tasks, boards, comments, data).
+The interface serves the content. UI chrome (sidebars, headers, navigation, borders) recedes into a subtle monochromatic surface structure, ensuring that the user's work items (tasks, boards, metrics, comments) command primary focus.
 
 **Rules**:
-- Navigation uses `--muted-foreground` at rest. Only the active item uses `--primary`.
-- Borders are structural, never decorative — `--border` at low opacity.
-- Data values (task counts, KPI metrics, usernames) are always the most visually prominent elements on screen.
-- Empty states are invitations, not dead ends — always provide a clear CTA.
+- Navigation items use `on-surface-variant` (`#464554`) at rest. Only the active navigation item receives Electric Indigo (`#4648d4`) highlighting with a 2px leading edge bar.
+- Container borders are structural outlines (`1px border border-border`), never decorative.
+- Work item data (task titles, metric values, assignee avatars) are the most visually prominent elements on screen.
+- Empty states are purposeful invitations with primary CTAs — never dead ends.
 
-## 1.2 Progressive Disclosure
+## 1.2 Tactile Micro-Elevation & Micro-Interactions
+
+Components respond to user touch and click with physical feedback:
+- **Button Inset Accent**: Primary buttons incorporate a `1px` inset top-border (`border-t border-white/20`) to convey a premium editorial feel.
+- **Active Press Scale**: Buttons and interactive card controls feature a subtle tactile press state, scaling down to `98%` (`active:scale-[0.98]`) on mouse click or tap.
+- **Hover Lift**: Cards are flat by default with a `1px` neutral border, gaining a diffused ambient shadow (`hover:shadow-md`) on hover.
+- **Input Focus Glow**: Form inputs shift from a neutral border to Electric Indigo on focus, accented with a 10% opacity indigo glow (`focus:shadow-[0_0_0_3px_rgba(70,72,212,0.1)]`).
+
+## 1.3 Progressive Disclosure
 
 Show the minimum information needed for each context level. Details appear on demand, not upfront.
 
 **Rules**:
-- Task cards show title + priority + assignee. Full details open in the intercepted modal.
-- Sidebar shows navigation labels only. Counts/badges appear only when relevant (unread notifications, new items).
-- Project cards show title + status. Description, dates, and member lists are inside the detail view.
-- Use tooltips for icon-only actions. Never require the user to guess what an icon does.
+- Kanban task cards display title + priority status chip + assignee avatar. Full details, comments, and attachments open in the intercepted Task Detail modal.
+- Sidebar displays clear section navigation. Badge counters appear only for unread or high-priority notifications.
+- Icon-only actions must provide tooltips on hover (`label-sm` scale).
 
-## 1.3 Spatial Consistency
+## 1.4 Spatial Consistency
 
-Users build spatial memory. Elements must be in the same place every time.
-
-**Rules**:
-- Sidebar is always left. Header is always top. Action buttons are always right-aligned.
-- Primary actions ("Create", "Save", "Submit") are always rightmost in button groups.
-- Destructive actions ("Delete", "Remove") are always leftmost and use `destructive` variant.
-- Modal close is always top-right. Modal confirm/cancel buttons are always bottom-right.
-
-## 1.4 Zero-Latency Perception
-
-The interface should feel instant, even when network operations are pending.
+Users build spatial memory. Interactive controls must retain consistent positions across all screens.
 
 **Rules**:
-- **Optimistic mutations**: Moving a Kanban card, posting a comment, or toggling a status updates the UI immediately via `onMutate`. Network failure triggers a silent rollback with an error toast.
-- **Skeleton loading**: On initial page load, render page-shaped skeleton placeholders within `50ms`. Never show a blank white screen.
-- **Button loading state**: Replace button label with a spinning `Loader2` icon and disable pointer events. Button never visually "jumps" in size.
-- **Instant feedback**: Hover effects respond in `150ms`. Focus rings appear immediately. Toasts appear in `300ms`.
+- Left sidebar for main navigation; top header for search, notifications, and profile.
+- Primary confirm actions ("Save", "Create", "Submit") are always rightmost in button groups.
+- Destructive actions ("Delete", "Remove") are always leftmost and rendered with destructive color tokens.
+- Modals close via top-right close icon or `Escape` key.
 
-## 1.5 Error Recovery, Not Error Punishment
+## 1.5 Zero-Latency Perception & Optimistic UI
 
-Errors should be recoverable, specific, and never blame the user.
+The interface feels instantaneous even during background asynchronous operations.
 
 **Rules**:
-- Validation errors appear inline below the specific field, not as a page-level alert.
-- API errors appear as Sonner toast notifications with specific messages from the backend `message` field.
-- Network failures show a toast: "Something went wrong. Please try again." — never a raw error code.
-- Optimistic UI rollbacks are silent unless the user needs to retry the action.
-- Form data is never lost on error — all inputs retain their values after a failed submission.
+- **Optimistic Mutations**: Moving Kanban cards or posting comments updates the UI state immediately (`onMutate`), with automatic rollback if the API call fails.
+- **Skeletons**: Initial view loading renders layout-matching skeleton placeholders within `50ms`.
+- **Button Loading State**: Buttons preserve width, replacing label with a spinning loader (`Loader2`) and disabling pointer events.
+- **Micro-transitions**: 150ms ease-out transitions for hover and state changes.
 
 ---
 
@@ -74,166 +70,33 @@ Errors should be recoverable, specific, and never blame the user.
 
 | Interaction | Behavior |
 |---|---|
-| Sidebar nav click | Instant route transition. Active item highlights immediately. |
-| Breadcrumb click | Navigate to parent context. Breadcrumb always shows full path. |
-| Workspace switcher | Dropdown with all user workspaces. Selection changes active context and reloads sidebar. |
-| Back button / `Alt+←` | Standard browser back. No custom history management. |
-| `Ctrl+K` / `⌘+K` | Opens command palette (global search). Closes with `Escape`. |
+| Sidebar nav click | Instant route transition. Active item displays 2px Electric Indigo leading edge bar. |
+| Breadcrumb click | Navigate to parent context. Breadcrumbs maintain full visual path. |
+| Workspace switcher | Dropdown menu listing user workspaces + "Create Workspace" modal trigger. |
+| `Ctrl+K` / `⌘+K` | Opens Command Palette (Global Search). |
 
-## 2.2 Forms & Validation
+## 2.2 Form Validation & Input Feedback
 
 | Pattern | Implementation |
 |---|---|
-| Validation timing | Validate on `blur` for first touch, then `onChange` after first error. |
-| Submit behavior | Disable button + show spinner. Re-enable on response (success or error). |
-| Success feedback | Sonner success toast + redirect to appropriate page. |
-| Error feedback | Inline field errors (Zod) + API error toast (Sonner). |
-| Password fields | Toggle visibility icon (Eye/EyeOff) inside input. Hidden by default. |
+| Validation timing | Validate on `blur` initially, then `onChange` once an error is flagged. |
+| Focus feedback | 1px Electric Indigo border + 10% indigo ambient glow. |
+| Submit state | Disable button, show inline `Loader2` spinner. |
+| Error feedback | Red error message below input (`text-xs text-danger font-medium`) + red input border. |
 
 ## 2.3 Modals & Dialogs
 
 | Pattern | Behavior |
 |---|---|
-| Open | Fade-in overlay (`200ms`) + scale-in dialog from `0.96` (`200ms`). |
-| Close triggers | Click overlay, press `Escape`, click close button. |
-| Close | Fade-out + scale-down (`150ms`). |
-| Scroll | Modal body scrolls independently. Overlay and header/footer stay fixed. |
-| Confirmation | Destructive actions always require a confirmation dialog with explicit action name. |
-| Task detail modal | Intercepted route modal — URL updates to `?taskId=xxx` without losing board scroll context. |
-
-## 2.4 Kanban Board (dnd-kit)
-
-| Interaction | Behavior |
-|---|---|
-| Card pickup | Instant grab — `0ms` delay. Cursor changes to `grabbing`. |
-| Drag indicator | Card lifts with `shadow-lg`. Origin slot shows a ghost placeholder. |
-| Column hover | Target column shows a subtle drop indicator line at the insertion point. |
-| Card drop | Animate card to final position (`200ms ease-out`). Ghost disappears. |
-| Network sync | Optimistic update on drop → `PATCH /tasks/:id/move` → rollback if `4xx`/`5xx`. |
-| Horizontal scroll | Board columns scroll horizontally. Each column scrolls vertically for tasks. |
-
-## 2.5 Toast Notifications (Sonner)
-
-| Type | Duration | Behavior |
-|---|---|---|
-| Success | `3s` | Auto-dismiss. Green left accent. |
-| Error | `5s` | Auto-dismiss. Red left accent. Has dismiss button. |
-| Warning | `4s` | Auto-dismiss. Amber left accent. |
-| Info | `3s` | Auto-dismiss. Blue left accent. |
-| Loading | Persists | Stays until resolved. Shows spinner. |
-
-- **Position**: `top-right`.
-- **Stacking**: Max 3 visible. Older toasts slide up.
-- **Rich content**: May include action buttons (e.g., "Undo" for destructive operations).
+| Open | Fade-in overlay (`bg-black/50 backdrop-blur-xs`) + scale-in dialog from `0.96` (`200ms ease-out`). |
+| Close | `Escape` key, background overlay click, or top-right close icon (`150ms ease-in`). |
+| Task detail modal | Intercepted route modal overlaying active board (`?taskId=xyz`). |
 
 ---
 
-# 3. State Management UX
+# 3. Status Chips & Pill Geometry
 
-## 3.1 Loading States
+All status indicators, priority tags, and metric trend indicators strictly use **full pill geometry (`rounded-full`)** with low-saturation background tints:
 
-| Context | Loading Pattern |
-|---|---|
-| Initial page load | Full-page skeleton matching final layout shape |
-| Data refetch | No skeleton — existing data stays visible. Subtle spinner in header if long. |
-| Mutation pending | Button spinner (forms). Optimistic UI (Kanban). |
-| Image/avatar | Blur placeholder → sharp image on load |
-
-## 3.2 Empty States
-
-When a list, grid, or board has no content, show an empty state component — never a blank area.
-
-**Structure**:
-```
-┌─────────────────────────────────────────┐
-│                                         │
-│            [Illustration Icon]          │ ← Lucide icon, 48px, muted-foreground
-│                                         │
-│         "No projects yet"               │ ← text-lg font-semibold
-│   "Create your first project to get     │ ← text-sm text-muted-foreground
-│    started with your team."             │
-│                                         │
-│        [+ Create Project]               │ ← Primary button CTA
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-- Centered in the content area.
-- Friendly, specific copy — never generic "No data found."
-- Always include a CTA to create the missing resource.
-
-## 3.3 Error States
-
-| Scenario | Display |
-|---|---|
-| 404 route | Full-page "Page not found" with illustration + "Go home" button |
-| API fetch error | Inline error card in the content area: "Failed to load [resource]. Try again." |
-| Permission denied | Inline error card: "You don't have access to this resource." |
-| Network offline | Persistent toast banner: "You're offline. Changes will sync when reconnected." |
-
----
-
-# 4. Keyboard Accessibility
-
-## 4.1 Global Shortcuts
-
-| Shortcut | Action |
-|---|---|
-| `Ctrl+K` / `⌘+K` | Open command palette |
-| `Escape` | Close topmost modal, dropdown, or popover |
-
-## 4.2 Focus Management
-
-- **Tab order**: Follows visual reading order (left-to-right, top-to-bottom).
-- **Focus rings**: `ring-2 ring-ring ring-offset-2 ring-offset-background` on all interactive elements. Visible on `:focus-visible` only (not on mouse click).
-- **Focus trap**: Modals and dialogs trap focus. Tab cycles within the dialog until closed.
-- **Auto-focus**: Modals focus the first interactive element on open. Search palette focuses the search input.
-
-## 4.3 Screen Reader
-
-- All icon-only buttons have `aria-label`.
-- All form inputs have associated `<Label>` with `htmlFor`.
-- Dynamic content updates use `aria-live="polite"` regions.
-- Badge counts announce via `aria-label` (e.g., "3 unread notifications").
-
----
-
-# 5. Responsive Behavior
-
-| Viewport | Sidebar | Metric Grid | Kanban Board | Task Modal |
-|---|---|---|---|---|
-| Mobile (< 640px) | Hidden (hamburger) | 1 column | Horizontal scroll | Full-screen sheet |
-| Tablet (640–1023px) | Overlay drawer | 2 columns | Horizontal scroll | Centered dialog (lg) |
-| Desktop (≥ 1024px) | Persistent rail | 3–4 columns | Full horizontal layout | Centered dialog (xl) |
-
-**Touch considerations**:
-- Kanban drag-and-drop works on touch via `dnd-kit`'s touch sensor with `250ms` activation delay to distinguish scroll from drag.
-- All interactive targets are minimum `44px` touch area.
-- No hover-only interactions — everything accessible via tap/click.
-
----
-
-# 6. Theme Switching
-
-- Managed by `next-themes` with `attribute="class"` strategy.
-- **Default**: System preference (`enableSystem`).
-- **Toggle location**: User profile menu dropdown.
-- **Transition**: `disableTransitionOnChange` set to `true` — no flash or transition on theme toggle. Instant swap.
-- **Persistence**: Theme choice stored in `localStorage` via `next-themes` default.
-
----
-
-# 7. Performance UX
-
-| Metric | Target | Strategy |
-|---|---|---|
-| First Contentful Paint | < 1.5s | Server-rendered layout shell, client-side data fetch |
-| Largest Contentful Paint | < 2.5s | Skeleton placeholders, lazy-loaded heavy components |
-| Cumulative Layout Shift | < 0.1 | Fixed sidebar width, skeleton dimensions match content |
-| Interaction to Next Paint | < 200ms | Optimistic mutations, local state updates |
-
-**Rules**:
-- Never block rendering on data fetches. Show skeleton → swap with real data.
-- Heavy components (rich text editor, chart libraries) are `React.lazy()` + `Suspense`.
-- Images use `next/image` with `blur` placeholder.
-- Query cache (`staleTime: 5min`) prevents redundant refetches on navigation.
+- **Status**: `TODO` (Neutral), `IN_PROGRESS` (Indigo Tint), `REVIEW` (Warm Amber), `DONE` (Emerald Green).
+- **Priority**: `LOW` (Neutral), `MEDIUM` (Indigo Tint), `HIGH` (Warm Amber), `URGENT` (Crimson Red).
