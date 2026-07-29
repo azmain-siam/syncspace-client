@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 'use client';
 
 import * as React from 'react';
@@ -49,7 +50,7 @@ export function RegisterForm() {
   return (
     <div className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only - Image 1) ─── */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
+      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Decorative Glow */}
         <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/30 rounded-full blur-3xl pointer-events-none" />
 
@@ -115,7 +116,7 @@ export function RegisterForm() {
         </div>
 
         {/* Form Container */}
-        <div className="w-full max-w-[400px] mx-auto my-auto space-y-5">
+        <div className="w-full max-w-100 mx-auto my-auto space-y-5">
           <div className="space-y-1 text-left">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
               Create your workspace
@@ -254,7 +255,7 @@ export function RegisterForm() {
         </div>
 
         {/* Bottom Footer */}
-        <div className="w-full max-w-[400px] mx-auto pt-6 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
+        <div className="w-full max-w-100 mx-auto pt-6 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace Technologies.</div>
           <div className="flex gap-4">
             <span className="hover:text-foreground cursor-pointer">Security</span>
