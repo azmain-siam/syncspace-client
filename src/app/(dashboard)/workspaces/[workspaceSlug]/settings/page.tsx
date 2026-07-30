@@ -4,7 +4,7 @@ import * as React from 'react';
 import { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Image, ShieldAlert } from 'lucide-react';
+import { Building2, Image, Loader2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,29 +13,49 @@ import {
   updateWorkspaceSettingsSchema,
   type UpdateWorkspaceSettingsInput,
 } from '@/features/workspace/schemas/update-settings.schema';
+import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { useUpdateWorkspace } from '@/features/workspace/hooks/use-update-workspace';
-import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-store';
 
 export default function WorkspaceSettingsPage({
   params,
 }: {
-  params: Promise<{ workspaceId: string }>;
+  params: Promise<{ workspaceSlug: string }>;
 }) {
-  const { workspaceId } = use(params);
-  const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
+  const { workspaceSlug } = use(params);
+  const { workspace, isLoading } = useCurrentWorkspace(workspaceSlug);
+  const workspaceId = workspace?.id || '';
+
   const updateSettingsMutation = useUpdateWorkspace(workspaceId);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<UpdateWorkspaceSettingsInput>({
     resolver: zodResolver(updateWorkspaceSettingsSchema),
     defaultValues: {
-      name: activeWorkspace?.name || '',
-      logo: activeWorkspace?.logo || '',
+      name: workspace?.name || '',
+      logo: workspace?.logo || '',
     },
   });
+
+  React.useEffect(() => {
+    if (workspace) {
+      reset({
+        name: workspace.name,
+        logo: workspace.logo || '',
+      });
+    }
+  }, [workspace, reset]);
+
+  if (isLoading || !workspace) {
+    return (
+      <div className="flex h-64 w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const onSubmit = (data: UpdateWorkspaceSettingsInput) => {
     updateSettingsMutation.mutate(data);

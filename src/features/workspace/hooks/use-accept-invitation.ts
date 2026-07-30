@@ -23,7 +23,8 @@ export function useAcceptInvitation() {
       toast.success(response.message || 'Successfully joined workspace!');
       if (workspace) {
         setActiveWorkspace(workspace);
-        router.push(`/workspaces/${workspace.id}`);
+        const slug = workspace.slug || workspace.id;
+        router.push(`/workspaces/${slug}`);
       } else {
         router.push('/');
       }

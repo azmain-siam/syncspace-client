@@ -27,7 +27,8 @@ export function useCreateWorkspace(onSuccessCallback?: () => void) {
         if (onSuccessCallback) {
           onSuccessCallback();
         }
-        router.push(`/workspaces/${workspace.id}`);
+        const slug = workspace.slug || workspace.id;
+        router.push(`/workspaces/${slug}`);
       }
     },
     onError: (error) => {

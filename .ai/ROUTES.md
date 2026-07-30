@@ -19,25 +19,27 @@ Complete routing table for the Next.js 15 App Router (`src/app/`).
 
 ## 2. Protected Routes (Authenticated)
 
-All routes under `(dashboard)` wrap within `WorkspaceAppLayout` requiring a valid JWT session.
+All routes under `(dashboard)` wrap within `WorkspaceAppLayout` requiring a valid JWT session. All workspace parameters use **human-readable slugs** (`:workspaceSlug`).
 
 | Path | Component / View | Breadcrumb Trail | Description |
 |---|---|---|---|
-| `/` | `WorkspaceRedirect` | Home | Redirects to default workspace dashboard |
+| `/` | `WorkspaceRedirect` | Home | Redirects to default workspace dashboard (`/workspaces/:workspaceSlug`) |
 | `/workspaces/create` | `CreateWorkspaceModal` | Workspaces > New | Create new workspace |
-| `/workspaces/:workspaceId` | `DashboardView` | Workspace > Dashboard | High-level analytics summary KPIs |
-| `/workspaces/:workspaceId/projects` | `ProjectsListView` | Workspace > Projects | Workspace projects overview grid |
-| `/workspaces/:workspaceId/projects/:projectId` | `ProjectDetailView` | Workspace > Projects > Project | Project overview & boards list |
-| `/workspaces/:workspaceId/projects/:projectId/boards/:boardId` | `BoardKanbanView` | Workspace > Projects > Project > Board | Interactive Kanban Board |
-| `/workspaces/:workspaceId/activities` | `ActivityFeedView` | Workspace > Activity | Real-time workspace activity stream |
-| `/workspaces/:workspaceId/members` | `MembersView` | Workspace > Members | Workspace member list & invitation management |
-| `/workspaces/:workspaceId/settings` | `WorkspaceSettingsView` | Workspace > Settings | Workspace settings & ownership transfer |
+| `/workspaces/:workspaceSlug` | `DashboardView` | Workspace > Dashboard | High-level analytics summary KPIs |
+| `/workspaces/:workspaceSlug/projects` | `ProjectsListView` | Workspace > Projects | Workspace projects overview grid |
+| `/workspaces/:workspaceSlug/projects/:projectSlug` | `ProjectDetailView` | Workspace > Projects > Project | Project overview & boards list |
+| `/workspaces/:workspaceSlug/projects/:projectSlug/boards/:boardSlug` | `BoardKanbanView` | Workspace > Projects > Project > Board | Interactive Kanban Board |
+| `/workspaces/:workspaceSlug/activity` | `ActivityFeedView` | Workspace > Activity | Real-time workspace activity stream |
+| `/workspaces/:workspaceSlug/members` | `MembersView` | Workspace > Members | Workspace member list & invitation management |
+| `/workspaces/:workspaceSlug/settings` | `WorkspaceSettingsView` | Workspace > Settings | Workspace settings & ownership transfer |
 | `/profile` | `UserProfileView` | Profile | Account settings & profile info |
 
 ---
 
 ## 3. Dynamic Route Parameters & Modals
 
+- **Slug Resolution Hook (`useCurrentWorkspace`)**:
+  - Automatically resolves workspace by matching `slug` or `id` (supports both `/workspaces/my-workspace-slug` and legacy UUID `/workspaces/8c359065-...`).
 - **Task Details Intercepted Modal**:
-  - Modal Route: `/workspaces/:wId/projects/:pId/boards/:bId?taskId=:taskId`
+  - Modal Route: `/workspaces/:workspaceSlug/projects/:projectSlug/boards/:boardSlug?taskId=:taskId`
   - Rendered over the active Board view as a Radix Dialog overlay so the background board state remains visible.

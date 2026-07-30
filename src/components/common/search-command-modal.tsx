@@ -17,7 +17,7 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
   const router = useRouter();
   const [query, setQuery] = useState('');
   const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
-  const workspaceId = activeWorkspace?.id;
+  const workspaceSlug = activeWorkspace?.slug || activeWorkspace?.id;
 
   useEffect(() => {
     if (!open) {
@@ -30,25 +30,25 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
       title: 'Dashboard',
       category: 'Navigation',
       icon: LayoutDashboard,
-      href: workspaceId ? `/workspaces/${workspaceId}` : '/',
+      href: workspaceSlug ? `/workspaces/${workspaceSlug}` : '/',
     },
     {
       title: 'Projects',
       category: 'Navigation',
       icon: FolderKanban,
-      href: workspaceId ? `/workspaces/${workspaceId}/projects` : '/projects',
+      href: workspaceSlug ? `/workspaces/${workspaceSlug}/projects` : '/projects',
     },
     {
       title: 'Workspace Members',
       category: 'Navigation',
       icon: Users,
-      href: workspaceId ? `/workspaces/${workspaceId}/members` : '/members',
+      href: workspaceSlug ? `/workspaces/${workspaceSlug}/members` : '/members',
     },
     {
       title: 'Workspace Settings',
       category: 'Navigation',
       icon: Settings,
-      href: workspaceId ? `/workspaces/${workspaceId}/settings` : '/settings',
+      href: workspaceSlug ? `/workspaces/${workspaceSlug}/settings` : '/settings',
     },
   ];
 

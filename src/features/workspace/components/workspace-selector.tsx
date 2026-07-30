@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Building2, Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +13,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import type { Workspace } from '@/types/domain';
 import { useMyWorkspaces } from '../hooks/use-my-workspaces';
 import { useWorkspaceStore } from '../stores/use-workspace-store';
 import { CreateWorkspaceModal } from './create-workspace-modal';
 
 export function WorkspaceSelector() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const { data: workspacesResponse, isLoading } = useMyWorkspaces();
   const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
@@ -24,13 +28,32 @@ export function WorkspaceSelector() {
 
   const workspaces = workspacesResponse?.data || [];
 
+  const handleSelectWorkspace = (targetWorkspace: Workspace) => {
+    setActiveWorkspace(targetWorkspace);
+    const targetSlug = targetWorkspace.slug || targetWorkspace.id;
+
+    if (pathname.includes('/workspaces/')) {
+      const pathAfterWorkspaces = pathname.split('/workspaces/')[1] || '';
+      const parts = pathAfterWorkspaces.split('/');
+      // parts[0] is the current workspace slug/id, parts.slice(1) is the remaining subpath
+      const subpathParts = parts.slice(1);
+      if (subpathParts.length > 0) {
+        const subpath = subpathParts.join('/');
+        router.push(`/workspaces/${targetSlug}/${subpath}`);
+        return;
+      }
+    }
+
+    router.push(`/workspaces/${targetSlug}`);
+  };
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/80 bg-card p-2.5 text-left transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/80 bg-card p-2.5 text-left transition-all hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <Avatar className="h-8 w-8 rounded-lg border border-border/60">
@@ -65,7 +88,7 @@ export function WorkspaceSelector() {
             return (
               <DropdownMenuItem
                 key={workspace.id}
-                onClick={() => setActiveWorkspace(workspace)}
+                onSelect={() => handleSelectWorkspace(workspace)}
                 className="flex items-center justify-between cursor-pointer rounded-lg py-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -87,7 +110,10 @@ export function WorkspaceSelector() {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => setCreateModalOpen(true)}
+            onSelect={(e) => {
+              e.preventDefault();
+              setCreateModalOpen(true);
+            }}
             className="flex items-center gap-2 text-primary font-semibold cursor-pointer rounded-lg py-2"
           >
             <Plus className="h-4 w-4" />

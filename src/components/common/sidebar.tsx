@@ -22,7 +22,7 @@ interface SidebarProps {
 export function Sidebar({ className, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
-  const workspaceId = activeWorkspace?.id;
+  const workspaceSlug = activeWorkspace?.slug || activeWorkspace?.id;
 
   const navGroups = [
     {
@@ -30,25 +30,25 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       items: [
         {
           label: 'Dashboard',
-          href: workspaceId ? `/workspaces/${workspaceId}` : '/',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}` : '/',
           icon: LayoutDashboard,
           exact: true,
         },
         {
           label: 'Projects',
-          href: workspaceId ? `/workspaces/${workspaceId}/projects` : '/projects',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/projects` : '/projects',
           icon: FolderKanban,
           exact: false,
         },
         {
           label: 'Members',
-          href: workspaceId ? `/workspaces/${workspaceId}/members` : '/members',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/members` : '/members',
           icon: Users,
           exact: false,
         },
         {
           label: 'Activity',
-          href: workspaceId ? `/workspaces/${workspaceId}/activity` : '/activity',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/activity` : '/activity',
           icon: Activity,
           exact: false,
         },
@@ -59,7 +59,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       items: [
         {
           label: 'Settings',
-          href: workspaceId ? `/workspaces/${workspaceId}/settings` : '/settings',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/settings` : '/settings',
           icon: Settings,
           exact: false,
         },

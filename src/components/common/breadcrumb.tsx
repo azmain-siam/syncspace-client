@@ -9,6 +9,7 @@ import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-sto
 export function Breadcrumb() {
   const pathname = usePathname();
   const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
+  const workspaceSlug = activeWorkspace?.slug || activeWorkspace?.id;
 
   const segments = pathname.split('/').filter(Boolean);
 
@@ -23,7 +24,7 @@ export function Breadcrumb() {
   return (
     <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
       <Link
-        href={activeWorkspace ? `/workspaces/${activeWorkspace.id}` : '/'}
+        href={workspaceSlug ? `/workspaces/${workspaceSlug}` : '/'}
         className="flex items-center gap-1 hover:text-foreground transition-colors"
       >
         <Home className="h-3.5 w-3.5" />
@@ -38,13 +39,13 @@ export function Breadcrumb() {
           <React.Fragment key={href}>
             <ChevronRight className="h-3 w-3 text-muted-foreground/60 shrink-0" />
             {isLast ? (
-              <span className="font-bold text-foreground truncate max-w-35">
+              <span className="font-bold text-foreground truncate max-w-[140px]">
                 {title}
               </span>
             ) : (
               <Link
                 href={href}
-                className="hover:text-foreground transition-colors truncate max-w-30"
+                className="hover:text-foreground transition-colors truncate max-w-[120px]"
               >
                 {title}
               </Link>
