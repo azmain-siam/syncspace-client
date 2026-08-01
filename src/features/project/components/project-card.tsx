@@ -28,6 +28,7 @@ export function ProjectCard({
   onEdit,
   onArchive,
 }: ProjectCardProps) {
+  const projectSlug = project.slug || project.id;
   const accentColor = project.color || '#4648d4';
 
   const getStatusBadgeVariant = (status: ProjectStatus) => {
@@ -71,7 +72,7 @@ export function ProjectCard({
           {/* Title & Status */}
           <div className="space-y-1.5 min-w-0">
             <Link
-              href={`/workspaces/${workspaceSlug}/projects/${project.id}`}
+              href={`/workspaces/${workspaceSlug}/projects/${projectSlug}`}
               className="text-base font-bold text-foreground hover:text-primary transition-colors line-clamp-1 block"
             >
               {project.title}
@@ -143,7 +144,7 @@ export function ProjectCard({
           </div>
 
           <Link
-            href={`/workspaces/${workspaceSlug}/projects/${project.id}`}
+            href={`/workspaces/${workspaceSlug}/projects/${projectSlug}`}
             className="text-xs font-semibold text-primary hover:underline"
           >
             Open Project →

@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { use } from 'react';
 import { Loader2 } from 'lucide-react';
 import { MembersTable } from '@/features/workspace/components/members-table';
