@@ -30,8 +30,9 @@ Phase-by-phase implementation checklist for building the SyncSpace frontend clie
 - [x] ✅ Build Workspace Invitation Acceptance Landing Page (`/invitations/accept?token=...`).
 
 # Phase 4 — Projects, Boards & Kanban (`dnd-kit`)
-- [ ] ⏳ Build Projects Grid View & New Project Modal (`/workspaces/:workspaceId/projects`).
-- [ ] ⏳ Build Board Column Layout (`/workspaces/:workspaceId/projects/:projectId/boards/:boardId`).
+- [x] ✅ Build Projects Grid View, Search/Filters, Reusable Create/Edit Dialog & Archive Modal (`/workspaces/:workspaceSlug/projects`).
+- [x] ✅ Establish Project Details Shell & Tab Navigation (`/workspaces/:workspaceSlug/projects/:projectId`).
+- [ ] ⏳ Build Board Column Layout (`/workspaces/:workspaceSlug/projects/:projectId/boards/:boardId`).
 - [ ] ⏳ Integrate `dnd-kit` drag-and-drop for task card reordering and column transfers.
 - [ ] ⏳ Implement optimistic mutations for task moves (`useMoveTaskMutation`).
 
