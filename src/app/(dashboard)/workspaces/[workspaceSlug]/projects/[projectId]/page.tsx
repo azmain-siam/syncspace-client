@@ -22,6 +22,7 @@ import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-work
 import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
 import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
+import { KanbanBoard } from '@/features/board/components';
 
 export default function ProjectDetailsPage({
   params,
@@ -200,15 +201,7 @@ export default function ProjectDetailsPage({
       {/* Tab View Content Shell */}
       <div className="pt-2">
         {activeTab === 'boards' && (
-          <Card className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center space-y-3">
-            <Kanban className="h-10 w-10 text-primary mx-auto opacity-80" />
-            <div className="space-y-1 max-w-sm mx-auto">
-              <h3 className="font-bold text-foreground text-base">Project Boards Shell Ready</h3>
-              <p className="text-xs text-muted-foreground">
-                Kanban boards view architecture established for next phase.
-              </p>
-            </div>
-          </Card>
+          <KanbanBoard workspaceId={workspaceId} projectId={project.id} />
         )}
 
         {activeTab === 'tasks' && (
