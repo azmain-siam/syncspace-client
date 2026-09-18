@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -5,17 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  AlertCircle,
   ArrowRight,
+  CheckCircle2,
   Eye,
   EyeOff,
   LayoutDashboard,
   Lock,
   Mail,
+  Send,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/use-login";
+import { useResendVerification } from "../hooks/use-resend-verification";
 import { loginSchema, type LoginInput } from "../schemas/login.schema";
 import { AuthDivider } from "./auth-divider";
 import { SocialAuthButtons } from "./social-auth-buttons";
@@ -23,10 +28,12 @@ import { SocialAuthButtons } from "./social-auth-buttons";
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const loginMutation = useLogin();
+  const resendMutation = useResendVerification();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -36,8 +43,32 @@ export function LoginForm() {
     },
   });
 
+  const emailValue = watch("email");
+
   const onSubmit = (data: LoginInput) => {
     loginMutation.mutate(data);
+  };
+
+  const rawErrorMessage =
+    (loginMutation.error?.response?.data as { message?: string | string[] })
+      ?.message || "";
+  const errorMessageText = Array.isArray(rawErrorMessage)
+    ? rawErrorMessage.join(" ")
+    : rawErrorMessage;
+
+  const isUnverifiedEmail =
+    errorMessageText.toLowerCase().includes("verify your email") ||
+    loginMutation.error?.response?.status === 401 &&
+      errorMessageText.toLowerCase().includes("verify");
+
+  const isOAuthAccount =
+    errorMessageText.toLowerCase().includes("oauth provider") ||
+    errorMessageText.toLowerCase().includes("google");
+
+  const handleResendVerification = () => {
+    if (emailValue) {
+      resendMutation.mutate({ email: emailValue });
+    }
   };
 
   return (
@@ -136,6 +167,53 @@ export function LoginForm() {
           {/* Divider */}
           <AuthDivider text="OR CONTINUE WITH EMAIL" />
 
+          {/* Contextual Error Callouts */}
+          {isUnverifiedEmail && (
+            <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 text-xs space-y-2 text-left">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-semibold">Email verification required</p>
+                  <p className="text-muted-foreground dark:text-amber-200/80 leading-relaxed">
+                    Please verify your email address before signing in. If you did not receive a link, you can request a new one below.
+                  </p>
+                </div>
+              </div>
+
+              {resendMutation.isSuccess ? (
+                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold pt-1">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>Verification link sent! Check your inbox.</span>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs font-semibold gap-1.5 border-amber-500/40 hover:bg-amber-500/20 text-foreground cursor-pointer mt-1"
+                  onClick={handleResendVerification}
+                  isLoading={resendMutation.isPending}
+                >
+                  <Send className="h-3 w-3" /> Resend Verification Email
+                </Button>
+              )}
+            </div>
+          )}
+
+          {isOAuthAccount && (
+            <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/10 text-foreground text-xs space-y-1 text-left">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Google Account Detected</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    This account was registered via Google. Please use the &quot;Google&quot; button above to sign in.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email Address */}
@@ -184,7 +262,7 @@ export function LoginForm() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -203,7 +281,7 @@ export function LoginForm() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-11 font-semibold shadow-xs gap-2 rounded-lg"
+              className="w-full h-11 font-semibold shadow-xs gap-2 rounded-lg cursor-pointer"
               isLoading={loginMutation.isPending}
             >
               Sign In <ArrowRight className="h-4 w-4" />

@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
 import { authApi, type RegisterResponseData } from '../api/auth.api';
 import type { RegisterInput } from '../schemas/register.schema';
 
@@ -18,15 +19,17 @@ export function useRegister() {
     onSuccess: (response) => {
       toast.success(
         response.message ||
+          response.data?.message ||
           'Registration successful! Please check your email to verify your account.',
         { duration: 6000 },
       );
       router.push('/login');
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        'Registration failed. Please check your information and try again.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Registration failed. Please check your information and try again.',
+      );
       toast.error(errorMessage);
     },
   });

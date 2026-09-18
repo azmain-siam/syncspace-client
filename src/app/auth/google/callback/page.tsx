@@ -4,7 +4,10 @@ import { useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/features/auth/stores/use-auth-store';
+import {
+  useAuthStore,
+  AUTH_STORAGE_KEYS,
+} from '@/features/auth/stores/use-auth-store';
 import { authApi } from '@/features/auth/api/auth.api';
 
 function GoogleCallbackContent() {
@@ -18,6 +21,17 @@ function GoogleCallbackContent() {
     if (processedRef.current) return;
     processedRef.current = true;
 
+    const errorParam = searchParams.get('error') || searchParams.get('message');
+    if (errorParam) {
+      const msg =
+        errorParam === 'access_denied'
+          ? 'Google sign-in was cancelled.'
+          : `Google sign-in failed: ${errorParam}`;
+      toast.error(msg);
+      router.replace('/login');
+      return;
+    }
+
     const accessToken = searchParams.get('accessToken');
     const refreshToken = searchParams.get('refreshToken');
 
@@ -29,11 +43,22 @@ function GoogleCallbackContent() {
 
     const processAuth = async () => {
       try {
-        setTokens(accessToken, refreshToken);
-        const userRes = await authApi.getCurrentUser();
-        if (userRes.data) {
-          setUser(userRes.data);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+          localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
         }
+
+        setTokens(accessToken, refreshToken);
+
+        try {
+          const userRes = await authApi.getCurrentUser();
+          if (userRes.data) {
+            setUser(userRes.data);
+          }
+        } catch {
+          // Token is valid; user state can be fetched subsequently by queries
+        }
+
         toast.success('Signed in with Google successfully!');
         router.replace('/dashboard');
       } catch {

@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import type { ApiResponse, User } from '@/types/domain';
-import { authApi } from '../api/auth.api';
+import type { ApiResponse } from '@/types/domain';
+import { authApi, type VerifyEmailResponseData } from '../api/auth.api';
 
 export function useVerifyEmail(token: string) {
   return useQuery<
-    ApiResponse<{ user?: User }>,
+    ApiResponse<VerifyEmailResponseData>,
     AxiosError<ApiResponse<unknown>>
   >({
     queryKey: ['auth', 'verify', token],

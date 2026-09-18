@@ -2,11 +2,20 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { Eye, EyeOff, Lock, Mail, Sparkles, User as UserIcon } from 'lucide-react';
+import {
+  AtSign,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Phone,
+  Sparkles,
+  User as UserIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,11 +26,14 @@ import { AuthDivider } from './auth-divider';
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const usernameEditedRef = useRef(false);
   const registerMutation = useRegister();
 
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<RegisterInput>({
@@ -39,17 +51,44 @@ export function RegisterForm() {
   const passwordValue = watch('password', '');
   const passwordLength = passwordValue.length;
 
-  const onSubmit = (data: RegisterInput) => {
-    // If username is empty, auto-generate from email prefix
-    if (!data.username && data.email) {
-      data.username = data.email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    if (!usernameEditedRef.current && newName.trim()) {
+      const generated = newName
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '_')
+        .slice(0, 24);
+      if (generated.length >= 3) {
+        setValue('username', generated, { shouldValidate: true });
+      }
     }
-    registerMutation.mutate(data);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    if (!usernameEditedRef.current && newEmail.includes('@')) {
+      const prefix = newEmail
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '_')
+        .slice(0, 24);
+      if (prefix.length >= 3) {
+        setValue('username', prefix, { shouldValidate: true });
+      }
+    }
+  };
+
+  const onSubmit = (data: RegisterInput) => {
+    const payload: RegisterInput = {
+      ...data,
+      phone: data.phone?.trim() ? data.phone.trim() : undefined,
+    };
+    registerMutation.mutate(payload);
   };
 
   return (
     <div className="w-full min-h-screen flex flex-col lg:flex-row">
-      {/* ─── Left Hero Side (Desktop Only - Image 1) ─── */}
+      {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Decorative Glow */}
         <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/30 rounded-full blur-3xl pointer-events-none" />
@@ -84,7 +123,7 @@ export function RegisterForm() {
             {/* Document Content with Live Cursors */}
             <div className="p-4 rounded-xl bg-white/5 space-y-2 relative text-xs text-white/80">
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Collaborate simultaneously with shared state, live cursor tracking, and instant task updates.
               </p>
               {/* Simulated Live Cursors */}
               <div className="absolute top-3 right-12 px-2 py-0.5 rounded bg-emerald-500 text-black font-bold text-[9px] shadow-sm flex items-center gap-1">
@@ -142,15 +181,49 @@ export function RegisterForm() {
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="Alex Johnson"
                   className="pl-10 h-11"
                   error={!!errors.name}
-                  {...register('name')}
+                  {...register('name', {
+                    onChange: handleNameChange,
+                  })}
                 />
               </div>
               {errors.name && (
                 <p className="text-xs text-danger font-medium mt-1">
                   {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            {/* Username / Handle */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="username">Username Handle</Label>
+                <span className="text-[11px] text-muted-foreground">Unique identifier</span>
+              </div>
+              <div className="relative">
+                <AtSign className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="alexj"
+                  className="pl-10 h-11 font-mono text-sm"
+                  error={!!errors.username}
+                  {...register('username', {
+                    onChange: () => {
+                      usernameEditedRef.current = true;
+                    },
+                  })}
+                />
+              </div>
+              {errors.username ? (
+                <p className="text-xs text-danger font-medium mt-1">
+                  {errors.username.message}
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  Letters, numbers, underscores, and hyphens (3–30 characters).
                 </p>
               )}
             </div>
@@ -163,10 +236,12 @@ export function RegisterForm() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@company.com"
+                  placeholder="alex@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
-                  {...register('email')}
+                  {...register('email', {
+                    onChange: handleEmailChange,
+                  })}
                 />
               </div>
               {errors.email && (
@@ -176,9 +251,29 @@ export function RegisterForm() {
               )}
             </div>
 
-            {/* Hidden Username Field (auto-filled if empty) */}
-            <input type="hidden" {...register('username')} />
-            <input type="hidden" {...register('confirmPassword')} value={passwordValue} />
+            {/* Phone (Optional) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone">Phone Number</Label>
+                <span className="text-[11px] text-muted-foreground">Optional</span>
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  className="pl-10 h-11"
+                  error={!!errors.phone}
+                  {...register('phone')}
+                />
+              </div>
+              {errors.phone && (
+                <p className="text-xs text-danger font-medium mt-1">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
 
             {/* Password */}
             <div className="space-y-1.5">
@@ -196,8 +291,8 @@ export function RegisterForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  tabIndex={-1}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -215,7 +310,7 @@ export function RegisterForm() {
                 <div className={`h-1 rounded-full ${passwordLength >= 10 ? 'bg-emerald-500' : 'bg-muted'}`} />
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Enter at least 8 characters
+                Minimum 6 characters (8+ recommended)
               </p>
 
               {errors.password && (
@@ -225,10 +320,44 @@ export function RegisterForm() {
               )}
             </div>
 
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="pl-10 pr-10 h-11"
+                  error={!!errors.confirmPassword}
+                  {...register('confirmPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
+              {errors.confirmPassword && (
+                <p className="text-xs text-danger font-medium mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-11 font-semibold shadow-xs rounded-lg mt-2"
+              className="w-full h-11 font-semibold shadow-xs rounded-lg mt-2 cursor-pointer"
               isLoading={registerMutation.isPending}
             >
               Create Account

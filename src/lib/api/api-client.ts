@@ -1,9 +1,13 @@
-import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import {
+  useAuthStore,
+  getStoredAccessToken,
+  getStoredRefreshToken,
+} from "@/features/auth/stores/use-auth-store";
 import type { ApiResponse } from "@/types/domain";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -16,7 +20,8 @@ export const apiClient = axios.create({
 // Request Interceptor: Attach JWT Bearer Access Token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = useAuthStore.getState().accessToken;
+    const accessToken =
+      useAuthStore.getState().accessToken || getStoredAccessToken();
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -43,10 +48,18 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+interface RefreshResponsePayload {
+  accessToken?: string;
+  refreshToken?: string;
+  tokens?: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
 // Response Interceptor: Catch 401 & Auto Refresh Token
 apiClient.interceptors.response.use(
   (response) => {
-    // Return response data directly if unwrapped or full response
     return response;
   },
   async (error: AxiosError<ApiResponse<unknown>>) => {
@@ -67,7 +80,7 @@ apiClient.interceptors.response.use(
       }
 
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
@@ -82,7 +95,8 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = useAuthStore.getState().refreshToken;
+      const refreshToken =
+        useAuthStore.getState().refreshToken || getStoredRefreshToken();
 
       if (!refreshToken) {
         useAuthStore.getState().logout();
@@ -91,11 +105,7 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const { data: refreshResponse } = await axios.post<
-          ApiResponse<{
-            tokens: { accessToken: string; refreshToken: string };
-          }>
-        >(
+        const refreshRes = await axios.post<ApiResponse<RefreshResponsePayload>>(
           `${BASE_URL}/auth/refresh`,
           {},
           {
@@ -105,8 +115,14 @@ apiClient.interceptors.response.use(
           },
         );
 
-        const newAccessToken = refreshResponse.data.tokens.accessToken;
-        const newRefreshToken = refreshResponse.data.tokens.refreshToken;
+        // Defensive extraction supporting both standard payload { accessToken, refreshToken } and legacy { tokens: { ... } }
+        const payload = refreshRes.data?.data;
+        const newAccessToken = payload?.accessToken || payload?.tokens?.accessToken;
+        const newRefreshToken = payload?.refreshToken || payload?.tokens?.refreshToken;
+
+        if (!newAccessToken || !newRefreshToken) {
+          throw new Error("Missing refreshed access or refresh token from auth endpoint");
+        }
 
         useAuthStore.getState().setTokens(newAccessToken, newRefreshToken);
         processQueue(null, newAccessToken);

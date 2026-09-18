@@ -56,11 +56,16 @@ export interface User {
   username: string;
   phone?: string | null;
   avatar?: string | null;
-  provider: 'LOCAL' | 'GOOGLE';
+  bio?: string | null;
+  timezone?: string;
+  provider?: 'LOCAL' | 'GOOGLE';
   isEmailVerified: boolean;
+  emailVerifiedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
+
+export type AuthUser = User;
 
 export interface Workspace {
   id: string;
@@ -232,4 +237,13 @@ export interface ApiResponse<T> {
     hasMore?: boolean;
     nextCursor?: string;
   };
+}
+
+// Standard API Error Response Envelope
+export interface ApiErrorResponse {
+  success: false;
+  statusCode: number;
+  message: string | string[];
+  data: null;
+  error: string;
 }

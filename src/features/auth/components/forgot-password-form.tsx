@@ -65,9 +65,13 @@ export function ForgotPasswordForm() {
 
           {forgotPasswordMutation.isSuccess ? (
             <div className="space-y-4 pt-2">
-              <div className="p-4 rounded-xl bg-success/10 border border-success/20 text-success-foreground text-xs font-semibold">
+              <div className="p-4 rounded-xl bg-success/10 border border-success/20 text-success-foreground text-xs font-semibold space-y-1">
                 <CheckCircle2 className="h-5 w-5 mx-auto mb-1 text-emerald-500" />
-                Password reset instructions have been sent to your email.
+                <p>
+                  {forgotPasswordMutation.data?.data?.message ||
+                    forgotPasswordMutation.data?.message ||
+                    'If an account exists, a password reset link has been sent.'}
+                </p>
               </div>
               <Link href="/login" className="block">
                 <Button variant="outline" className="w-full h-11 gap-2 rounded-lg">
