@@ -4,7 +4,8 @@ import * as React from 'react';
 import { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Image as ImageIcon, Loader2, ShieldAlert } from 'lucide-react';
+import Link from 'next/link';
+import { Building2, Image as ImageIcon, Loader2, ShieldAlert, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -63,13 +64,22 @@ export default function WorkspaceSettingsPage({
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-          Workspace Settings
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Update general preferences and branding for this workspace.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            Workspace Settings
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Update general preferences and branding for this workspace.
+          </p>
+        </div>
+
+        <Link href="/profile">
+          <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs font-semibold rounded-lg cursor-pointer">
+            <UserIcon className="h-4 w-4 text-primary" />
+            <span>Personal Profile & Account →</span>
+          </Button>
+        </Link>
       </div>
 
       {/* Settings Form Card */}

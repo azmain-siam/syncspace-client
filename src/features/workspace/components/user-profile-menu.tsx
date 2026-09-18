@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { Building2, LogOut, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,8 +65,15 @@ export function UserProfileMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href={settingsHref} className="flex items-center gap-2 cursor-pointer rounded-lg py-2">
+          <Link href="/profile" className="flex items-center gap-2 cursor-pointer rounded-lg py-2">
             <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <span>Profile & Account</span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link href={settingsHref} className="flex items-center gap-2 cursor-pointer rounded-lg py-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
             <span>Workspace Settings</span>
           </Link>
         </DropdownMenuItem>

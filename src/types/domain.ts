@@ -59,13 +59,33 @@ export interface User {
   bio?: string | null;
   timezone?: string;
   provider?: 'LOCAL' | 'GOOGLE';
-  isEmailVerified: boolean;
+  isEmailVerified?: boolean;
   emailVerifiedAt?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export type AuthUser = User;
+
+export interface UserProfile extends User {
+  avatar: string | null;
+  phone: string | null;
+  bio: string | null;
+  timezone: string;
+}
+
+export interface UpdateUserRequest {
+  name?: string;
+  bio?: string;
+  phone?: string;
+  timezone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
 export interface Workspace {
   id: string;
