@@ -15,6 +15,9 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/features/auth/stores/use-auth-store";
+import { useMounted } from "@/hooks/use-mounted";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -22,6 +25,10 @@ export default function Home() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
+  const mounted = useMounted();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const isAuth = mounted && isAuthenticated;
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-200 selection:bg-primary/20 selection:text-primary">
@@ -69,18 +76,45 @@ export default function Home() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-4 py-2 rounded shadow-sm border-t border-white/20 active:scale-[0.98]"
-            >
-              Start Building
-            </Link>
+            {isAuth ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/dashboard"
+                  className="hidden sm:flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors px-2 py-1.5 rounded-lg"
+                >
+                  <Avatar className="h-7 w-7 border border-border">
+                    {user?.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                      {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {user?.name?.split(' ')[0] || 'Account'}
+                  </span>
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-4 py-2 rounded-lg shadow-sm border-t border-white/20 flex items-center gap-1.5 active:scale-[0.98]"
+                >
+                  Go to Workspace <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden sm:inline-flex text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-4 py-2 rounded shadow-sm border-t border-white/20 active:scale-[0.98]"
+                >
+                  Start Building
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -110,12 +144,21 @@ export default function Home() {
 
         {/* CTA Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          <Link
-            href="/register"
-            className="w-full sm:w-auto h-11 px-7 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded shadow-sm border-t border-white/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-          >
-            Start for free now <ArrowRight className="h-4 w-4" />
-          </Link>
+          {isAuth ? (
+            <Link
+              href="/dashboard"
+              className="w-full sm:w-auto h-11 px-7 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-lg shadow-sm border-t border-white/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            >
+              Go to Workspace <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <Link
+              href="/register"
+              className="w-full sm:w-auto h-11 px-7 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded shadow-sm border-t border-white/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            >
+              Start for free now <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
           <a
             href="#pricing"
             className="w-full sm:w-auto h-11 px-6 border border-border bg-card hover:bg-accent text-foreground font-semibold text-sm rounded flex items-center justify-center transition-colors shadow-xs"
@@ -717,10 +760,10 @@ export default function Home() {
           </p>
           <div className="pt-4">
             <Link
-              href="/register"
-              className="inline-flex h-11 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm rounded shadow-md border-t border-white/20 items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              href={isAuth ? "/dashboard" : "/register"}
+              className="inline-flex h-11 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm rounded-lg shadow-md border-t border-white/20 items-center justify-center gap-2 transition-all active:scale-[0.98]"
             >
-              Start For Free Now <ArrowRight className="h-4 w-4" />
+              {isAuth ? "Open Workspace" : "Start For Free Now"} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>

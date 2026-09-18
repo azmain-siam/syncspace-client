@@ -4,7 +4,7 @@ import * as React from 'react';
 import { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Image, Loader2, ShieldAlert } from 'lucide-react';
+import { Building2, Image as ImageIcon, Loader2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -102,7 +102,7 @@ export default function WorkspaceSettingsPage({
             <div className="space-y-1.5">
               <Label htmlFor="settings-logo">Logo Image URL</Label>
               <div className="relative">
-                <Image className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
                 <Input
                   id="settings-logo"
                   type="url"

@@ -23,7 +23,7 @@ export function useLogin() {
       setAuth(user, tokens.accessToken, tokens.refreshToken);
       queryClient.setQueryData(['user', 'me'], user);
       toast.success(response.message || 'Signed in successfully!');
-      router.push('/');
+      router.push('/dashboard');
     },
     onError: (error) => {
       const errorMessage =

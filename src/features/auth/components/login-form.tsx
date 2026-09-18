@@ -43,13 +43,13 @@ export function LoginForm() {
   return (
     <div className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only) ─── */}
-      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#e0e7ff] via-[#dbeafe] to-[#ecfdf5] dark:from-[#090d16] dark:via-[#0f172a] dark:to-[#020617] p-12 flex-col justify-between relative overflow-hidden border-r border-border/40">
+      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Top Logo */}
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-base shadow-xs">
             S
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-primary-foreground">
+          <span className="font-extrabold text-xl tracking-tight text-white">
             SyncSpace
           </span>
         </div>
@@ -93,7 +93,7 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-3xl font-extrabold tracking-tight text-primary-foreground">
+            <h2 className="text-3xl font-extrabold tracking-tight text-white">
               Master your workflow.
             </h2>
             <p className="text-sm text-white/70 leading-relaxed">
@@ -104,7 +104,7 @@ export function LoginForm() {
         </div>
 
         {/* Bottom Left Brand Mark */}
-        <div className="text-xs text-white/70 font-semibold">SyncSpace</div>
+        <div className="text-xs text-white/60 font-semibold">SyncSpace</div>
       </div>
 
       {/* ─── Right Form Side (Mobile & Desktop) ─── */}
@@ -183,8 +183,8 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  tabIndex={-1}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />

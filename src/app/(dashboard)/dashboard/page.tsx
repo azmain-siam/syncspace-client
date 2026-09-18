@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useMyWorkspaces } from '@/features/workspace/hooks/use-my-workspaces';
 import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-store';
 
-export default function DashboardRootPage() {
+export default function DashboardResolverPage() {
   const router = useRouter();
   const { data: workspacesResponse, isLoading } = useMyWorkspaces();
   const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
@@ -30,7 +30,7 @@ export default function DashboardRootPage() {
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-xs font-medium text-muted-foreground">
-          Connecting to workspace...
+          Connecting to your workspace...
         </p>
       </div>
     </div>

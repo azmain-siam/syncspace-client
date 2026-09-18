@@ -35,8 +35,8 @@ function GoogleCallbackContent() {
           setUser(userRes.data);
         }
         toast.success('Signed in with Google successfully!');
-        router.replace('/');
-      } catch (err) {
+        router.replace('/dashboard');
+      } catch {
         toast.error('Failed to complete Google sign-in. Please try again.');
         router.replace('/login');
       }

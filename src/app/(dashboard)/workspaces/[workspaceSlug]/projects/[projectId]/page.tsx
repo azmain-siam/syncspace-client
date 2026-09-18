@@ -17,13 +17,11 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
 import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
-import type { Project } from '@/types/domain';
-import { ProjectPriority, ProjectStatus } from '@/types/domain';
 
 export default function ProjectDetailsPage({
   params,

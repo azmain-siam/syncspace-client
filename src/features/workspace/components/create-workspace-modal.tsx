@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Image } from 'lucide-react';
+import { Building2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -94,7 +94,7 @@ export function CreateWorkspaceModal({
               <span className="text-[11px] text-muted-foreground">(Optional)</span>
             </div>
             <div className="relative">
-              <Image className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
               <Input
                 id="ws-logo"
                 type="url"

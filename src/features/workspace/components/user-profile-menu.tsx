@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +14,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/features/auth/stores/use-auth-store';
 import { useLogout } from '@/features/auth/hooks/use-logout';
+import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-store';
 
 export function UserProfileMenu() {
   const user = useAuthStore((state) => state.user);
+  const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
+  const workspaceSlug = activeWorkspace?.slug || activeWorkspace?.id;
+  const settingsHref = workspaceSlug
+    ? `/workspaces/${workspaceSlug}/settings`
+    : '/dashboard';
   const logoutMutation = useLogout();
 
   const userInitials = user?.name
@@ -59,9 +65,9 @@ export function UserProfileMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="flex items-center gap-2 cursor-pointer rounded-lg py-2">
+          <Link href={settingsHref} className="flex items-center gap-2 cursor-pointer rounded-lg py-2">
             <UserIcon className="h-4 w-4 text-muted-foreground" />
-            <span>Profile Settings</span>
+            <span>Workspace Settings</span>
           </Link>
         </DropdownMenuItem>
 
