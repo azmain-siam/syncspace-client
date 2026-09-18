@@ -53,7 +53,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       {/* Centered Card */}
       <div className="w-full max-w-[440px] my-auto">
-        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-6 sm:p-8 text-center space-y-6">
+        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-5 sm:p-8 text-center space-y-6">
           <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20">
             <Lock className="h-6 w-6" />
           </div>

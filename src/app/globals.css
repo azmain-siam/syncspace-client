@@ -177,11 +177,18 @@ select:disabled {
 }
 
 /* Base typography and body defaults */
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans, system-ui, sans-serif);
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   margin: 0;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

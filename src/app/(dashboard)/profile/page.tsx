@@ -89,11 +89,11 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 p-1 bg-muted/40 rounded-xl border border-border/50 w-fit">
+      <div className="flex items-center gap-1.5 p-1 bg-muted/40 rounded-xl border border-border/50 w-full sm:w-fit overflow-x-auto max-w-full">
         <button
           type="button"
           onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'profile'
               ? 'bg-card text-foreground shadow-xs'
               : 'text-muted-foreground hover:text-foreground'
@@ -101,14 +101,15 @@ export default function ProfilePage() {
           role="tab"
           aria-selected={activeTab === 'profile'}
         >
-          <UserIcon className="h-4 w-4" />
-          <span>Profile & Information</span>
+          <UserIcon className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">Profile & Information</span>
+          <span className="sm:hidden">Profile</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('security')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'security'
               ? 'bg-card text-foreground shadow-xs'
               : 'text-muted-foreground hover:text-foreground'
@@ -116,10 +117,11 @@ export default function ProfilePage() {
           role="tab"
           aria-selected={activeTab === 'security'}
         >
-          <KeyRound className="h-4 w-4" />
-          <span>Security & Password</span>
+          <KeyRound className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">Security & Password</span>
+          <span className="sm:hidden">Security</span>
           {user.provider === 'GOOGLE' && (
-            <Badge variant="outline" className="text-[9px] py-0 px-1 ml-1">
+            <Badge variant="outline" className="text-[9px] py-0 px-1 ml-1 shrink-0">
               OAuth
             </Badge>
           )}

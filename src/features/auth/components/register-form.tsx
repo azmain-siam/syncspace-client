@@ -143,9 +143,9 @@ export function RegisterForm() {
       </div>
 
       {/* ─── Right Form Side (Mobile & Desktop) ─── */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-12 min-h-screen bg-background">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-4 sm:p-8 lg:p-12 min-h-screen bg-background">
         {/* Brand Header */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="lg:hidden flex items-center gap-2 mb-6">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-base shadow-xs">
             S
           </div>
@@ -155,7 +155,7 @@ export function RegisterForm() {
         </div>
 
         {/* Form Container */}
-        <div className="w-full max-w-100 mx-auto my-auto space-y-5">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto space-y-5">
           <div className="space-y-1 text-left">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
               Create your workspace

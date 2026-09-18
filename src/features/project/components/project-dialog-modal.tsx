@@ -145,7 +145,7 @@ export function ProjectDialogModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl p-6">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <FolderKanban className="h-5 w-5 text-primary" />
@@ -160,7 +160,7 @@ export function ProjectDialogModal({
             <Input
               id="project-title"
               placeholder="e.g. Mobile App Redesign"
-              className="h-11 rounded-lg"
+              className="h-10 sm:h-11 rounded-lg"
               error={!!errors.title}
               {...register('title')}
             />
@@ -175,7 +175,7 @@ export function ProjectDialogModal({
             <Textarea
               id="project-desc"
               placeholder="Brief overview of project scope..."
-              className="rounded-lg min-h-[80px] resize-none"
+              className="rounded-lg min-h-[80px] resize-none text-xs sm:text-sm"
               {...register('description')}
             />
             {errors.description && (
@@ -190,13 +190,13 @@ export function ProjectDialogModal({
             <Label className="flex items-center gap-1.5">
               <Palette className="h-4 w-4 text-muted-foreground" /> Color Accent
             </Label>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
               {COLOR_PRESETS.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => setValue('color', color, { shouldValidate: true })}
-                  className="h-8 w-8 rounded-lg flex items-center justify-center border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="h-8 w-8 rounded-lg flex items-center justify-center border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring shrink-0"
                   style={{ backgroundColor: color }}
                 >
                   {selectedColor.toLowerCase() === color.toLowerCase() && (
@@ -208,7 +208,7 @@ export function ProjectDialogModal({
           </div>
 
           {/* Priority & Status Grid */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Priority */}
             <div className="space-y-1.5">
               <Label>Priority</Label>
@@ -219,7 +219,7 @@ export function ProjectDialogModal({
                     shouldValidate: true,
                   })
                 }
-                className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                className="w-full h-10 sm:h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
               >
                 <option value={ProjectPriority.LOW}>Low</option>
                 <option value={ProjectPriority.MEDIUM}>Medium</option>
@@ -239,7 +239,7 @@ export function ProjectDialogModal({
                       shouldValidate: true,
                     })
                   }
-                  className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
+                  className="w-full h-10 sm:h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
                 >
                   <option value={ProjectStatus.PLANNING}>Planning</option>
                   <option value={ProjectStatus.ACTIVE}>Active</option>
@@ -253,29 +253,29 @@ export function ProjectDialogModal({
             <div className="space-y-1.5">
               <Label htmlFor="project-due">Target Due Date</Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Calendar className="absolute left-3 top-3 sm:top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="project-due"
                   type="date"
-                  className="pl-9 h-11 rounded-lg"
+                  className="pl-9 h-10 sm:h-11 rounded-lg text-xs sm:text-sm"
                   {...register('dueDate')}
                 />
               </div>
             </div>
           </div>
 
-          <div className="pt-3 flex justify-end gap-3">
+          <div className="pt-3 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="h-11 rounded-lg"
+              className="h-10 sm:h-11 rounded-lg w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="h-11 rounded-lg font-semibold shadow-xs"
+              className="h-10 sm:h-11 rounded-lg font-semibold shadow-xs w-full sm:w-auto"
               isLoading={isLoading}
             >
               {isEditing ? 'Save Changes' : 'Create Project'}

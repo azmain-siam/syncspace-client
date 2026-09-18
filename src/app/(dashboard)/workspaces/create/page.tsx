@@ -33,8 +33,8 @@ export default function StandaloneCreateWorkspacePage() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto py-8">
-      <div className="rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-sm space-y-6">
+    <div className="w-full max-w-md mx-auto py-4 sm:py-8">
+      <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-8 shadow-sm space-y-6">
         <div className="space-y-1.5 text-center sm:text-left">
           <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2 mx-auto sm:mx-0">
             <Building2 className="h-5 w-5" />

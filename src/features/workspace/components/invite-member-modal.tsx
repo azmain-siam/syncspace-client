@@ -171,18 +171,18 @@ export function InviteMemberModal({
             )}
           </div>
 
-          <div className="pt-2 flex justify-end gap-3">
+          <div className="pt-2 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="h-11 rounded-lg"
+              className="h-10 sm:h-11 rounded-lg w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="h-11 font-semibold rounded-lg shadow-xs"
+              className="h-10 sm:h-11 font-semibold rounded-lg shadow-xs w-full sm:w-auto"
               isLoading={isPending}
             >
               {mode === 'INVITE' ? 'Send Invitation' : 'Add Member'}
