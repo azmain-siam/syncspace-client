@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
 import type { ApiResponse, Workspace } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
 import type { CreateWorkspaceInput } from '../schemas/create-workspace.schema';
@@ -22,6 +23,7 @@ export function useCreateWorkspace(onSuccessCallback?: () => void) {
       const workspace = response.data;
       if (workspace) {
         setActiveWorkspace(workspace);
+        queryClient.invalidateQueries({ queryKey: ['workspaces'] });
         queryClient.invalidateQueries({ queryKey: ['workspaces', 'my'] });
         toast.success(response.message || `Workspace "${workspace.name}" created!`);
         if (onSuccessCallback) {
@@ -32,8 +34,10 @@ export function useCreateWorkspace(onSuccessCallback?: () => void) {
       }
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message || 'Failed to create workspace. Please try again.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to create workspace. Please try again.',
+      );
       toast.error(errorMessage);
     },
   });

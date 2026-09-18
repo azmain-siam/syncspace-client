@@ -2,22 +2,22 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { formatApiErrorMessage } from '@/lib/api/api-error';
-import type { ApiResponse, WorkspaceRole } from '@/types/domain';
+import type { ApiResponse, DirectAddMemberRequest, WorkspaceMember } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
 
-export function useUpdateMemberRole(workspaceId: string, onSuccessCallback?: () => void) {
+export function useDirectAddMember(workspaceId: string, onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiResponse<null>,
+    ApiResponse<WorkspaceMember>,
     AxiosError<ApiResponse<unknown>>,
-    { memberId: string; role: WorkspaceRole }
+    DirectAddMemberRequest
   >({
-    mutationFn: ({ memberId, role }) =>
-      workspaceApi.updateMemberRole(workspaceId, memberId, role),
+    mutationFn: (data: DirectAddMemberRequest) =>
+      workspaceApi.directAddMember(workspaceId, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
-      toast.success(response.message || 'Member role updated successfully!');
+      toast.success(response.message || 'Member added to workspace successfully!');
       if (onSuccessCallback) {
         onSuccessCallback();
       }
@@ -25,7 +25,7 @@ export function useUpdateMemberRole(workspaceId: string, onSuccessCallback?: () 
     onError: (error) => {
       const errorMessage = formatApiErrorMessage(
         error,
-        'Failed to update member role. Please try again.',
+        'Failed to add member to workspace. Please try again.',
       );
       toast.error(errorMessage);
     },

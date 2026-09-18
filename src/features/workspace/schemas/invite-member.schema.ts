@@ -6,7 +6,11 @@ export const inviteMemberSchema = z.object({
     .string()
     .min(1, 'Email address is required')
     .email('Please enter a valid email address'),
-  role: z.enum([WorkspaceRole.ADMIN, WorkspaceRole.MEMBER]),
+  role: z.enum([
+    WorkspaceRole.ADMIN,
+    WorkspaceRole.MEMBER,
+    WorkspaceRole.GUEST,
+  ]),
 });
 
 export type InviteMemberInput = z.infer<typeof inviteMemberSchema>;

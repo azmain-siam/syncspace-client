@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import type { ApiResponse, WorkspaceInvitation } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
+import type { ApiResponse, SendInvitationResponse } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
 import type { InviteMemberInput } from '../schemas/invite-member.schema';
 
@@ -9,7 +10,7 @@ export function useSendInvitation(workspaceId: string, onSuccessCallback?: () =>
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiResponse<WorkspaceInvitation>,
+    ApiResponse<SendInvitationResponse>,
     AxiosError<ApiResponse<unknown>>,
     InviteMemberInput
   >({
@@ -17,14 +18,19 @@ export function useSendInvitation(workspaceId: string, onSuccessCallback?: () =>
       workspaceApi.inviteMember(workspaceId, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
-      toast.success(response.message || 'Invitation sent successfully!');
+      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'invitations'] });
+      toast.success(
+        response.data?.message || response.message || 'Invitation sent successfully!',
+      );
       if (onSuccessCallback) {
         onSuccessCallback();
       }
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message || 'Failed to send invitation. Please try again.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to send invitation. Please try again.',
+      );
       toast.error(errorMessage);
     },
   });

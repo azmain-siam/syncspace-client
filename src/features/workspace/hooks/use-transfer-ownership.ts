@@ -2,22 +2,25 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { formatApiErrorMessage } from '@/lib/api/api-error';
-import type { ApiResponse, WorkspaceRole } from '@/types/domain';
+import type { ApiResponse } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
 
-export function useUpdateMemberRole(workspaceId: string, onSuccessCallback?: () => void) {
+export function useTransferOwnership(workspaceId: string, onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation<
     ApiResponse<null>,
     AxiosError<ApiResponse<unknown>>,
-    { memberId: string; role: WorkspaceRole }
+    { memberId: string }
   >({
-    mutationFn: ({ memberId, role }) =>
-      workspaceApi.updateMemberRole(workspaceId, memberId, role),
+    mutationFn: ({ memberId }) =>
+      workspaceApi.transferOwnership(workspaceId, memberId),
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces', 'my'] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId] });
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
-      toast.success(response.message || 'Member role updated successfully!');
+      toast.success(response.message || 'Workspace ownership transferred successfully!');
       if (onSuccessCallback) {
         onSuccessCallback();
       }
@@ -25,7 +28,7 @@ export function useUpdateMemberRole(workspaceId: string, onSuccessCallback?: () 
     onError: (error) => {
       const errorMessage = formatApiErrorMessage(
         error,
-        'Failed to update member role. Please try again.',
+        'Failed to transfer workspace ownership. Please try again.',
       );
       toast.error(errorMessage);
     },

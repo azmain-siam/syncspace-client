@@ -5,23 +5,31 @@ import { toast } from 'sonner';
 import { formatApiErrorMessage } from '@/lib/api/api-error';
 import type { ApiResponse } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
+import { useWorkspaceStore } from '../stores/use-workspace-store';
 
-export function useAcceptInvitation(onSuccessCallback?: () => void) {
+export function useDeleteWorkspace(workspaceId?: string, onSuccessCallback?: () => void) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { activeWorkspaceId, clearWorkspace } = useWorkspaceStore();
 
   return useMutation<
-    ApiResponse<{ message: string }>,
+    ApiResponse<null>,
     AxiosError<ApiResponse<unknown>>,
-    string
+    string | undefined
   >({
-    mutationFn: (token: string) => workspaceApi.acceptInvitation(token),
-    onSuccess: (response) => {
+    mutationFn: (targetWorkspaceId) => {
+      const id = targetWorkspaceId || workspaceId;
+      if (!id) throw new Error('Workspace ID is required to delete');
+      return workspaceApi.deleteWorkspace(id);
+    },
+    onSuccess: (response, variables) => {
+      const deletedId = variables || workspaceId;
+      if (deletedId && activeWorkspaceId === deletedId) {
+        clearWorkspace();
+      }
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       queryClient.invalidateQueries({ queryKey: ['workspaces', 'my'] });
-      toast.success(
-        response.data?.message || response.message || 'Successfully joined workspace!',
-      );
+      toast.success(response.message || 'Workspace deleted successfully.');
       if (onSuccessCallback) {
         onSuccessCallback();
       }
@@ -30,7 +38,7 @@ export function useAcceptInvitation(onSuccessCallback?: () => void) {
     onError: (error) => {
       const errorMessage = formatApiErrorMessage(
         error,
-        'Failed to accept invitation. Please try again.',
+        'Failed to delete workspace. Please try again.',
       );
       toast.error(errorMessage);
     },

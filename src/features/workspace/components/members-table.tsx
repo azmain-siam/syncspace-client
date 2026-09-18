@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { MoreHorizontal, Shield, ShieldAlert, Trash2, UserCheck } from 'lucide-react';
+import {
+  Crown,
+  MoreHorizontal,
+  Shield,
+  ShieldAlert,
+  Trash2,
+  UserCheck,
+  UserCog,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -21,25 +30,34 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { WorkspaceRole } from '@/types/domain';
+import { WorkspaceRole, type WorkspaceMember } from '@/types/domain';
 import { useAuthStore } from '@/features/auth/stores/use-auth-store';
 import { useWorkspaceMembers } from '../hooks/use-workspace-members';
 import { useRemoveMember } from '../hooks/use-remove-member';
 import { useUpdateMemberRole } from '../hooks/use-update-member-role';
 import { InviteMemberModal } from './invite-member-modal';
+import { TransferOwnershipModal } from './transfer-ownership-modal';
+import { RemoveMemberDialog } from './remove-member-dialog';
 
 export function MembersTable({ workspaceId }: { workspaceId: string }) {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [transferMember, setTransferMember] = useState<WorkspaceMember | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<WorkspaceMember | null>(null);
+
   const currentUser = useAuthStore((state) => state.user);
   const { data: membersResponse, isLoading, isError } = useWorkspaceMembers(workspaceId);
-  const removeMemberMutation = useRemoveMember(workspaceId);
+
+  const removeMemberMutation = useRemoveMember(workspaceId, () => {
+    setMemberToRemove(null);
+  });
   const updateRoleMutation = useUpdateMemberRole(workspaceId);
 
   const members = membersResponse?.data || [];
   const currentMember = members.find((m) => m.userId === currentUser?.id);
-  const canManage =
-    currentMember?.role === WorkspaceRole.OWNER ||
-    currentMember?.role === WorkspaceRole.ADMIN;
+
+  const isCurrentUserOwner = currentMember?.role === WorkspaceRole.OWNER;
+  const isCurrentUserAdmin = currentMember?.role === WorkspaceRole.ADMIN;
+  const canManage = isCurrentUserOwner || isCurrentUserAdmin;
 
   if (isLoading) {
     return (
@@ -71,7 +89,7 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
             Workspace Members
           </h2>
           <p className="text-xs text-muted-foreground">
-            Manage team members and role permissions for this workspace.
+            Manage team members, roles, and permission levels for this workspace.
           </p>
         </div>
 
@@ -108,7 +126,16 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
               : 'U';
 
             const isSelf = member.userId === currentUser?.id;
-            const isOwner = member.role === WorkspaceRole.OWNER;
+            const isTargetOwner = member.role === WorkspaceRole.OWNER;
+            const isTargetAdmin = member.role === WorkspaceRole.ADMIN;
+
+            // RBAC canEditMember permissions:
+            // - Owner can edit anyone except themselves
+            // - Admin can edit Members & Guests, but CANNOT edit Owner or other Admins
+            const canEditTargetMember =
+              !isSelf &&
+              !isTargetOwner &&
+              (isCurrentUserOwner || (isCurrentUserAdmin && !isTargetAdmin));
 
             return (
               <TableRow key={member.id}>
@@ -152,6 +179,11 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
                   {member.role === WorkspaceRole.MEMBER && (
                     <Badge variant="secondary">MEMBER</Badge>
                   )}
+                  {member.role === WorkspaceRole.GUEST && (
+                    <Badge variant="outline" className="text-muted-foreground">
+                      GUEST
+                    </Badge>
+                  )}
                 </TableCell>
 
                 {/* Joined Date */}
@@ -166,46 +198,122 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
                 {/* Actions Menu */}
                 {canManage && (
                   <TableCell className="text-right">
-                    {!isOwner && !isSelf && (
+                    {canEditTargetMember ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg"
+                            disabled={updateRoleMutation.isPending || removeMemberMutation.isPending}
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl w-44">
-                          {member.role === WorkspaceRole.MEMBER ? (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                updateRoleMutation.mutate({
-                                  memberId: member.id,
-                                  role: WorkspaceRole.ADMIN,
-                                })
-                              }
-                            >
-                              Make Admin
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                updateRoleMutation.mutate({
-                                  memberId: member.id,
-                                  role: WorkspaceRole.MEMBER,
-                                })
-                              }
-                            >
-                              Make Member
-                            </DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="rounded-xl w-48">
+                          <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            Change Role
+                          </DropdownMenuLabel>
+
+                          {/* Owner can assign Admin, Member, Guest */}
+                          {isCurrentUserOwner && (
+                            <>
+                              {member.role !== WorkspaceRole.ADMIN && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateRoleMutation.mutate({
+                                      memberId: member.userId,
+                                      role: WorkspaceRole.ADMIN,
+                                    })
+                                  }
+                                >
+                                  <UserCog className="h-4 w-4 mr-2 text-warning" /> Make Admin
+                                </DropdownMenuItem>
+                              )}
+                              {member.role !== WorkspaceRole.MEMBER && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateRoleMutation.mutate({
+                                      memberId: member.userId,
+                                      role: WorkspaceRole.MEMBER,
+                                    })
+                                  }
+                                >
+                                  <UserCheck className="h-4 w-4 mr-2 text-primary" /> Make Member
+                                </DropdownMenuItem>
+                              )}
+                              {member.role !== WorkspaceRole.GUEST && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateRoleMutation.mutate({
+                                      memberId: member.userId,
+                                      role: WorkspaceRole.GUEST,
+                                    })
+                                  }
+                                >
+                                  <Shield className="h-4 w-4 mr-2 text-muted-foreground" /> Make Guest
+                                </DropdownMenuItem>
+                              )}
+                            </>
                           )}
+
+                          {/* Admin can toggle Member <-> Guest */}
+                          {isCurrentUserAdmin && !isCurrentUserOwner && (
+                            <>
+                              {member.role === WorkspaceRole.MEMBER && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateRoleMutation.mutate({
+                                      memberId: member.userId,
+                                      role: WorkspaceRole.GUEST,
+                                    })
+                                  }
+                                >
+                                  <Shield className="h-4 w-4 mr-2 text-muted-foreground" /> Make Guest
+                                </DropdownMenuItem>
+                              )}
+                              {member.role === WorkspaceRole.GUEST && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateRoleMutation.mutate({
+                                      memberId: member.userId,
+                                      role: WorkspaceRole.MEMBER,
+                                    })
+                                  }
+                                >
+                                  <UserCheck className="h-4 w-4 mr-2 text-primary" /> Make Member
+                                </DropdownMenuItem>
+                              )}
+                            </>
+                          )}
+
+                          {/* Transfer Ownership (Owner only) */}
+                          {isCurrentUserOwner && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => setTransferMember(member)}
+                                className="text-amber-600 dark:text-amber-400 focus:text-amber-600"
+                              >
+                                <Crown className="h-4 w-4 mr-2" /> Transfer Ownership
+                              </DropdownMenuItem>
+                            </>
+                          )}
+
+                          {/* Remove Member */}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => removeMemberMutation.mutate(member.userId)}
-                            className="text-danger hover:text-danger"
+                            onClick={() => setMemberToRemove(member)}
+                            className="text-danger hover:text-danger focus:text-danger"
                           >
                             <Trash2 className="h-4 w-4 mr-2" /> Remove Member
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {isSelf ? '—' : isTargetOwner ? 'Owner' : ''}
+                      </span>
                     )}
                   </TableCell>
                 )}
@@ -215,10 +323,36 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
         </TableBody>
       </Table>
 
+      {/* Invite Member Modal */}
       <InviteMemberModal
         workspaceId={workspaceId}
         open={inviteModalOpen}
         onOpenChange={setInviteModalOpen}
+      />
+
+      {/* Transfer Ownership Modal */}
+      <TransferOwnershipModal
+        workspaceId={workspaceId}
+        member={transferMember}
+        open={!!transferMember}
+        onOpenChange={(open) => {
+          if (!open) setTransferMember(null);
+        }}
+      />
+
+      {/* Remove Member Confirmation Dialog */}
+      <RemoveMemberDialog
+        member={memberToRemove}
+        open={!!memberToRemove}
+        onOpenChange={(open) => {
+          if (!open) setMemberToRemove(null);
+        }}
+        onConfirm={() => {
+          if (memberToRemove) {
+            removeMemberMutation.mutate(memberToRemove.userId);
+          }
+        }}
+        isLoading={removeMemberMutation.isPending}
       />
     </div>
   );
