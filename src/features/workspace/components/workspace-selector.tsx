@@ -75,7 +75,7 @@ export function WorkspaceSelector() {
               </div>
             </div>
 
-            <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+            <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           </button>
         </DropdownMenuTrigger>
 

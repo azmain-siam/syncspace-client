@@ -136,7 +136,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               Username Handle
             </span>
             <div className="flex items-center gap-2">
-              <AtSign className="h-4 w-4 text-muted-foreground/80" />
+              <AtSign className="h-4 w-4 text-muted-foreground" />
               <span className="font-mono text-sm font-semibold text-foreground">
                 {user.username}
               </span>
@@ -151,7 +151,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               Email Address
             </span>
             <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground/80" />
+              <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground truncate">
                 {user.email}
               </span>
@@ -168,7 +168,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <div className="space-y-1.5">
             <Label htmlFor="profile-name">Full Display Name</Label>
             <div className="relative">
-              <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="profile-name"
                 placeholder="Alex Mercer"
@@ -191,7 +191,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <span className="text-[11px] text-muted-foreground">E.164 format (e.g. +14155552671)</span>
             </div>
             <div className="relative">
-              <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="profile-phone"
                 type="tel"
@@ -215,10 +215,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
               <span className="text-[11px] text-muted-foreground">For activity & calendar alignment</span>
             </div>
             <div className="relative">
-              <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
+              <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground pointer-events-none" />
               <select
                 id="profile-timezone"
-                className="flex h-11 w-full rounded-lg border border-input bg-background pl-10 pr-4 text-xs sm:text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-lg border border-input bg-background pl-10 pr-4 text-xs sm:text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 {...register('timezone')}
               >
                 {timezoneOptions.map((tz) => (

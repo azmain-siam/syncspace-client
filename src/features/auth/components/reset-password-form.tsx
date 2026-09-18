@@ -74,7 +74,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             <div className="space-y-1.5">
               <Label htmlFor="password">New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -86,7 +86,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -107,7 +107,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             <div className="space-y-1.5">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -119,7 +119,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? (

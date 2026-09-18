@@ -220,7 +220,7 @@ export function LoginForm() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Email address</Label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -249,7 +249,7 @@ export function LoginForm() {
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -262,7 +262,7 @@ export function LoginForm() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring rounded cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />

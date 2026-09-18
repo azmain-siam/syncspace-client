@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -52,16 +51,14 @@ export function UserProfileMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-56 rounded-xl p-1" align="end">
-        <DropdownMenuLabel className="font-normal p-2">
-          <div className="flex flex-col space-y-1">
-            <p className="text-xs font-bold text-foreground leading-none">
-              {user?.name || 'User Account'}
-            </p>
-            <p className="text-[11px] text-muted-foreground leading-none truncate">
-              {user?.email || ''}
-            </p>
-          </div>
-        </DropdownMenuLabel>
+        <div className="px-3 py-2.5">
+          <p className="text-xs font-bold text-foreground leading-snug">
+            {user?.name || 'User Account'}
+          </p>
+          <p className="text-[11px] font-medium text-muted-foreground leading-snug truncate">
+            {user?.email || ''}
+          </p>
+        </div>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
@@ -82,7 +79,7 @@ export function UserProfileMenu() {
 
         <DropdownMenuItem
           onClick={() => logoutMutation.mutate()}
-          className="flex items-center gap-2 text-danger hover:text-danger cursor-pointer rounded-lg py-2"
+          className="flex items-center gap-2 text-danger hover:text-danger focus:bg-danger/10 focus:text-danger cursor-pointer rounded-lg py-2 font-medium"
         >
           <LogOut className="h-4 w-4" />
           <span>Sign Out</span>

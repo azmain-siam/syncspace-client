@@ -114,9 +114,9 @@ export function TransferOwnershipModal({
               type="checkbox"
               checked={confirmed}
               onChange={(e) => setConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary"
+              className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary cursor-pointer"
             />
-            <span className="text-xs text-foreground/90 font-medium leading-tight">
+            <span className="text-xs text-foreground font-medium leading-tight">
               I understand that I am relinquishing ownership of this workspace to {memberUser?.name || 'this member'}.
             </span>
           </label>

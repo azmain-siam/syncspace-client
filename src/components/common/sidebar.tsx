@@ -83,7 +83,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
         <div className="space-y-6">
           {navGroups.map((group) => (
             <div key={group.title} className="space-y-1">
-              <div className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
+              <div className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 {group.title}
               </div>
               <nav className="space-y-1">

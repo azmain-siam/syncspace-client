@@ -333,7 +333,7 @@ export default function Home() {
       {/* ─── 3. Trust Bar ─── */}
       <section className="py-12 border-y border-border/60 bg-muted/30 text-center px-6">
         <div className="max-w-6xl mx-auto">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-8">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-8">
             TRUSTED BY HIGH-PERFORMING TEAMS AT
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all">
@@ -643,8 +643,8 @@ export default function Home() {
                   <Check className="h-4 w-4 text-emerald-500 shrink-0" />{" "}
                   Real-time Socket Sync
                 </li>
-                <li className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 text-muted-foreground/40 shrink-0" />{" "}
+                <li className="flex items-center gap-2.5 text-foreground">
+                  <Check className="h-4 w-4 text-emerald-500 shrink-0" />{" "}
                   1GB Cloud Storage
                 </li>
               </ul>

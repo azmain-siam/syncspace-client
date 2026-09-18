@@ -136,7 +136,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
           <div className="space-y-1.5">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="currentPassword"
                 type={showCurrentPassword ? 'text' : 'password'}
@@ -149,7 +149,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
               <button
                 type="button"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
               >
                 {showCurrentPassword ? (
@@ -170,7 +170,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
           <div className="space-y-1.5">
             <Label htmlFor="newPassword">New Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="newPassword"
                 type={showNewPassword ? 'text' : 'password'}
@@ -183,7 +183,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showNewPassword ? 'Hide password' : 'Show password'}
               >
                 {showNewPassword ? (
@@ -232,7 +232,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
           <div className="space-y-1.5">
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
@@ -245,7 +245,7 @@ export function ChangePasswordForm({ user }: ChangePasswordFormProps) {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 {showConfirmPassword ? (

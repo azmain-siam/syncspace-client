@@ -177,7 +177,7 @@ export default function WorkspaceSettingsPage({
             <div className="space-y-1.5">
               <Label htmlFor="settings-logo">Logo Image URL</Label>
               <div className="relative">
-                <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="settings-logo"
                   type="url"

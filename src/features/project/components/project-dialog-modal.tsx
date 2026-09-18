@@ -219,7 +219,7 @@ export function ProjectDialogModal({
                     shouldValidate: true,
                   })
                 }
-                className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
               >
                 <option value={ProjectPriority.LOW}>Low</option>
                 <option value={ProjectPriority.MEDIUM}>Medium</option>
@@ -239,7 +239,7 @@ export function ProjectDialogModal({
                       shouldValidate: true,
                     })
                   }
-                  className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-11 rounded-lg border border-input bg-background px-3 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer"
                 >
                   <option value={ProjectStatus.PLANNING}>Planning</option>
                   <option value={ProjectStatus.ACTIVE}>Active</option>
@@ -253,7 +253,7 @@ export function ProjectDialogModal({
             <div className="space-y-1.5">
               <Label htmlFor="project-due">Target Due Date</Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="project-due"
                   type="date"
