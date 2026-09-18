@@ -177,7 +177,7 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
-                <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
                   type="text"
@@ -203,7 +203,7 @@ export function RegisterForm() {
                 <span className="text-[11px] text-muted-foreground">Unique identifier</span>
               </div>
               <div className="relative">
-                <AtSign className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <AtSign className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="username"
                   type="text"
@@ -232,7 +232,7 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Work Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -258,7 +258,7 @@ export function RegisterForm() {
                 <span className="text-[11px] text-muted-foreground">Optional</span>
               </div>
               <div className="relative">
-                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="phone"
                   type="tel"
@@ -279,7 +279,7 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -291,7 +291,7 @@ export function RegisterForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -324,7 +324,7 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -336,7 +336,7 @@ export function RegisterForm() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? (

@@ -1,14 +1,19 @@
 // SyncSpace Global Domain & API Interfaces
 
-export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'GUEST';
 
 export const WorkspaceRole = {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER',
+  GUEST: 'GUEST',
 } as const;
 
 export type WorkspaceVisibility = 'PRIVATE' | 'PUBLIC';
+export const WorkspaceVisibility = {
+  PRIVATE: 'PRIVATE',
+  PUBLIC: 'PUBLIC',
+} as const;
 
 export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'ARCHIVED';
 export const ProjectStatus = {
@@ -59,13 +64,33 @@ export interface User {
   bio?: string | null;
   timezone?: string;
   provider?: 'LOCAL' | 'GOOGLE';
-  isEmailVerified: boolean;
+  isEmailVerified?: boolean;
   emailVerifiedAt?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export type AuthUser = User;
+
+export interface UserProfile extends User {
+  avatar: string | null;
+  phone: string | null;
+  bio: string | null;
+  timezone: string;
+}
+
+export interface UpdateUserRequest {
+  name?: string;
+  bio?: string;
+  phone?: string;
+  timezone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
 export interface Workspace {
   id: string;
@@ -77,7 +102,16 @@ export interface Workspace {
   visibility: WorkspaceVisibility;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string | null;
   owner?: User;
+}
+
+export interface WorkspaceMemberUser {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  avatar?: string | null;
 }
 
 export interface WorkspaceMember {
@@ -87,6 +121,47 @@ export interface WorkspaceMember {
   role: WorkspaceRole;
   joinedAt: string;
   user: User;
+}
+
+export interface WorkspaceInvitationDetails {
+  workspaceName: string;
+  workspaceLogo: string | null;
+  invitedEmail: string;
+  role: WorkspaceRole;
+  inviterName: string;
+  expiresAt: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+}
+
+export interface CreateWorkspaceRequest {
+  name: string;
+  logo?: string;
+}
+
+export interface UpdateWorkspaceSettingsRequest {
+  name?: string;
+  description?: string;
+  logo?: string;
+  visibility?: WorkspaceVisibility;
+}
+
+export interface TransferOwnershipRequest {
+  memberId: string;
+}
+
+export interface DirectAddMemberRequest {
+  email: string;
+  role?: WorkspaceRole;
+}
+
+export interface CreateInvitationRequest {
+  email: string;
+  role: WorkspaceRole;
+}
+
+export interface SendInvitationResponse {
+  message: string;
+  invitationId: string;
 }
 
 export interface WorkspaceInvitation {

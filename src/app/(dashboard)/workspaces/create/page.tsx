@@ -70,7 +70,7 @@ export default function StandaloneCreateWorkspacePage() {
               <span className="text-[11px] text-muted-foreground">(Optional)</span>
             </div>
             <div className="relative">
-              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="create-ws-logo"
                 type="url"

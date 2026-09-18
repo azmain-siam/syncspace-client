@@ -89,7 +89,7 @@ function VerifyEmailContent() {
                 Enter your email address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="resend-email"
                   type="email"

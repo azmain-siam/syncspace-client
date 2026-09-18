@@ -2,110 +2,110 @@
 
 @layer base {
   :root {
-    /* ─── Light Mode: "Stark Studio" (DESIGN.md) ─── */
+    /* ─── Light Mode ─── */
 
-    /* Surfaces (M3 Tonal Layering) */
-    --background: #fcf8ff;                        /* Canvas */
-    --foreground: #1b1b23;                        /* On-Surface Text */
+    /* Surfaces */
+    --background: #f8fafc;                        /* Crisp, modern canvas */
+    --foreground: #0f172a;                        /* Slate 900: High-contrast, sharp text */
 
-    --card: #ffffff;                              /* Container Lowest */
-    --card-foreground: #1b1b23;
+    --card: #ffffff;                              /* Container */
+    --card-foreground: #0f172a;
 
     --popover: #ffffff;
-    --popover-foreground: #1b1b23;
+    --popover-foreground: #0f172a;
 
     /* Primary: Electric Indigo */
-    --primary: #4648d4;
+    --primary: #4f46e5;                           /* Indigo 600 */
     --primary-foreground: #ffffff;
-    --primary-container: #6063ee;
-    --on-primary-container: #fffbff;
+    --primary-container: #e0e7ff;
+    --on-primary-container: #3730a3;
 
-    /* Secondary: Emerald Green */
-    --secondary: #006c49;
-    --secondary-foreground: #ffffff;
-    --secondary-container: #6cf8bb;
-    --on-secondary-container: #00714d;
+    /* Secondary: Slate */
+    --secondary: #f1f5f9;                         /* Slate 100 */
+    --secondary-foreground: #0f172a;              /* Slate 900 */
+    --secondary-container: #e2e8f0;
+    --on-secondary-container: #1e293b;
 
-    /* Tertiary: Warm Amber */
-    --tertiary: #904900;
-    --tertiary-container: #b55d00;
+    /* Tertiary: Amber */
+    --tertiary: #b45309;
+    --tertiary-container: #fef3c7;
 
     /* Muted & Accents */
-    --muted: #f5f2fe;                             /* Container Low */
-    --muted-foreground: #464554;                    /* On-Surface Variant */
+    --muted: #f1f5f9;                             /* Slate 100 */
+    --muted-foreground: #475569;                  /* Slate 600: 7.0:1 AAA contrast on white */
 
-    --accent: #efecf8;                            /* Container Standard */
-    --accent-foreground: #1b1b23;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
 
-    /* Semantic Feedback */
-    --success: #e6f9f0;
-    --success-foreground: #00714d;
+    /* Semantic Feedback (True semantic colors, not faint background tints) */
+    --success: #16a34a;                           /* Emerald 600 */
+    --success-foreground: #ffffff;
 
-    --warning: #fff4e5;
-    --warning-foreground: #904900;
+    --warning: #d97706;                           /* Amber 600 */
+    --warning-foreground: #ffffff;
 
-    --danger: #ffdad6;
-    --danger-foreground: #93000a;
+    --danger: #dc2626;                            /* Red 600: High contrast, unmistakably clear */
+    --danger-foreground: #ffffff;
 
-    --destructive: #ba1a1a;
+    --destructive: #dc2626;
     --destructive-foreground: #ffffff;
 
     /* Structural outlines */
-    --border: #e2e8f0;                            /* Neutral Border */
-    --input: #e2e8f0;
-    --outline: #767586;
-    --outline-variant: #c7c4d7;
-    --ring: #4648d4;
+    --border: #e2e8f0;                            /* Slate 200 */
+    --input: #cbd5e1;                             /* Slate 300 */
+    --outline: #94a3b8;
+    --outline-variant: #e2e8f0;
+    --ring: #4f46e5;
     --radius: 0.5rem;                             /* 8px Standard Base Radius */
   }
 
   .dark {
-    /* ─── Dark Mode: "Midnight Workshop" ─── */
+    /* ─── Dark Mode ─── */
 
     /* Surfaces */
-    --background: #09090b;                        /* Dark Canvas */
-    --foreground: #f4f4f5;                        /* Crisp Text */
+    --background: #09090b;                        /* Zinc 950: Deep dark canvas */
+    --foreground: #f8fafc;                        /* Slate 50: Crisp, bright, high-contrast text */
 
-    --card: #18181b;                              /* Dark Container */
-    --card-foreground: #f4f4f5;
+    --card: #141417;                              /* Elevated dark container */
+    --card-foreground: #f8fafc;
 
-    --popover: #27272a;                           /* Elevated Surface */
-    --popover-foreground: #f4f4f5;
+    --popover: #1c1c21;                           /* Clean elevated surface */
+    --popover-foreground: #f8fafc;
 
-    /* Primary: Electric Indigo */
-    --primary: #4648d4;
+    /* Primary: Electric Indigo (bright & luminous in dark) */
+    --primary: #6366f1;                           /* Indigo 500 */
     --primary-foreground: #ffffff;
-    --primary-container: #6063ee;
+    --primary-container: #312e81;
 
     /* Secondary */
-    --secondary: #4edea3;
-    --secondary-foreground: #002113;
+    --secondary: #27272a;                         /* Zinc 800 */
+    --secondary-foreground: #f8fafc;
 
     /* Muted */
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
+    --muted: #222226;
+    --muted-foreground: #94a3b8;                  /* Slate 400: 7.7:1 AAA contrast on dark background */
 
     /* Accent */
     --accent: #27272a;
-    --accent-foreground: #f4f4f5;
+    --accent-foreground: #f8fafc;
 
     /* Semantic Feedback */
-    --success: #003824;
-    --success-foreground: #4edea3;
+    --success: #22c55e;                           /* Emerald 500 */
+    --success-foreground: #000000;
 
-    --warning: #4a2300;
-    --warning-foreground: #ffb783;
+    --warning: #f59e0b;                           /* Amber 500 */
+    --warning-foreground: #000000;
 
-    --danger: #680007;
-    --danger-foreground: #ffb4ab;
+    --danger: #ef4444;                            /* Red 500: Luminous, high-contrast, unmistakable */
+    --danger-foreground: #ffffff;
 
-    --destructive: #ffb4ab;
-    --destructive-foreground: #690005;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
 
     /* Structural */
     --border: #27272a;
-    --input: #27272a;
-    --ring: #4648d4;
+    --input: #3f3f46;                             /* Zinc 700: Clearly defined input outlines */
+    --ring: #6366f1;
   }
 }
 
@@ -157,10 +157,33 @@
   --radius-full: 9999px;                     /* Full Pill */
 }
 
+/* Global button and interactive cursor styles */
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* Base typography and body defaults */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans, system-ui, sans-serif);
   min-height: 100vh;
   margin: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

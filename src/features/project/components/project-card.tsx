@@ -34,13 +34,13 @@ export function ProjectCard({
   const getStatusBadgeVariant = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.ACTIVE:
-        return 'default';
+        return 'success';
       case ProjectStatus.PLANNING:
         return 'secondary';
       case ProjectStatus.COMPLETED:
         return 'outline';
       case ProjectStatus.ON_HOLD:
-        return 'danger';
+        return 'warning';
       default:
         return 'secondary';
     }
@@ -49,13 +49,13 @@ export function ProjectCard({
   const getPriorityBadgeColor = (priority: ProjectPriority) => {
     switch (priority) {
       case ProjectPriority.CRITICAL:
-        return 'bg-red-500/10 text-red-500 border-red-500/20';
+        return 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30';
       case ProjectPriority.HIGH:
-        return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+        return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';
       case ProjectPriority.MEDIUM:
-        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+        return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30';
       case ProjectPriority.LOW:
-        return 'bg-slate-500/10 text-slate-500 border-slate-500/20';
+        return 'bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30';
     }
   };
 
@@ -132,7 +132,7 @@ export function ProjectCard({
         {/* Footer Meta: Due Date & Details Link */}
         <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5 text-[11px] font-medium">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground/70" />
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <span>
               {project.dueDate
                 ? new Date(project.dueDate).toLocaleDateString('en-US', {

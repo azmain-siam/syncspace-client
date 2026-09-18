@@ -65,7 +65,7 @@ export default function WorkspaceActivityPage({
                 <p className="text-xs text-muted-foreground">
                   Workspace <strong className="text-foreground">{workspace?.name}</strong> was created.
                 </p>
-                <span className="text-[10px] text-muted-foreground/80 font-mono">
+                <span className="text-[10px] text-muted-foreground font-mono">
                   {workspace?.createdAt
                     ? new Date(workspace.createdAt).toLocaleString(undefined, {
                         dateStyle: 'medium',
@@ -89,7 +89,7 @@ export default function WorkspaceActivityPage({
                 <p className="text-xs text-muted-foreground">
                   Team members can now be invited and projects configured for Kanban tracking.
                 </p>
-                <span className="text-[10px] text-muted-foreground/80 font-mono">Active</span>
+                <span className="text-[10px] text-muted-foreground font-mono">Active</span>
               </div>
             </div>
           </div>

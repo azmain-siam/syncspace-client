@@ -46,18 +46,19 @@ export function CreateWorkspaceModal({
     },
   });
 
-  React.useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
       reset();
     }
-  }, [open, reset]);
+    onOpenChange(newOpen);
+  };
 
   const onSubmit = (data: CreateWorkspaceInput) => {
     createWorkspaceMutation.mutate(data);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[420px] rounded-2xl">
         <DialogHeader>
           <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1">
@@ -94,7 +95,7 @@ export function CreateWorkspaceModal({
               <span className="text-[11px] text-muted-foreground">(Optional)</span>
             </div>
             <div className="relative">
-              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="ws-logo"
                 type="url"

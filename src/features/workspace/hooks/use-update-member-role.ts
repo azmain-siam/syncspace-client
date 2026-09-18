@@ -1,14 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import type { ApiResponse, WorkspaceMember, WorkspaceRole } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
+import type { ApiResponse, WorkspaceRole } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
 
-export function useUpdateMemberRole(workspaceId: string) {
+export function useUpdateMemberRole(workspaceId: string, onSuccessCallback?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation<
-    ApiResponse<WorkspaceMember>,
+    ApiResponse<null>,
     AxiosError<ApiResponse<unknown>>,
     { memberId: string; role: WorkspaceRole }
   >({
@@ -17,10 +18,15 @@ export function useUpdateMemberRole(workspaceId: string) {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
       toast.success(response.message || 'Member role updated successfully!');
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message || 'Failed to update member role.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to update member role. Please try again.',
+      );
       toast.error(errorMessage);
     },
   });

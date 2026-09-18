@@ -2,36 +2,36 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import type { ApiResponse, Workspace } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
+import type { ApiResponse } from '@/types/domain';
 import { workspaceApi } from '../api/workspace.api';
-import { useWorkspaceStore } from '../stores/use-workspace-store';
 
-export function useAcceptInvitation() {
+export function useAcceptInvitation(onSuccessCallback?: () => void) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const setActiveWorkspace = useWorkspaceStore((state) => state.setActiveWorkspace);
 
   return useMutation<
-    ApiResponse<{ workspace: Workspace }>,
+    ApiResponse<{ message: string }>,
     AxiosError<ApiResponse<unknown>>,
     string
   >({
     mutationFn: (token: string) => workspaceApi.acceptInvitation(token),
     onSuccess: (response) => {
-      const workspace = response.data?.workspace;
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       queryClient.invalidateQueries({ queryKey: ['workspaces', 'my'] });
-      toast.success(response.message || 'Successfully joined workspace!');
-      if (workspace) {
-        setActiveWorkspace(workspace);
-        const slug = workspace.slug || workspace.id;
-        router.push(`/workspaces/${slug}`);
-      } else {
-        router.push('/');
+      toast.success(
+        response.data?.message || response.message || 'Successfully joined workspace!',
+      );
+      if (onSuccessCallback) {
+        onSuccessCallback();
       }
+      router.push('/dashboard');
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message || 'Failed to accept invitation.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to accept invitation. Please try again.',
+      );
       toast.error(errorMessage);
     },
   });

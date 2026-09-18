@@ -37,7 +37,7 @@ export function Breadcrumb() {
 
         return (
           <React.Fragment key={href}>
-            <ChevronRight className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
             {isLast ? (
               <span className="font-bold text-foreground truncate max-w-[140px]">
                 {title}

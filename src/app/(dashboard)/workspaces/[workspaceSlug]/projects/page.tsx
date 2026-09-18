@@ -93,7 +93,7 @@ export default function WorkspaceProjectsPage({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-2xl border border-border bg-card">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/70" />
+          <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

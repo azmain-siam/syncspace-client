@@ -1,9 +1,10 @@
 import { apiClient } from '@/lib/api/api-client';
 import type {
   ApiResponse,
-  User,
+  DirectAddMemberRequest,
+  SendInvitationResponse,
   Workspace,
-  WorkspaceInvitation,
+  WorkspaceInvitationDetails,
   WorkspaceMember,
   WorkspaceRole,
 } from '@/types/domain';
@@ -11,20 +12,16 @@ import type { CreateWorkspaceInput } from '../schemas/create-workspace.schema';
 import type { InviteMemberInput } from '../schemas/invite-member.schema';
 import type { UpdateWorkspaceSettingsInput } from '../schemas/update-settings.schema';
 
-export interface ValidateInvitationResponse {
-  invitation: WorkspaceInvitation;
-  workspace: Workspace;
-  inviter: User;
-}
+export type ValidateInvitationResponse = WorkspaceInvitationDetails;
 
 export const workspaceApi = {
-  // Get all user workspaces
+  // 1. Get all user workspaces
   getMyWorkspaces: async (): Promise<ApiResponse<Workspace[]>> => {
     const res = await apiClient.get<ApiResponse<Workspace[]>>('/workspaces');
     return res.data;
   },
 
-  // Create workspace
+  // 2. Create workspace
   createWorkspace: async (
     data: CreateWorkspaceInput,
   ): Promise<ApiResponse<Workspace>> => {
@@ -32,7 +29,7 @@ export const workspaceApi = {
     return res.data;
   },
 
-  // Update workspace settings
+  // 3. Update workspace settings
   updateWorkspaceSettings: async (
     workspaceId: string,
     data: UpdateWorkspaceSettingsInput,
@@ -44,19 +41,35 @@ export const workspaceApi = {
     return res.data;
   },
 
-  // Transfer ownership
-  transferOwnership: async (
-    workspaceId: string,
-    newOwnerId: string,
-  ): Promise<ApiResponse<Workspace>> => {
-    const res = await apiClient.patch<ApiResponse<Workspace>>(
-      `/workspaces/${workspaceId}/transfer-ownership`,
-      { newOwnerId },
+  // 4. Soft-delete workspace (Owner only)
+  deleteWorkspace: async (workspaceId: string): Promise<ApiResponse<null>> => {
+    const res = await apiClient.delete<ApiResponse<null>>(
+      `/workspaces/${workspaceId}`,
     );
     return res.data;
   },
 
-  // Get workspace members
+  // 5. Leave workspace voluntarily (Non-owners only)
+  leaveWorkspace: async (workspaceId: string): Promise<ApiResponse<null>> => {
+    const res = await apiClient.post<ApiResponse<null>>(
+      `/workspaces/${workspaceId}/leave`,
+    );
+    return res.data;
+  },
+
+  // 6. Transfer workspace ownership (Owner only)
+  transferOwnership: async (
+    workspaceId: string,
+    memberId: string,
+  ): Promise<ApiResponse<null>> => {
+    const res = await apiClient.patch<ApiResponse<null>>(
+      `/workspaces/${workspaceId}/transfer-ownership`,
+      { memberId },
+    );
+    return res.data;
+  },
+
+  // 7. Get workspace members
   getWorkspaceMembers: async (
     workspaceId: string,
   ): Promise<ApiResponse<WorkspaceMember[]>> => {
@@ -66,19 +79,32 @@ export const workspaceApi = {
     return res.data;
   },
 
-  // Invite member by email
-  inviteMember: async (
+  // 8. Direct member addition by email
+  directAddMember: async (
     workspaceId: string,
-    data: InviteMemberInput,
-  ): Promise<ApiResponse<WorkspaceInvitation>> => {
-    const res = await apiClient.post<ApiResponse<WorkspaceInvitation>>(
-      `/workspaces/${workspaceId}/invitations`,
+    data: DirectAddMemberRequest,
+  ): Promise<ApiResponse<WorkspaceMember>> => {
+    const res = await apiClient.post<ApiResponse<WorkspaceMember>>(
+      `/workspaces/${workspaceId}/members`,
       data,
     );
     return res.data;
   },
 
-  // Remove member from workspace
+  // 9. Update member role (memberId is target userId)
+  updateMemberRole: async (
+    workspaceId: string,
+    memberId: string,
+    role: WorkspaceRole,
+  ): Promise<ApiResponse<null>> => {
+    const res = await apiClient.patch<ApiResponse<null>>(
+      `/workspaces/${workspaceId}/members/${memberId}/role`,
+      { role },
+    );
+    return res.data;
+  },
+
+  // 10. Remove member from workspace
   removeMember: async (
     workspaceId: string,
     userId: string,
@@ -89,45 +115,55 @@ export const workspaceApi = {
     return res.data;
   },
 
-  // Update member role
-  updateMemberRole: async (
+  // 11. Send tokenized workspace invitation email
+  inviteMember: async (
     workspaceId: string,
-    memberId: string,
-    role: WorkspaceRole,
-  ): Promise<ApiResponse<WorkspaceMember>> => {
-    const res = await apiClient.patch<ApiResponse<WorkspaceMember>>(
-      `/workspaces/${workspaceId}/members/${memberId}/role`,
-      { role },
+    data: InviteMemberInput,
+  ): Promise<ApiResponse<SendInvitationResponse>> => {
+    const res = await apiClient.post<ApiResponse<SendInvitationResponse>>(
+      `/workspaces/${workspaceId}/invitations`,
+      data,
     );
     return res.data;
   },
 
-  // Validate invitation token (Public)
+  // 12. Cancel / revoke pending workspace invitation
+  cancelInvitation: async (
+    workspaceId: string,
+    invitationId: string,
+  ): Promise<ApiResponse<{ message: string }>> => {
+    const res = await apiClient.delete<ApiResponse<{ message: string }>>(
+      `/workspaces/${workspaceId}/invitations/${invitationId}`,
+    );
+    return res.data;
+  },
+
+  // 13. Validate invitation token (Public landing page)
   validateInvitation: async (
     token: string,
-  ): Promise<ApiResponse<ValidateInvitationResponse>> => {
-    const res = await apiClient.get<ApiResponse<ValidateInvitationResponse>>(
+  ): Promise<ApiResponse<WorkspaceInvitationDetails>> => {
+    const res = await apiClient.get<ApiResponse<WorkspaceInvitationDetails>>(
       `/workspace-invitations/validate?token=${encodeURIComponent(token)}`,
     );
     return res.data;
   },
 
-  // Accept invitation (Authenticated)
+  // 14. Accept invitation (Authenticated)
   acceptInvitation: async (
     token: string,
-  ): Promise<ApiResponse<{ workspace: Workspace }>> => {
-    const res = await apiClient.post<ApiResponse<{ workspace: Workspace }>>(
+  ): Promise<ApiResponse<{ message: string }>> => {
+    const res = await apiClient.post<ApiResponse<{ message: string }>>(
       '/workspace-invitations/accept',
       { token },
     );
     return res.data;
   },
 
-  // Decline invitation (Authenticated)
+  // 15. Decline invitation (Authenticated)
   declineInvitation: async (
     token: string,
-  ): Promise<ApiResponse<null>> => {
-    const res = await apiClient.post<ApiResponse<null>>(
+  ): Promise<ApiResponse<{ message: string }>> => {
+    const res = await apiClient.post<ApiResponse<{ message: string }>>(
       '/workspace-invitations/decline',
       { token },
     );

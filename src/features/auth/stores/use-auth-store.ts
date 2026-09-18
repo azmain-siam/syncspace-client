@@ -67,7 +67,10 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         });
       },
-      setUser: (user) => set({ user }),
+      setUser: (user) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...user } : user,
+        })),
       logout: () => {
         if (typeof window !== 'undefined') {
           try {

@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, UserPlus } from 'lucide-react';
+import { Mail, Send, UserCheck, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,6 +21,7 @@ import {
   type InviteMemberInput,
 } from '../schemas/invite-member.schema';
 import { useSendInvitation } from '../hooks/use-send-invitation';
+import { useDirectAddMember } from '../hooks/use-direct-add-member';
 
 interface InviteMemberModalProps {
   workspaceId: string;
@@ -27,12 +29,20 @@ interface InviteMemberModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type InviteMode = 'INVITE' | 'DIRECT';
+
 export function InviteMemberModal({
   workspaceId,
   open,
   onOpenChange,
 }: InviteMemberModalProps) {
+  const [mode, setMode] = useState<InviteMode>('INVITE');
+
   const sendInvitationMutation = useSendInvitation(workspaceId, () => {
+    onOpenChange(false);
+  });
+
+  const directAddMutation = useDirectAddMember(workspaceId, () => {
     onOpenChange(false);
   });
 
@@ -49,35 +59,77 @@ export function InviteMemberModal({
     },
   });
 
-  React.useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
       reset();
+      setMode('INVITE');
     }
-  }, [open, reset]);
-
-  const onSubmit = (data: InviteMemberInput) => {
-    sendInvitationMutation.mutate(data);
+    onOpenChange(newOpen);
   };
 
+  const onSubmit = (data: InviteMemberInput) => {
+    if (mode === 'INVITE') {
+      sendInvitationMutation.mutate(data);
+    } else {
+      directAddMutation.mutate({
+        email: data.email,
+        role: data.role,
+      });
+    }
+  };
+
+  const isPending =
+    sendInvitationMutation.isPending || directAddMutation.isPending;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] rounded-2xl">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-[440px] rounded-2xl">
         <DialogHeader>
           <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1">
             <UserPlus className="h-5 w-5" />
           </div>
-          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogTitle>
+            {mode === 'INVITE' ? 'Invite Team Member' : 'Direct Add Member'}
+          </DialogTitle>
           <DialogDescription>
-            Send an email invitation to add a new collaborator to this workspace.
+            {mode === 'INVITE'
+              ? 'Send a tokenized 7-day email invitation to collaborate on this workspace.'
+              : 'Immediately add an existing registered user to this workspace by email.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+        {/* Mode Toggle Tabs */}
+        <div className="flex rounded-lg bg-muted p-1 border border-border">
+          <button
+            type="button"
+            onClick={() => setMode('INVITE')}
+            className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1.5 ${
+              mode === 'INVITE'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Send className="h-3.5 w-3.5" /> Email Invitation
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('DIRECT')}
+            className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1.5 ${
+              mode === 'DIRECT'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <UserCheck className="h-3.5 w-3.5" /> Direct Add
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
           {/* Email Address */}
           <div className="space-y-1.5">
             <Label htmlFor="invite-email">Work Email Address</Label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="invite-email"
                 type="email"
@@ -102,8 +154,15 @@ export function InviteMemberModal({
               className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground transition-all duration-150 focus:border-primary focus:shadow-[0_0_0_3px_rgba(70,72,212,0.12)] focus:outline-none"
               {...register('role')}
             >
-              <option value={WorkspaceRole.MEMBER}>Member (Can view, create & edit projects)</option>
-              <option value={WorkspaceRole.ADMIN}>Admin (Can manage settings & invite members)</option>
+              <option value={WorkspaceRole.MEMBER}>
+                Member (Can create, view & edit projects)
+              </option>
+              <option value={WorkspaceRole.ADMIN}>
+                Admin (Can manage settings & team members)
+              </option>
+              <option value={WorkspaceRole.GUEST}>
+                Guest (Restricted access to assigned projects)
+              </option>
             </select>
             {errors.role && (
               <p className="text-xs text-danger font-medium mt-1">
@@ -124,9 +183,9 @@ export function InviteMemberModal({
             <Button
               type="submit"
               className="h-11 font-semibold rounded-lg shadow-xs"
-              isLoading={sendInvitationMutation.isPending}
+              isLoading={isPending}
             >
-              Send Invitation
+              {mode === 'INVITE' ? 'Send Invitation' : 'Add Member'}
             </Button>
           </div>
         </form>
