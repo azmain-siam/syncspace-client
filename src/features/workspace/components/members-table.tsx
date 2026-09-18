@@ -107,10 +107,10 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Member</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead className="hidden md:table-cell">Joined Date</TableHead>
-            {canManage && <TableHead className="text-right">Actions</TableHead>}
+            <TableHead className="px-3 sm:px-4">Member</TableHead>
+            <TableHead className="px-3 sm:px-4">Role</TableHead>
+            <TableHead className="hidden md:table-cell px-4">Joined Date</TableHead>
+            {canManage && <TableHead className="text-right px-3 sm:px-4">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -140,16 +140,16 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
             return (
               <TableRow key={member.id}>
                 {/* User Info */}
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
+                <TableCell className="px-3 py-3 sm:p-4">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
                       {memberUser?.avatar && (
                         <AvatarImage src={memberUser.avatar} alt={memberUser.name} />
                       )}
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-xs sm:text-sm text-foreground">
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold text-xs sm:text-sm text-foreground truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-none">
                         {memberUser?.name || 'User'}{' '}
                         {isSelf && (
                           <span className="text-[10px] text-muted-foreground font-normal">
@@ -157,7 +157,7 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
                           </span>
                         )}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-none">
                         {memberUser?.email}
                       </span>
                     </div>
@@ -165,29 +165,29 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
                 </TableCell>
 
                 {/* Role Badge */}
-                <TableCell>
+                <TableCell className="px-3 py-3 sm:p-4">
                   {member.role === WorkspaceRole.OWNER && (
-                    <Badge variant="default" className="gap-1">
+                    <Badge variant="default" className="gap-1 text-[10px] sm:text-xs">
                       <Shield className="h-3 w-3" /> OWNER
                     </Badge>
                   )}
                   {member.role === WorkspaceRole.ADMIN && (
-                    <Badge variant="warning" className="gap-1">
+                    <Badge variant="warning" className="gap-1 text-[10px] sm:text-xs">
                       <Shield className="h-3 w-3" /> ADMIN
                     </Badge>
                   )}
                   {member.role === WorkspaceRole.MEMBER && (
-                    <Badge variant="secondary">MEMBER</Badge>
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs">MEMBER</Badge>
                   )}
                   {member.role === WorkspaceRole.GUEST && (
-                    <Badge variant="outline" className="text-muted-foreground">
+                    <Badge variant="outline" className="text-muted-foreground text-[10px] sm:text-xs">
                       GUEST
                     </Badge>
                   )}
                 </TableCell>
 
                 {/* Joined Date */}
-                <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                <TableCell className="hidden md:table-cell text-xs text-muted-foreground px-4 py-3 sm:p-4">
                   {new Date(member.joinedAt).toLocaleDateString(undefined, {
                     month: 'short',
                     day: 'numeric',
@@ -197,7 +197,7 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
 
                 {/* Actions Menu */}
                 {canManage && (
-                  <TableCell className="text-right">
+                  <TableCell className="text-right px-3 py-3 sm:p-4">
                     {canEditTargetMember ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

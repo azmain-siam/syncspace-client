@@ -176,7 +176,7 @@ export default function ProjectDetailsPage({
       </div>
 
       {/* Navigation Tab Bar */}
-      <div className="flex items-center border-b border-border gap-2">
+      <div className="flex items-center border-b border-border gap-1 sm:gap-2 overflow-x-auto max-w-full">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -184,13 +184,13 @@ export default function ProjectDetailsPage({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 isActive
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-4 w-4 shrink-0" />
               <span>{tab.label}</span>
             </button>
           );

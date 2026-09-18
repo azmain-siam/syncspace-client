@@ -99,9 +99,9 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                       href={item.href}
                       onClick={onNavigate}
                       className={cn(
-                        'relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium transition-colors duration-150',
+                        'relative flex items-center gap-3 rounded-lg px-3 py-2.5 sm:py-2 text-xs sm:text-sm font-medium transition-colors duration-150',
                         isActive
-                          ? 'bg-primary/10 text-primary font-semibold before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[2px] before:-translate-y-1/2 before:bg-primary before:rounded-r'
+                          ? 'bg-primary/15 text-foreground font-semibold before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:bg-primary before:rounded-r-full'
                           : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                       )}
                     >

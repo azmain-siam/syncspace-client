@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Header } from '@/components/common/header';
 import { Sidebar } from '@/components/common/sidebar';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AuthGuard } from '@/features/auth/components/auth-guard';
 
 export default function DashboardLayout({
@@ -21,11 +21,15 @@ export default function DashboardLayout({
         <Sidebar className="hidden lg:flex shrink-0 h-screen" />
 
         {/* Mobile Navigation Drawer Overlay */}
-        <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <DialogContent className="p-0 sm:max-w-[280px] h-full rounded-none border-r border-border bg-card">
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent
+            side="left"
+            className="p-0 w-64 max-w-[85vw] h-full border-r border-border bg-card shadow-2xl"
+            hideClose
+          >
             <Sidebar onNavigate={() => setMobileMenuOpen(false)} className="w-full h-full border-r-0" />
-          </DialogContent>
-        </Dialog>
+          </SheetContent>
+        </Sheet>
 
         {/* Main Application Container */}
         <div className="flex flex-1 flex-col min-w-0 h-screen overflow-hidden">

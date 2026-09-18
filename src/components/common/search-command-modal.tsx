@@ -87,7 +87,7 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="p-0 sm:max-w-[520px] rounded-2xl overflow-hidden gap-0">
+      <DialogContent className="p-0 sm:max-w-[520px] rounded-2xl overflow-hidden gap-0" hideClose>
         {/* Search Input Bar */}
         <div className="flex items-center px-4 border-b border-border/80 bg-card">
           <Search className="h-4 w-4 text-muted-foreground shrink-0 mr-3" />
@@ -99,9 +99,25 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
             }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search workspace..."
-            className="border-0 bg-transparent h-12 text-sm focus:shadow-none focus:border-transparent px-0 focus:ring-0"
+            className="border-0 bg-transparent h-12 text-sm focus:shadow-none focus:border-transparent px-0 focus:ring-0 flex-1"
             autoFocus
           />
+          {query ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setSelectedIndex(0);
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded bg-muted/60 transition-colors cursor-pointer shrink-0 ml-2"
+            >
+              Clear
+            </button>
+          ) : (
+            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-bold text-muted-foreground shrink-0 ml-2">
+              ESC
+            </kbd>
+          )}
         </div>
 
         {/* Results Stream */}

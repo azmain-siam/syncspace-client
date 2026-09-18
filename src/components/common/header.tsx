@@ -33,12 +33,12 @@ export function Header({ onMenuToggle }: HeaderProps) {
     <>
       <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between gap-4 selection:bg-primary/20 selection:text-primary">
         {/* Left Section: Mobile Menu Trigger + Breadcrumb */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
           <Button
             variant="ghost"
             size="icon"
             onClick={onMenuToggle}
-            className="lg:hidden h-9 w-9 rounded-lg"
+            className="lg:hidden h-9 w-9 shrink-0 rounded-lg"
             aria-label="Open navigation menu"
           >
             <Menu className="h-5 w-5" />

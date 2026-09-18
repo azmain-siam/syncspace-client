@@ -11,11 +11,19 @@ import {
   Globe,
   Layers,
   LayoutDashboard,
+  Menu,
   Sparkles,
   Users,
   Zap,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useAuthStore } from "@/features/auth/stores/use-auth-store";
 import { useMounted } from "@/hooks/use-mounted";
 import Link from "next/link";
@@ -25,13 +33,14 @@ export default function Home() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mounted = useMounted();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const isAuth = mounted && isAuthenticated;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-200 selection:bg-primary/20 selection:text-primary">
+    <div className="flex flex-col min-h-screen w-full overflow-x-hidden bg-background text-foreground transition-colors duration-200 selection:bg-primary/20 selection:text-primary">
       {/* ─── 1. Header Bar ─── */}
       <header className="sticky top-0 z-50 px-4 sm:px-8 py-3.5 bg-background/80 backdrop-blur-xl border-b border-border/60">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -45,7 +54,7 @@ export default function Home() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <a
               href="#features"
@@ -73,8 +82,8 @@ export default function Home() {
             </a>
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3">
+          {/* Actions & Mobile Menu Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             {isAuth ? (
               <div className="flex items-center gap-2">
@@ -88,19 +97,21 @@ export default function Home() {
                       {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-xs font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground truncate max-w-[100px]">
                     {user?.name?.split(' ')[0] || 'Account'}
                   </span>
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-4 py-2 rounded-lg shadow-sm border-t border-white/20 flex items-center gap-1.5 active:scale-[0.98]"
+                  className="text-xs sm:text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-3 sm:px-4 py-2 rounded-lg shadow-xs border-t border-white/20 flex items-center gap-1.5 active:scale-[0.98]"
                 >
-                  Go to Workspace <ArrowRight className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">Go to Workspace</span>
+                  <span className="xs:hidden">Workspace</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
                 <Link
                   href="/login"
                   className="hidden sm:inline-flex text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded"
@@ -109,25 +120,121 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/register"
-                  className="text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-4 py-2 rounded shadow-sm border-t border-white/20 active:scale-[0.98]"
+                  className="text-xs sm:text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all px-3.5 sm:px-4 py-2 rounded-lg shadow-xs border-t border-white/20 active:scale-[0.98]"
                 >
                   Start Building
                 </Link>
-              </>
+              </div>
             )}
+
+            {/* Mobile Hamburger Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
+              aria-label="Toggle navigation menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </header>
 
+      {/* Mobile Navigation Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="right" className="w-[300px] sm:w-[360px] p-6 flex flex-col justify-between">
+          <div className="space-y-6">
+            <SheetHeader className="text-left pb-4 border-b border-border/60">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-base shadow-xs">
+                  S
+                </div>
+                <SheetTitle className="font-extrabold text-xl tracking-tight text-foreground">
+                  SyncSpace
+                </SheetTitle>
+              </div>
+            </SheetHeader>
+
+            {/* Navigation Links */}
+            <nav className="flex flex-col space-y-1">
+              {[
+                { label: 'Features', href: '#features' },
+                { label: 'Kanban', href: '#kanban' },
+                { label: 'Pricing', href: '#pricing' },
+                { label: 'About', href: '#company' },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2.5 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors cursor-pointer"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          {/* Bottom Auth / Action Section */}
+          <div className="pt-6 border-t border-border/60 space-y-3">
+            {isAuth ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent/50">
+                  <Avatar className="h-8 w-8 border border-border">
+                    {user?.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                      {user?.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-foreground truncate">
+                      {user?.name || 'Account'}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate">
+                      {user?.email || ''}
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-xs"
+                >
+                  Go to Workspace <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg border border-border font-semibold text-sm text-foreground hover:bg-accent transition-colors"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2.5 px-4 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-xs"
+                >
+                  Start Building Free
+                </Link>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {/* ─── 2. Hero Section ─── */}
-      <section className="relative px-6 pt-16 pb-20 max-w-6xl mx-auto flex flex-col items-center text-center">
+      <section className="relative px-4 sm:px-6 pt-12 sm:pt-16 pb-16 sm:pb-20 max-w-6xl mx-auto flex flex-col items-center text-center w-full">
         {/* Top Pill Tag */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-semibold mb-8 shadow-xs">
           <Sparkles className="h-3.5 w-3.5" /> The Workspace for Teams
         </div>
 
         {/* Main Heading */}
-        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-[-0.03em] max-w-4xl leading-[1.15] text-foreground">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-[-0.03em] max-w-4xl leading-[1.15] text-foreground break-words">
           The workspace for the{" "}
           <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary via-[#6063ee] to-[#7c3aed]">
             next generation
@@ -136,14 +243,14 @@ export default function Home() {
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl font-normal leading-relaxed">
+        <p className="mt-6 text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl font-normal leading-relaxed">
           SyncSpace brings all your team&apos;s tools into one seamless
           workflow. Spend less time switching contexts and more time building
           what matters.
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
           {isAuth ? (
             <Link
               href="/dashboard"
@@ -168,27 +275,27 @@ export default function Home() {
         </div>
 
         {/* ─── Product Showcase Container Card ─── */}
-        <div className="mt-14 w-full max-w-5xl relative">
+        <div className="mt-10 sm:mt-14 w-full max-w-5xl relative">
           {/* Diffused Aura Glow Background */}
-          <div className="absolute -inset-1.5 bg-gradient-to-r from-primary/30 via-purple-500/20 to-primary/30 rounded-3xl blur-2xl opacity-60 -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-500/20 to-primary/30 rounded-3xl blur-xl opacity-60 -z-10" />
 
           {/* Window Shell */}
-          <div className="rounded-2xl border border-border/80 bg-[#09090b] text-white shadow-2xl overflow-hidden text-left">
+          <div className="rounded-2xl border border-border/80 bg-[#09090b] text-white shadow-2xl overflow-hidden text-left w-full">
             {/* Window Header */}
-            <div className="h-10 px-4 bg-[#141417] border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#ff5f56]" />
-                <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
-                <div className="h-3 w-3 rounded-full bg-[#27c93f]" />
+            <div className="h-10 px-3 sm:px-4 bg-[#141417] border-b border-white/10 flex items-center justify-between gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-[#ff5f56]" />
+                <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-[#ffbd2e]" />
+                <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-[#27c93f]" />
               </div>
-              <div className="text-xs font-mono text-white/40">
+              <div className="text-[11px] sm:text-xs font-mono text-white/40 truncate text-center min-w-0 px-2">
                 syncspace.app/workspace/engineering
               </div>
-              <div className="w-12" />
+              <div className="w-8 sm:w-12 shrink-0" />
             </div>
 
             {/* Showcase Dashboard Mockup Interior */}
-            <div className="p-6 sm:p-8 bg-[#0c0c0e] grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="p-3.5 sm:p-6 lg:p-8 bg-[#0c0c0e] grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
               {/* Left Mini Sidebar */}
               <div className="hidden md:flex flex-col space-y-4 border-r border-white/10 pr-6">
                 <div className="flex items-center gap-2 font-bold text-sm text-white">
@@ -216,14 +323,14 @@ export default function Home() {
               </div>
 
               {/* Main Preview Content */}
-              <div className="md:col-span-3 space-y-6">
+              <div className="md:col-span-3 space-y-4 sm:space-y-6 min-w-0">
                 {/* Metric Cards Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-[11px] text-white/50 font-medium">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 min-w-0">
+                    <div className="text-[10px] sm:text-[11px] text-white/50 font-medium truncate">
                       Sprint Progress
                     </div>
-                    <div className="text-xl font-bold text-white mt-1">69%</div>
+                    <div className="text-lg sm:text-xl font-bold text-white mt-1">69%</div>
                     <div className="w-full bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden">
                       <div
                         className="bg-primary h-full rounded-full"
@@ -232,93 +339,93 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-[11px] text-white/50 font-medium">
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 min-w-0">
+                    <div className="text-[10px] sm:text-[11px] text-white/50 font-medium truncate">
                       Velocity
                     </div>
-                    <div className="text-xl font-bold text-white mt-1">
+                    <div className="text-lg sm:text-xl font-bold text-white mt-1">
                       84 pts
                     </div>
-                    <div className="text-[10px] text-emerald-400 mt-1">
+                    <div className="text-[10px] text-emerald-400 mt-1 truncate">
                       ↑ +14% vs last week
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-[11px] text-white/50 font-medium">
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 min-w-0">
+                    <div className="text-[10px] sm:text-[11px] text-white/50 font-medium truncate">
                       Open Issues
                     </div>
-                    <div className="text-xl font-bold text-white mt-1">12</div>
-                    <div className="text-[10px] text-amber-400 mt-1">
+                    <div className="text-lg sm:text-xl font-bold text-white mt-1">12</div>
+                    <div className="text-[10px] text-amber-400 mt-1 truncate">
                       4 High Priority
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-[11px] text-white/50 font-medium">
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 min-w-0">
+                    <div className="text-[10px] sm:text-[11px] text-white/50 font-medium truncate">
                       Completed
                     </div>
-                    <div className="text-xl font-bold text-white mt-1">28</div>
-                    <div className="text-[10px] text-emerald-400 mt-1">
+                    <div className="text-lg sm:text-xl font-bold text-white mt-1">28</div>
+                    <div className="text-[10px] text-emerald-400 mt-1 truncate">
                       Target Met
                     </div>
                   </div>
                 </div>
 
                 {/* Sample Kanban Columns Mockup */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                   {/* Todo */}
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                    <div className="text-xs font-semibold text-white/70 flex justify-between">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 min-w-0">
+                    <div className="text-xs font-semibold text-white/70 flex justify-between items-center">
                       <span>TODO</span>
                       <span className="text-white/40">3</span>
                     </div>
-                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5">
+                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5 min-w-0">
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                         HIGH
                       </span>
-                      <div className="text-xs font-medium text-white">
+                      <div className="text-xs font-medium text-white truncate">
                         OAuth Refresh Token Logic
                       </div>
-                      <div className="text-[10px] text-white/40">
+                      <div className="text-[10px] text-white/40 truncate">
                         Updated 2h ago
                       </div>
                     </div>
                   </div>
 
                   {/* In Progress */}
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                    <div className="text-xs font-semibold text-white/70 flex justify-between">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 min-w-0">
+                    <div className="text-xs font-semibold text-white/70 flex justify-between items-center">
                       <span>IN PROGRESS</span>
                       <span className="text-white/40">2</span>
                     </div>
-                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5">
+                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5 min-w-0">
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
                         URGENT
                       </span>
-                      <div className="text-xs font-medium text-white">
+                      <div className="text-xs font-medium text-white truncate">
                         Realtime Socket Gateway Sync
                       </div>
-                      <div className="text-[10px] text-emerald-400">
+                      <div className="text-[10px] text-emerald-400 truncate">
                         ● 3 Users Editing
                       </div>
                     </div>
                   </div>
 
                   {/* Done */}
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                    <div className="text-xs font-semibold text-white/70 flex justify-between">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 min-w-0">
+                    <div className="text-xs font-semibold text-white/70 flex justify-between items-center">
                       <span>DONE</span>
                       <span className="text-white/40">5</span>
                     </div>
-                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5">
+                    <div className="p-3 rounded bg-[#18181c] border border-white/10 space-y-1.5 min-w-0">
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
                         COMPLETED
                       </span>
-                      <div className="text-xs font-medium text-white">
+                      <div className="text-xs font-medium text-white truncate">
                         PostgreSQL Migration Schema
                       </div>
-                      <div className="text-[10px] text-white/40">
+                      <div className="text-[10px] text-white/40 truncate">
                         Merged to main
                       </div>
                     </div>
@@ -331,26 +438,26 @@ export default function Home() {
       </section>
 
       {/* ─── 3. Trust Bar ─── */}
-      <section className="py-12 border-y border-border/60 bg-muted/30 text-center px-6">
+      <section className="py-10 sm:py-12 border-y border-border/60 bg-muted/30 text-center px-4 sm:px-6 w-full overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-8">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-6 sm:mb-8">
             TRUSTED BY HIGH-PERFORMING TEAMS AT
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all">
-            <div className="flex items-center gap-2 text-sm font-bold tracking-tight">
-              <Cpu className="h-5 w-5" /> Acme Corp
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
+              <Cpu className="h-4 w-4 sm:h-5 sm:w-5" /> Acme Corp
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold tracking-tight">
-              <Zap className="h-5 w-5" /> Vercel
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5" /> Vercel
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold tracking-tight">
-              <Globe className="h-5 w-5" /> Supabase
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
+              <Globe className="h-4 w-4 sm:h-5 sm:w-5" /> Supabase
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold tracking-tight">
-              <Layers className="h-5 w-5" /> Linear
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
+              <Layers className="h-4 w-4 sm:h-5 sm:w-5" /> Linear
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold tracking-tight">
-              <Code2 className="h-5 w-5" /> Raycast
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
+              <Code2 className="h-4 w-4 sm:h-5 sm:w-5" /> Raycast
             </div>
           </div>
         </div>
@@ -614,7 +721,7 @@ export default function Home() {
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
           {/* Starter Card */}
           <div className="p-8 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
             <div className="space-y-6">
@@ -651,7 +758,7 @@ export default function Home() {
             </div>
             <div className="pt-8">
               <Link href="/register">
-                <button className="w-full h-10 rounded border border-border bg-card hover:bg-accent text-foreground text-sm font-semibold transition-colors">
+                <button className="w-full h-10 rounded-lg border border-border bg-card hover:bg-accent text-foreground text-sm font-semibold transition-colors cursor-pointer">
                   Get Started Free
                 </button>
               </Link>
@@ -697,7 +804,7 @@ export default function Home() {
             </div>
             <div className="pt-8">
               <Link href="/register">
-                <button className="w-full h-10 rounded bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold shadow-xs border-t border-white/20 transition-colors">
+                <button className="w-full h-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold shadow-xs border-t border-white/20 transition-colors cursor-pointer">
                   Start Free Trial
                 </button>
               </Link>
@@ -705,7 +812,7 @@ export default function Home() {
           </div>
 
           {/* Enterprise Card */}
-          <div className="p-8 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between">
+          <div className="p-8 rounded-2xl border border-border bg-card shadow-xs flex flex-col justify-between sm:col-span-2 lg:col-span-1">
             <div className="space-y-6">
               <div>
                 <h3 className="text-xl font-bold text-foreground">
@@ -739,7 +846,7 @@ export default function Home() {
             </div>
             <div className="pt-8">
               <a href="#company">
-                <button className="w-full h-10 rounded border border-border bg-card hover:bg-accent text-foreground text-sm font-semibold transition-colors">
+                <button className="w-full h-10 rounded-lg border border-border bg-card hover:bg-accent text-foreground text-sm font-semibold transition-colors cursor-pointer">
                   Contact Sales
                 </button>
               </a>
@@ -774,9 +881,9 @@ export default function Home() {
         id="company"
         className="border-t border-border bg-card py-16 px-6 text-sm"
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 sm:gap-10">
           {/* Brand Col */}
-          <div className="md:col-span-2 space-y-4">
+          <div className="col-span-2 sm:col-span-3 md:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-base">
                 S

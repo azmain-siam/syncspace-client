@@ -49,39 +49,39 @@ export default function WorkspaceDashboardPage({
   return (
     <div className="space-y-6">
       {/* Workspace Header Banner */}
-      <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 rounded-xl border border-border">
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <Avatar className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border shrink-0">
             {workspace?.logo && (
               <AvatarImage src={workspace.logo} alt={workspace.name} />
             )}
-            <AvatarFallback className="rounded-xl bg-primary/10 text-primary font-bold text-lg">
+            <AvatarFallback className="rounded-xl bg-primary/10 text-primary font-bold text-base sm:text-lg">
               {workspace?.name ? workspace.name.substring(0, 2).toUpperCase() : 'WS'}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+          <div className="space-y-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground truncate break-words">
                 {workspace?.name || 'SyncSpace Workspace'}
               </h1>
-              <Badge variant="default" className="gap-1">
+              <Badge variant="default" className="gap-1 text-[10px] sm:text-xs shrink-0">
                 <Shield className="h-3 w-3" /> ACTIVE
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               Slug: <code className="font-mono text-[11px] font-semibold text-primary">{displaySlug}</code>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
           <Link href={`/workspaces/${displaySlug}/members`}>
-            <Button variant="outline" className="h-10 rounded-lg gap-2">
+            <Button variant="outline" className="h-9 sm:h-10 text-xs sm:text-sm rounded-lg gap-2">
               <Users className="h-4 w-4" /> Members ({members.length})
             </Button>
           </Link>
           <Link href={`/workspaces/${displaySlug}/settings`}>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg">
               <Settings className="h-4 w-4" />
             </Button>
           </Link>
