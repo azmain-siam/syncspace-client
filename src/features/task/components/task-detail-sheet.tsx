@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Layers,
   Loader2,
+  MessageSquare,
   MoreVertical,
   Paperclip,
   Trash2,
@@ -34,6 +35,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { CommentThread } from '@/features/comment';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
 import { cn } from '@/lib/utils';
 import { useDeleteTask } from '../hooks/use-delete-task';
@@ -140,7 +142,9 @@ export function TaskDetailSheet({
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [copiedKey, setCopiedKey] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'checklists' | 'attachments' | 'links'>('checklists');
+  const [activeTab, setActiveTab] = React.useState<
+    'comments' | 'checklists' | 'attachments' | 'links'
+  >('comments');
 
   // Synchronize state during render when task changes
   if (task && task.id !== prevTaskId) {
@@ -538,9 +542,31 @@ export function TaskDetailSheet({
                 />
               </div>
 
-              {/* Tabs for Checklists, Attachments, Links */}
+              {/* Tabs for Comments, Checklists, Attachments, Links */}
               <div className="space-y-4 pt-2">
                 <div className="flex border-b border-border/80 gap-3 sm:gap-4 text-xs font-medium overflow-x-auto scrollbar-none pb-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('comments')}
+                    className={cn(
+                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap',
+                      activeTab === 'comments'
+                        ? 'text-primary font-semibold'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <MessageSquare className="size-3.5" />
+                    Comments
+                    {task._count?.comments !== undefined && task._count.comments > 0 && (
+                      <span className="ml-0.5 rounded-full bg-primary/10 px-1.5 py-0.2 text-[10px] font-semibold text-primary">
+                        {task._count.comments}
+                      </span>
+                    )}
+                    {activeTab === 'comments' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setActiveTab('checklists')}
@@ -595,6 +621,9 @@ export function TaskDetailSheet({
 
                 {/* Tab Contents */}
                 <div>
+                  {activeTab === 'comments' && (
+                    <CommentThread taskId={task.id} workspaceId={workspaceId} />
+                  )}
                   {activeTab === 'checklists' && (
                     <TaskChecklists taskId={task.id} canManage={canManage} />
                   )}
