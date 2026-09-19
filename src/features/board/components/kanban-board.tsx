@@ -41,6 +41,12 @@ import { CreateColumnModal } from './create-column-modal';
 import { EditColumnModal } from './edit-column-modal';
 import { DeleteColumnDialog } from './delete-column-dialog';
 
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useMoveTask, useDeleteTask } from '@/features/task/hooks';
+import { CreateTaskModal } from '@/features/task/components/create-task-modal';
+import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
+import type { Task } from '@/features/task/types/task.types';
+
 interface KanbanBoardProps {
   workspaceId: string;
   projectId: string;
@@ -94,16 +100,16 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     isLoading: columnsLoading,
   } = useBoardColumns(workspaceId, projectId, activeBoard?.id);
 
-  // Combined columns resolution (prefer direct columns endpoint if loaded, fallback to board.columns)
+  // Combined columns resolution (prefer boardDetailsResponse since it embeds tasks and receives optimistic task moves)
   const columns: BoardColumn[] = useMemo(() => {
+    if (boardDetailsResponse?.data?.columns && boardDetailsResponse.data.columns.length > 0) {
+      return [...boardDetailsResponse.data.columns].sort((a, b) => a.order - b.order);
+    }
     if (columnsResponse?.data && columnsResponse.data.length > 0) {
       return [...columnsResponse.data].sort((a, b) => a.order - b.order);
     }
-    if (boardDetailsResponse?.data?.columns) {
-      return [...boardDetailsResponse.data.columns].sort((a, b) => a.order - b.order);
-    }
     return [];
-  }, [columnsResponse, boardDetailsResponse]);
+  }, [boardDetailsResponse, columnsResponse]);
 
   // Modals state
   const [createBoardOpen, setCreateBoardOpen] = useState(false);
@@ -114,16 +120,114 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [columnToEdit, setColumnToEdit] = useState<BoardColumn | null>(null);
   const [columnToDelete, setColumnToDelete] = useState<BoardColumn | null>(null);
 
-  // Drag-and-Drop state
+  // Task Drag-and-Drop & Creation state
+  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+  const [dragOverTaskTarget, setDragOverTaskTarget] = useState<{
+    columnId: string;
+    targetOrder: number;
+  } | null>(null);
+
+  const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
+  const [createTaskColumnId, setCreateTaskColumnId] = useState<string>('');
+
+  // Task Detail Drawer state & URL synchronization
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const taskParam = searchParams.get('task') || searchParams.get('taskId');
+  const [clientTaskId, setClientTaskId] = useState<string | null>(null);
+
+  const selectedTaskIdOrKey = clientTaskId || taskParam || null;
+  const taskDetailOpen = Boolean(selectedTaskIdOrKey);
+
+  const handleOpenTask = (task: Task) => {
+    const keyOrId = task.key || task.id;
+    setClientTaskId(keyOrId);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('task', keyOrId);
+    window.history.replaceState(null, '', `${pathname}?${params.toString()}`);
+  };
+
+  const handleCloseTaskDetail = (open: boolean) => {
+    if (!open) {
+      setClientTaskId(null);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('task');
+      params.delete('taskId');
+      const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      window.history.replaceState(null, '', newUrl);
+    }
+  };
+
+  // Drag-and-Drop state for Columns
   const [draggingColumnId, setDraggingColumnId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
 
-  // Reorder hook
+  // Column Reorder hook
   const reorderColumnsMutation = useReorderColumns(
     workspaceId,
     projectId,
     activeBoard?.id || '',
   );
+
+  // Task Move & Delete hooks
+  const moveTaskMutation = useMoveTask(
+    workspaceId,
+    projectId,
+    activeBoard?.id || '',
+  );
+
+  const deleteTaskMutation = useDeleteTask(
+    workspaceId,
+    projectId,
+    activeBoard?.id || '',
+  );
+
+  // Task Drag Handlers
+  const handleTaskDragStart = (task: Task) => {
+    if (!canManage) return;
+    setDraggingTaskId(task.id);
+    setDragOverTaskTarget(null);
+  };
+
+  const handleTaskDragOver = (columnId: string, targetOrder: number) => {
+    if (!canManage || !draggingTaskId) return;
+    setDragOverTaskTarget({ columnId, targetOrder });
+  };
+
+  const handleTaskDrop = (columnId: string, targetOrder: number) => {
+    if (!canManage || !draggingTaskId) return;
+
+    moveTaskMutation.mutate({
+      taskId: draggingTaskId,
+      targetColumnId: columnId,
+      targetOrder,
+    });
+
+    setDraggingTaskId(null);
+    setDragOverTaskTarget(null);
+  };
+
+  const handleTaskDragEnd = () => {
+    setDraggingTaskId(null);
+    setDragOverTaskTarget(null);
+  };
+
+  const handleMoveTaskToColumn = (task: Task, targetColumnId: string) => {
+    if (!canManage) return;
+    const targetCol = columns.find((c) => c.id === targetColumnId);
+    const targetOrder = targetCol?.tasks?.length || 0;
+    moveTaskMutation.mutate({
+      taskId: task.id,
+      targetColumnId,
+      targetOrder,
+    });
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    if (!canManage) return;
+    deleteTaskMutation.mutate(task.id);
+  };
 
   // Drag handlers
   const handleDragStart = (columnId: string) => {
@@ -379,6 +483,21 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
               onDragEnd={handleDragEnd}
               isDragging={draggingColumnId === column.id}
               isDragOver={dragOverColumnId === column.id}
+              draggingColumnId={draggingColumnId}
+              onAddTask={(colId) => {
+                setCreateTaskColumnId(colId);
+                setCreateTaskModalOpen(true);
+              }}
+              onTaskDragStart={handleTaskDragStart}
+              onTaskDragOver={handleTaskDragOver}
+              onTaskDrop={handleTaskDrop}
+              onTaskDragEnd={handleTaskDragEnd}
+              draggingTaskId={draggingTaskId}
+              dragOverTaskTarget={dragOverTaskTarget}
+              availableColumns={columns.map((c) => ({ id: c.id, title: c.title }))}
+              onMoveTaskToColumn={handleMoveTaskToColumn}
+              onDeleteTask={handleDeleteTask}
+              onSelectTask={handleOpenTask}
             />
           ))}
 
@@ -462,6 +581,28 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
             projectId={projectId}
             boardId={activeBoard.id}
             column={columnToDelete}
+          />
+
+          {/* Create Task Modal */}
+          <CreateTaskModal
+            open={createTaskModalOpen}
+            onOpenChange={setCreateTaskModalOpen}
+            workspaceId={workspaceId}
+            projectId={projectId}
+            boardId={activeBoard.id}
+            columnId={createTaskColumnId || columns[0]?.id || ''}
+            columns={columns.map((c) => ({ id: c.id, title: c.title }))}
+          />
+
+          {/* Task Detail Sheet */}
+          <TaskDetailSheet
+            taskIdOrKey={selectedTaskIdOrKey}
+            open={taskDetailOpen}
+            onOpenChange={handleCloseTaskDetail}
+            workspaceId={workspaceId}
+            projectId={projectId}
+            boardId={activeBoard.id}
+            canManage={canManage}
           />
         </>
       )}
