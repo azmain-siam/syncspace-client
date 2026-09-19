@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
 import type { ApiResponse } from '@/types/domain';
 import { boardApi } from '../api/board.api';
 import type { Board, BoardColumn, ReorderColumnsRequest } from '../types/board.types';
@@ -96,6 +97,17 @@ export function useReorderColumns(
       return { previousColumns, previousBoard };
     },
 
+    onSuccess: (response) => {
+      if (response?.data) {
+        queryClient.setQueryData<ApiResponse<BoardColumn[]>>(columnsQueryKey, {
+          success: true,
+          statusCode: 200,
+          message: 'Columns reordered successfully',
+          data: response.data,
+        });
+      }
+    },
+
     onError: (error, _variables, context) => {
       // Rollback on error
       if (context?.previousColumns) {
@@ -104,9 +116,9 @@ export function useReorderColumns(
       if (context?.previousBoard) {
         queryClient.setQueryData(boardQueryKey, context.previousBoard);
       }
-      const errorMessage =
-        error.response?.data?.message || 'Failed to reorder columns. Reverting changes.';
-      toast.error(errorMessage);
+      toast.error(
+        formatApiErrorMessage(error, 'Failed to reorder columns. Reverting changes.'),
+      );
     },
 
     onSettled: () => {

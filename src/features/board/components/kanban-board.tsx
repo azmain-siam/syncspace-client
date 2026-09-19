@@ -382,9 +382,33 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
 
     // 1. Column Reordering
     if (source.type === 'column') {
-      if (source.id !== target.id) {
-        const fromIndex = columns.findIndex((c) => c.id === source.id);
-        const toIndex = columns.findIndex((c) => c.id === target.id);
+      const sourceColumnId = String(source.id).replace('column-droppable-', '');
+      let targetColumnId = String(target.id).replace('column-droppable-', '');
+
+      // If dropped over a task inside a column, resolve the parent column
+      if (target.type === 'item') {
+        const parentCol = columns.find((col) =>
+          col.tasks?.some((t) => t.id === target.id),
+        );
+        if (parentCol) {
+          targetColumnId = parentCol.id;
+        } else {
+          const queries = queryClient.getQueriesData<ApiResponse<PaginatedTasksResponse>>({
+            queryKey: ['columns'],
+          });
+          for (const [, queryData] of queries) {
+            const found = queryData?.data?.tasks?.find((t) => t.id === target.id);
+            if (found) {
+              targetColumnId = found.columnId;
+              break;
+            }
+          }
+        }
+      }
+
+      if (sourceColumnId !== targetColumnId) {
+        const fromIndex = columns.findIndex((c) => c.id === sourceColumnId);
+        const toIndex = columns.findIndex((c) => c.id === targetColumnId);
         if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
           handleMoveColumn(fromIndex, toIndex);
         }
@@ -399,7 +423,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
       let targetOrder = 0;
 
       if (target.type === 'column') {
-        targetColumnId = String(target.id);
+        targetColumnId = String(target.id).replace('column-droppable-', '');
         targetOrder = 0;
       } else if (target.type === 'item') {
         const sortableTarget = target as unknown as {
@@ -415,6 +439,10 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           sortableTarget.index ??
           sortableTarget.sortable?.index ??
           0;
+
+        if (targetColumnId) {
+          targetColumnId = targetColumnId.replace('column-droppable-', '');
+        }
 
         if (!targetColumnId) {
           const queries = queryClient.getQueriesData<ApiResponse<PaginatedTasksResponse>>({
@@ -445,19 +473,21 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
         };
       };
 
-      const resolvedTargetCol =
+      const resolvedTargetCol = (
         targetColumnId ||
         sortableSource.group ||
-        sortableSource.sortable?.group;
+        sortableSource.sortable?.group
+      )?.replace('column-droppable-', '');
 
       const resolvedOrder =
         sortableSource.index ??
         sortableSource.sortable?.index ??
         targetOrder;
 
-      const initialGroup =
+      const initialGroup = (
         sortableSource.initialGroup ||
-        sortableSource.sortable?.initialGroup;
+        sortableSource.sortable?.initialGroup
+      )?.replace('column-droppable-', '');
 
       const initialIndex =
         sortableSource.initialIndex ??

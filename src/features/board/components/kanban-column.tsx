@@ -55,7 +55,12 @@ export function KanbanColumn({
 
   const taskCount = tasks.length;
 
-  const { ref: sortableRef, handleRef, isDragSource } = useSortable({
+  const {
+    ref: sortableRef,
+    handleRef,
+    isDragSource,
+    isDropTarget: isColumnDropTarget,
+  } = useSortable({
     id: column.id,
     index,
     type: 'column',
@@ -63,18 +68,20 @@ export function KanbanColumn({
     data: {
       type: 'column',
       column,
+      columnId: column.id,
       index,
     },
     disabled: !canManage,
   });
 
-  const { ref: droppableRef, isDropTarget } = useDroppable({
-    id: column.id,
+  const { ref: droppableRef, isDropTarget: isTaskDropTarget } = useDroppable({
+    id: `column-droppable-${column.id}`,
     type: 'column',
     accept: ['item'],
     data: {
       type: 'column',
       column,
+      columnId: column.id,
     },
     collisionPriority: 1,
   });
@@ -88,7 +95,7 @@ export function KanbanColumn({
         'group/column flex flex-col w-[86vw] max-w-[340px] sm:w-80 shrink-0 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xs transition-all duration-200 snap-center sm:snap-align-none',
         'max-h-[calc(100dvh-220px)] sm:max-h-[calc(100vh-210px)] min-h-[380px] sm:min-h-[420px]',
         isDragSource && 'opacity-40 scale-[0.98] border-dashed border-primary shadow-xl',
-        isDropTarget && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
+        (isColumnDropTarget || isTaskDropTarget) && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
       )}
     >
       {/* Column Header (serves as drag handle for column) */}
@@ -124,7 +131,10 @@ export function KanbanColumn({
           </Badge>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div
+          className="flex items-center gap-1 shrink-0"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <ColumnActionMenu
             onEdit={() => onEditColumn(column)}
             onDelete={() => onDeleteColumn(column)}
@@ -142,7 +152,7 @@ export function KanbanColumn({
         ref={droppableRef}
         className={cn(
           'flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[140px] rounded-b-2xl transition-colors',
-          isDropTarget && taskCount === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
+          isTaskDropTarget && taskCount === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
         )}
       >
         {tasksLoading && tasks.length === 0 ? (
