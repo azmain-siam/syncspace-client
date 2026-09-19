@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import {
+  ArrowLeft,
+  ArrowRight,
   Calendar,
   CheckSquare,
   ExternalLink,
@@ -11,28 +13,18 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { useSortable } from '@dnd-kit/react/sortable';
 import type { Task, TaskPriority } from '../types/task.types';
 
 interface TaskCardProps {
   task: Task;
-  index: number;
+  index?: number;
+  columnId?: string;
   canManage: boolean;
+  isOverlay?: boolean;
   onSelectTask?: (task: Task) => void;
-  onDragStart?: (e: React.DragEvent, task: Task) => void;
-  onDragOver?: (e: React.DragEvent, task: Task) => void;
-  onDrop?: (e: React.DragEvent, targetTask: Task) => void;
-  onDragEnd?: (e: React.DragEvent) => void;
-  isDragging?: boolean;
-  isDragOver?: boolean;
   availableColumns?: { id: string; title: string }[];
   onMoveToColumn?: (task: Task, columnId: string) => void;
   onDeleteTask?: (task: Task) => void;
@@ -40,18 +32,30 @@ interface TaskCardProps {
 
 export function TaskCard({
   task,
+  index = 0,
+  columnId,
   canManage,
+  isOverlay = false,
   onSelectTask,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-  isDragging = false,
-  isDragOver = false,
   availableColumns = [],
   onMoveToColumn,
   onDeleteTask,
 }: TaskCardProps) {
+  const { ref, isDragSource } = useSortable({
+    id: task.id,
+    index,
+    group: columnId || task.columnId,
+    type: 'item',
+    accept: ['item'],
+    data: {
+      type: 'item',
+      task,
+      columnId: columnId || task.columnId,
+      index,
+    },
+    disabled: !canManage || isOverlay,
+  });
+
   const priorityColors: Record<TaskPriority, string> = {
     URGENT: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
     HIGH: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
@@ -101,41 +105,40 @@ export function TaskCard({
     return parts[0].slice(0, 2).toUpperCase();
   }, [task.assignee]);
 
+  // Directional stage navigation for mobile / quick shortcuts
+  const currentColumnIndex = React.useMemo(() => {
+    return availableColumns.findIndex((c) => c.id === task.columnId);
+  }, [availableColumns, task.columnId]);
+
+  const prevColumn = React.useMemo(() => {
+    return currentColumnIndex > 0 ? availableColumns[currentColumnIndex - 1] : null;
+  }, [availableColumns, currentColumnIndex]);
+
+  const nextColumn = React.useMemo(() => {
+    return currentColumnIndex >= 0 && currentColumnIndex < availableColumns.length - 1
+      ? availableColumns[currentColumnIndex + 1]
+      : null;
+  }, [availableColumns, currentColumnIndex]);
+
+  const otherColumns = React.useMemo(() => {
+    return availableColumns.filter(
+      (c) => c.id !== task.columnId && c.id !== prevColumn?.id && c.id !== nextColumn?.id,
+    );
+  }, [availableColumns, task.columnId, prevColumn, nextColumn]);
+
   return (
     <div
+      ref={isOverlay ? undefined : ref}
       data-task-card="true"
       data-task-id={task.id}
-      draggable={canManage}
-      onDragStart={(e) => {
-        if (!canManage) return;
-        e.stopPropagation();
-        e.dataTransfer.setData('text/plain', task.id);
-        e.dataTransfer.setData('syncspace/type', 'task');
-        e.dataTransfer.effectAllowed = 'move';
-        onDragStart?.(e, task);
+      onClick={() => {
+        onSelectTask?.(task);
       }}
-      onDragOver={(e) => {
-        if (canManage) {
-          e.preventDefault();
-          e.stopPropagation();
-          onDragOver?.(e, task);
-        }
-      }}
-      onDrop={(e) => {
-        if (canManage) {
-          e.preventDefault();
-          e.stopPropagation();
-          onDrop?.(e, task);
-        }
-      }}
-      onDragEnd={(e) => {
-        onDragEnd?.(e);
-      }}
-      onClick={() => onSelectTask?.(task)}
       className={cn(
-        'group/task relative flex flex-col gap-2.5 rounded-xl border border-border/80 bg-card p-3 shadow-xs hover:border-primary/50 hover:shadow-md transition-all cursor-pointer select-none',
-        isDragging && 'opacity-30 scale-[0.98] border-dashed border-primary shadow-lg',
-        isDragOver && !isDragging && 'border-primary ring-2 ring-primary/60 bg-primary/5 -translate-y-0.5',
+        'group/task relative flex flex-col gap-2.5 rounded-xl border border-border/80 bg-card p-3 shadow-xs transition-all select-none',
+        !isOverlay && 'hover:border-primary/50 hover:shadow-md cursor-grab active:cursor-grabbing',
+        isDragSource && 'opacity-30 scale-[0.98] border-dashed border-primary shadow-lg',
+        isOverlay && 'shadow-2xl ring-2 ring-primary/80 border-primary scale-[1.02] cursor-grabbing rotate-1 pointer-events-none',
       )}
     >
       {/* Top Header Row: Key + Priority + Quick Menu */}
@@ -171,16 +174,16 @@ export function TaskCard({
                 variant="ghost"
                 size="icon"
                 onClick={(e) => e.stopPropagation()}
-                className="h-6 w-6 rounded-md opacity-0 group-hover/task:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                className="h-7 w-7 rounded-md opacity-100 sm:opacity-0 sm:group-hover/task:opacity-100 transition-opacity text-muted-foreground hover:text-foreground hover:bg-muted/80"
                 aria-label="Task options"
               >
-                <MoreHorizontal className="h-3.5 w-3.5" />
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
               onClick={(e) => e.stopPropagation()}
-              className="w-44 rounded-xl p-1 shadow-lg text-xs"
+              className="w-48 rounded-xl p-1 shadow-lg text-xs"
             >
               <DropdownMenuItem
                 onClick={() => onSelectTask?.(task)}
@@ -189,23 +192,50 @@ export function TaskCard({
                 <span>View Details</span>
               </DropdownMenuItem>
 
-              {availableColumns.length > 1 && (
+              {/* Quick Move Directional Shortcuts for Mobile & Fast Progress */}
+              {(nextColumn || prevColumn) && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel className="text-[10px] text-muted-foreground font-semibold px-2 py-1">
-                    Move to column:
+                    Quick Move
                   </DropdownMenuLabel>
-                  {availableColumns
-                    .filter((c) => c.id !== task.columnId)
-                    .map((col) => (
-                      <DropdownMenuItem
-                        key={col.id}
-                        onClick={() => onMoveToColumn?.(task, col.id)}
-                        className="cursor-pointer gap-2 py-1.5 text-xs"
-                      >
-                        <span>{col.title}</span>
-                      </DropdownMenuItem>
-                    ))}
+                  {nextColumn && (
+                    <DropdownMenuItem
+                      onClick={() => onMoveToColumn?.(task, nextColumn.id)}
+                      className="cursor-pointer gap-2 py-1.5 font-medium text-primary focus:text-primary focus:bg-primary/10"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="truncate">Move to {nextColumn.title}</span>
+                    </DropdownMenuItem>
+                  )}
+                  {prevColumn && (
+                    <DropdownMenuItem
+                      onClick={() => onMoveToColumn?.(task, prevColumn.id)}
+                      className="cursor-pointer gap-2 py-1.5 font-medium text-muted-foreground focus:text-foreground"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">Back to {prevColumn.title}</span>
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )}
+
+              {/* Other columns if more than immediate neighbors */}
+              {otherColumns.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-[10px] text-muted-foreground font-semibold px-2 py-1">
+                    Other stages:
+                  </DropdownMenuLabel>
+                  {otherColumns.map((col) => (
+                    <DropdownMenuItem
+                      key={col.id}
+                      onClick={() => onMoveToColumn?.(task, col.id)}
+                      className="cursor-pointer gap-2 py-1.5 text-xs"
+                    >
+                      <span className="truncate">{col.title}</span>
+                    </DropdownMenuItem>
+                  ))}
                 </>
               )}
 

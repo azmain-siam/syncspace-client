@@ -45,7 +45,7 @@ export function DeleteBoardDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[440px] rounded-2xl p-6">
+      <DialogContent className="w-[92vw] max-w-[440px] rounded-2xl p-5 sm:p-6">
         <DialogHeader>
           <div className="flex items-center gap-2.5 text-destructive mb-1">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
@@ -58,14 +58,14 @@ export function DeleteBoardDialog({
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed pt-1">
             Are you sure you want to delete{' '}
             <strong className="text-foreground font-semibold">
-              &quot;{board.title}&quot;
+               &quot;{board.title}&quot;
             </strong>
             ? All columns and tasks inside this board will be permanently removed.
             This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center justify-end gap-3 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4">
           <Button
             type="button"
             variant="outline"

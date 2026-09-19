@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { TaskCard } from '@/features/task/components/task-card';
 import { useColumnTasks } from '@/features/task/hooks/use-column-tasks';
+import { useDroppable } from '@dnd-kit/react';
+import { useSortable } from '@dnd-kit/react/sortable';
 import type { Task } from '@/features/task/types/task.types';
 import type { BoardColumn } from '../types/board.types';
 import { ColumnActionMenu } from './column-action-menu';
@@ -19,22 +21,9 @@ interface KanbanColumnProps {
   onEditColumn: (column: BoardColumn) => void;
   onDeleteColumn: (column: BoardColumn) => void;
   onMoveColumn: (fromIndex: number, toIndex: number) => void;
-  onDragStart?: (columnId: string) => void;
-  onDragOver?: (columnId: string) => void;
-  onDrop?: (columnId: string) => void;
-  onDragEnd?: () => void;
-  isDragging?: boolean;
-  isDragOver?: boolean;
-  draggingColumnId?: string | null;
   // Task specific props
   onSelectTask?: (task: Task) => void;
   onAddTask?: (columnId: string) => void;
-  onTaskDragStart?: (task: Task) => void;
-  onTaskDragOver?: (columnId: string, targetOrder: number) => void;
-  onTaskDrop?: (columnId: string, targetOrder: number) => void;
-  onTaskDragEnd?: () => void;
-  draggingTaskId?: string | null;
-  dragOverTaskTarget?: { columnId: string; targetOrder: number } | null;
   availableColumns?: { id: string; title: string }[];
   onMoveTaskToColumn?: (task: Task, targetColumnId: string) => void;
   onDeleteTask?: (task: Task) => void;
@@ -48,21 +37,8 @@ export function KanbanColumn({
   onEditColumn,
   onDeleteColumn,
   onMoveColumn,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-  isDragging = false,
-  isDragOver = false,
-  draggingColumnId,
   onSelectTask,
   onAddTask,
-  onTaskDragStart,
-  onTaskDragOver,
-  onTaskDrop,
-  onTaskDragEnd,
-  draggingTaskId,
-  dragOverTaskTarget,
   availableColumns = [],
   onMoveTaskToColumn,
   onDeleteTask,
@@ -79,46 +55,49 @@ export function KanbanColumn({
 
   const taskCount = tasks.length;
 
+  const { ref: sortableRef, handleRef, isDragSource } = useSortable({
+    id: column.id,
+    index,
+    type: 'column',
+    accept: ['column'],
+    data: {
+      type: 'column',
+      column,
+      index,
+    },
+    disabled: !canManage,
+  });
+
+  const { ref: droppableRef, isDropTarget } = useDroppable({
+    id: column.id,
+    type: 'column',
+    accept: ['item'],
+    data: {
+      type: 'column',
+      column,
+    },
+    collisionPriority: 1,
+  });
+
   return (
     <div
-      onDragOver={(e) => {
-        if (!canManage) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (draggingColumnId) {
-          onDragOver?.(column.id);
-        } else if (draggingTaskId) {
-          onTaskDragOver?.(column.id, tasks.length);
-        }
-      }}
-      onDrop={(e) => {
-        if (!canManage) return;
-        e.preventDefault();
-        if (draggingColumnId) {
-          onDrop?.(column.id);
-        } else if (draggingTaskId) {
-          onTaskDrop?.(column.id, tasks.length);
-        }
-      }}
+      ref={sortableRef}
+      id={`column-${column.id}`}
+      data-column-id={column.id}
       className={cn(
-        'group/column flex flex-col w-72 sm:w-80 shrink-0 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xs transition-all duration-200',
-        'max-h-[calc(100vh-210px)] min-h-[420px]',
-        isDragging && 'opacity-40 scale-[0.98] border-dashed border-primary shadow-xl',
-        isDragOver && !isDragging && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
+        'group/column flex flex-col w-[86vw] max-w-[340px] sm:w-80 shrink-0 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xs transition-all duration-200 snap-center sm:snap-align-none',
+        'max-h-[calc(100dvh-220px)] sm:max-h-[calc(100vh-210px)] min-h-[380px] sm:min-h-[420px]',
+        isDragSource && 'opacity-40 scale-[0.98] border-dashed border-primary shadow-xl',
+        isDropTarget && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
       )}
     >
       {/* Column Header (serves as drag handle for column) */}
       <div
-        draggable={canManage}
-        onDragStart={(e) => {
-          if (!canManage) return;
-          e.dataTransfer.setData('text/plain', column.id);
-          e.dataTransfer.setData('syncspace/type', 'column');
-          e.dataTransfer.effectAllowed = 'move';
-          onDragStart?.(column.id);
-        }}
-        onDragEnd={() => onDragEnd?.()}
-        className="flex items-center justify-between gap-2 p-3.5 border-b border-border/60 cursor-grab active:cursor-grabbing select-none"
+        ref={canManage ? handleRef : undefined}
+        className={cn(
+          'flex items-center justify-between gap-2 p-3.5 border-b border-border/60 select-none',
+          canManage && 'cursor-grab active:cursor-grabbing',
+        )}
       >
         <div className="flex items-center gap-2 min-w-0">
           {canManage && (
@@ -160,24 +139,11 @@ export function KanbanColumn({
 
       {/* Tasks Scroll Container */}
       <div
-        onDragOver={(e) => {
-          if (!canManage) return;
-          if (draggingTaskId) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            onTaskDragOver?.(column.id, tasks.length);
-          }
-        }}
-        onDrop={(e) => {
-          if (!canManage) return;
-          if (draggingTaskId) {
-            e.preventDefault();
-            e.stopPropagation();
-            onTaskDrop?.(column.id, tasks.length);
-          }
-          // If dragging a column, allow event to bubble up to column onDrop
-        }}
-        className="flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[140px]"
+        ref={droppableRef}
+        className={cn(
+          'flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[140px] rounded-b-2xl transition-colors',
+          isDropTarget && taskCount === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
+        )}
       >
         {tasksLoading && tasks.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
@@ -202,28 +168,9 @@ export function KanbanColumn({
                 key={task.id}
                 task={task}
                 index={taskIdx}
+                columnId={column.id}
                 canManage={canManage}
                 onSelectTask={onSelectTask}
-                onDragStart={(_e, t) => onTaskDragStart?.(t)}
-                onDragOver={(e) => {
-                  if (!canManage || !draggingTaskId) return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onTaskDragOver?.(column.id, taskIdx);
-                }}
-                onDrop={(e) => {
-                  if (!canManage || !draggingTaskId) return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onTaskDrop?.(column.id, taskIdx);
-                }}
-                onDragEnd={() => onTaskDragEnd?.()}
-                isDragging={draggingTaskId === task.id}
-                isDragOver={
-                  dragOverTaskTarget?.columnId === column.id &&
-                  dragOverTaskTarget?.targetOrder === taskIdx &&
-                  draggingTaskId !== task.id
-                }
                 availableColumns={availableColumns}
                 onMoveToColumn={onMoveTaskToColumn}
                 onDeleteTask={onDeleteTask}

@@ -73,7 +73,7 @@ export function EditBoardModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[440px] rounded-2xl p-6">
+      <DialogContent className="w-[92vw] max-w-[440px] rounded-2xl p-5 sm:p-6">
         <DialogHeader>
           <div className="flex items-center gap-2.5 text-primary mb-1">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -107,7 +107,7 @@ export function EditBoardModal({
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-2">
             <Button
               type="button"
               variant="outline"

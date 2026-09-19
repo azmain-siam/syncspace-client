@@ -73,7 +73,7 @@ export function CreateBoardModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[480px] rounded-2xl p-6">
+      <DialogContent className="w-[92vw] max-w-[480px] rounded-2xl p-5 sm:p-6 max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2.5 text-primary mb-1">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -154,7 +154,7 @@ export function CreateBoardModal({
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-2">
             <Button
               type="button"
               variant="outline"

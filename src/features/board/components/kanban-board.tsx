@@ -19,10 +19,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/features/auth/stores/use-auth-store';
 import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-store';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
-import { WorkspaceRole, type BoardColumn } from '@/types/domain';
+import { WorkspaceRole, type ApiResponse, type BoardColumn } from '@/types/domain';
 
 import {
   useProjectBoards,
@@ -42,10 +43,13 @@ import { EditColumnModal } from './edit-column-modal';
 import { DeleteColumnDialog } from './delete-column-dialog';
 
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { DragDropProvider, DragOverlay, type DragStartEvent, type DragEndEvent } from '@dnd-kit/react';
 import { useMoveTask, useDeleteTask } from '@/features/task/hooks';
 import { CreateTaskModal } from '@/features/task/components/create-task-modal';
 import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
-import type { Task } from '@/features/task/types/task.types';
+import { TaskCard } from '@/features/task/components/task-card';
+import type { Task, PaginatedTasksResponse } from '@/features/task/types/task.types';
 
 interface KanbanBoardProps {
   workspaceId: string;
@@ -120,12 +124,32 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [columnToEdit, setColumnToEdit] = useState<BoardColumn | null>(null);
   const [columnToDelete, setColumnToDelete] = useState<BoardColumn | null>(null);
 
-  // Task Drag-and-Drop & Creation state
-  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
-  const [dragOverTaskTarget, setDragOverTaskTarget] = useState<{
-    columnId: string;
-    targetOrder: number;
-  } | null>(null);
+  const queryClient = useQueryClient();
+
+  // Task Drag-and-Drop active states for DragOverlay
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [activeColumnId, setActiveColumnId] = useState<string | null>(null);
+
+  const activeTask = useMemo(() => {
+    if (!activeTaskId) return null;
+    for (const col of columns) {
+      const found = col.tasks?.find((t) => t.id === activeTaskId);
+      if (found) return found;
+    }
+    const queries = queryClient.getQueriesData<ApiResponse<PaginatedTasksResponse>>({
+      queryKey: ['columns'],
+    });
+    for (const [, queryData] of queries) {
+      const found = queryData?.data?.tasks?.find((t) => t.id === activeTaskId);
+      if (found) return found;
+    }
+    return null;
+  }, [activeTaskId, columns, queryClient]);
+
+  const activeColumn = useMemo(() => {
+    if (!activeColumnId) return null;
+    return columns.find((c) => c.id === activeColumnId) || null;
+  }, [activeColumnId, columns]);
 
   const [createTaskModalOpen, setCreateTaskModalOpen] = useState(false);
   const [createTaskColumnId, setCreateTaskColumnId] = useState<string>('');
@@ -159,9 +183,54 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     }
   };
 
-  // Drag-and-Drop state for Columns
-  const [draggingColumnId, setDraggingColumnId] = useState<string | null>(null);
-  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+
+
+  // Mobile Stage Carousel Tracking
+  const [selectedMobileColumnId, setSelectedMobileColumnId] = useState<string | null>(null);
+  const columnsContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const activeMobileColumnId = useMemo(() => {
+    if (selectedMobileColumnId && columns.some((c) => c.id === selectedMobileColumnId)) {
+      return selectedMobileColumnId;
+    }
+    return columns[0]?.id || null;
+  }, [columns, selectedMobileColumnId]);
+
+  // Observer to update selectedMobileColumnId when swiping through columns
+  React.useEffect(() => {
+    const container = columnsContainerRef.current;
+    if (!container || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const colId = entry.target.getAttribute('data-column-id');
+            if (colId) {
+              setSelectedMobileColumnId(colId);
+            }
+          }
+        });
+      },
+      {
+        root: container,
+        threshold: 0.5,
+      },
+    );
+
+    const columnElements = container.querySelectorAll('[data-column-id]');
+    columnElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [columns]);
+
+  const handleScrollToColumn = (columnId: string) => {
+    setSelectedMobileColumnId(columnId);
+    const element = document.getElementById(`column-${columnId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
 
   // Column Reorder hook
   const reorderColumnsMutation = useReorderColumns(
@@ -183,36 +252,6 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     activeBoard?.id || '',
   );
 
-  // Task Drag Handlers
-  const handleTaskDragStart = (task: Task) => {
-    if (!canManage) return;
-    setDraggingTaskId(task.id);
-    setDragOverTaskTarget(null);
-  };
-
-  const handleTaskDragOver = (columnId: string, targetOrder: number) => {
-    if (!canManage || !draggingTaskId) return;
-    setDragOverTaskTarget({ columnId, targetOrder });
-  };
-
-  const handleTaskDrop = (columnId: string, targetOrder: number) => {
-    if (!canManage || !draggingTaskId) return;
-
-    moveTaskMutation.mutate({
-      taskId: draggingTaskId,
-      targetColumnId: columnId,
-      targetOrder,
-    });
-
-    setDraggingTaskId(null);
-    setDragOverTaskTarget(null);
-  };
-
-  const handleTaskDragEnd = () => {
-    setDraggingTaskId(null);
-    setDragOverTaskTarget(null);
-  };
-
   const handleMoveTaskToColumn = (task: Task, targetColumnId: string) => {
     if (!canManage) return;
     const targetCol = columns.find((c) => c.id === targetColumnId);
@@ -229,55 +268,128 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     deleteTaskMutation.mutate(task.id);
   };
 
-  // Drag handlers
-  const handleDragStart = (columnId: string) => {
+  // DragDropProvider event handlers
+  const handleDragStart = (event: DragStartEvent) => {
     if (!canManage) return;
-    setDraggingColumnId(columnId);
-    setDragOverColumnId(null);
+    const { source } = event.operation;
+    if (!source) return;
+    if (source.type === 'item') {
+      setActiveTaskId(String(source.id));
+      setActiveColumnId(null);
+    } else if (source.type === 'column') {
+      setActiveColumnId(String(source.id));
+      setActiveTaskId(null);
+    }
   };
 
-  const handleDragOver = (targetColumnId: string) => {
-    if (!canManage || !draggingColumnId) return;
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveTaskId(null);
+    setActiveColumnId(null);
 
-    // If hovering back over the dragged column itself (previous/original place),
-    // clear the drop target indicator so no other column remains highlighted
-    if (draggingColumnId === targetColumnId) {
-      if (dragOverColumnId !== null) {
-        setDragOverColumnId(null);
+    if (event.canceled || !canManage) return;
+
+    const { source, target } = event.operation;
+    if (!source || !target) return;
+
+    // 1. Column Reordering
+    if (source.type === 'column') {
+      if (source.id !== target.id) {
+        const fromIndex = columns.findIndex((c) => c.id === source.id);
+        const toIndex = columns.findIndex((c) => c.id === target.id);
+        if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+          handleMoveColumn(fromIndex, toIndex);
+        }
       }
       return;
     }
 
-    if (dragOverColumnId !== targetColumnId) {
-      setDragOverColumnId(targetColumnId);
+    // 2. Task Moving / Reordering
+    if (source.type === 'item') {
+      const taskId = String(source.id);
+      let targetColumnId: string | null = null;
+      let targetOrder = 0;
+
+      if (target.type === 'column') {
+        targetColumnId = String(target.id);
+        targetOrder = 0;
+      } else if (target.type === 'item') {
+        const sortableTarget = target as unknown as {
+          group?: string;
+          index?: number;
+          sortable?: { group?: string; index?: number };
+        };
+        targetColumnId =
+          sortableTarget.group ||
+          sortableTarget.sortable?.group ||
+          null;
+        targetOrder =
+          sortableTarget.index ??
+          sortableTarget.sortable?.index ??
+          0;
+
+        if (!targetColumnId) {
+          const queries = queryClient.getQueriesData<ApiResponse<PaginatedTasksResponse>>({
+            queryKey: ['columns'],
+          });
+          for (const [, queryData] of queries) {
+            const found = queryData?.data?.tasks?.find((t) => t.id === target.id);
+            if (found) {
+              targetColumnId = found.columnId;
+              targetOrder = found.order;
+              break;
+            }
+          }
+        }
+      }
+
+      // Check if source sortable has group/index
+      const sortableSource = source as unknown as {
+        group?: string;
+        index?: number;
+        initialGroup?: string;
+        initialIndex?: number;
+        sortable?: {
+          group?: string;
+          index?: number;
+          initialGroup?: string;
+          initialIndex?: number;
+        };
+      };
+
+      const resolvedTargetCol =
+        targetColumnId ||
+        sortableSource.group ||
+        sortableSource.sortable?.group;
+
+      const resolvedOrder =
+        sortableSource.index ??
+        sortableSource.sortable?.index ??
+        targetOrder;
+
+      const initialGroup =
+        sortableSource.initialGroup ||
+        sortableSource.sortable?.initialGroup;
+
+      const initialIndex =
+        sortableSource.initialIndex ??
+        sortableSource.sortable?.initialIndex;
+
+      if (!resolvedTargetCol) return;
+
+      // Avoid unnecessary API call if dropped back in exact same position
+      if (
+        resolvedTargetCol === initialGroup &&
+        resolvedOrder === initialIndex
+      ) {
+        return;
+      }
+
+      moveTaskMutation.mutate({
+        taskId,
+        targetColumnId: resolvedTargetCol,
+        targetOrder: resolvedOrder,
+      });
     }
-  };
-
-  const handleDrop = (targetColumnId: string) => {
-    if (!canManage || !draggingColumnId) return;
-
-    // If dropped back onto itself (previous place), do nothing
-    if (draggingColumnId === targetColumnId) {
-      setDraggingColumnId(null);
-      setDragOverColumnId(null);
-      return;
-    }
-
-    const fromIndex = columns.findIndex((c) => c.id === draggingColumnId);
-    const toIndex = columns.findIndex((c) => c.id === targetColumnId);
-
-    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
-      handleMoveColumn(fromIndex, toIndex);
-    }
-
-    setDraggingColumnId(null);
-    setDragOverColumnId(null);
-  };
-
-  const handleDragEnd = () => {
-    // If drag ended or cancelled without dropping on a different column, reset state cleanly
-    setDraggingColumnId(null);
-    setDragOverColumnId(null);
   };
 
   // Keyboard / action menu column mover
@@ -416,7 +528,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
 
       {/* Active Board Summary Banner */}
       {activeBoard && (
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg font-bold text-foreground tracking-tight">
               {activeBoard.title}
@@ -425,6 +537,42 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
               {columns.length} {columns.length === 1 ? 'stage' : 'stages'}
             </Badge>
           </div>
+
+          {/* Mobile Stage Switcher Pills (visible only on mobile) */}
+          {columns.length > 0 && (
+            <div className="flex md:hidden items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none -mx-1 px-1">
+              {columns.map((col) => {
+                const isSelected = activeMobileColumnId === col.id;
+                const taskCount = col.tasks?.length || 0;
+                return (
+                  <button
+                    key={col.id}
+                    data-column-id={col.id}
+                    type="button"
+                    onClick={() => handleScrollToColumn(col.id)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer border',
+                      isSelected
+                        ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                        : 'bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/60',
+                    )}
+                  >
+                    <span className="truncate max-w-[120px]">{col.title}</span>
+                    <span
+                      className={cn(
+                        'h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center',
+                        isSelected
+                          ? 'bg-primary-foreground/20 text-primary-foreground'
+                          : 'bg-muted-foreground/15 text-muted-foreground',
+                      )}
+                    >
+                      {taskCount}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -432,7 +580,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
       {isColumnsLoading ? (
         <KanbanSkeleton />
       ) : columns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[380px] rounded-3xl border border-dashed border-border/80 bg-card/30 p-8 text-center space-y-3">
+        <div className="flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px] rounded-3xl border border-dashed border-border/80 bg-card/30 p-6 sm:p-8 text-center space-y-3">
           <Columns3 className="h-10 w-10 text-muted-foreground/60 mx-auto" />
           <div className="space-y-1 max-w-sm mx-auto">
             <h3 className="font-bold text-foreground text-base">
@@ -453,70 +601,72 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           )}
         </div>
       ) : (
-        <div
-          className="flex items-start gap-5 overflow-x-auto pb-6 pt-1 max-w-full scrollbar-thin"
-          onDragOver={(e) => {
-            if (canManage) e.preventDefault();
-          }}
-          onDrop={(e) => {
-            // Dropping on empty container space cancels the drag
-            if (canManage) {
-              e.preventDefault();
-              setDraggingColumnId(null);
-              setDragOverColumnId(null);
-            }
-          }}
-        >
-          {columns.map((column, index) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              index={index}
-              totalColumns={columns.length}
-              canManage={canManage}
-              onEditColumn={(col) => setColumnToEdit(col)}
-              onDeleteColumn={(col) => setColumnToDelete(col)}
-              onMoveColumn={handleMoveColumn}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              isDragging={draggingColumnId === column.id}
-              isDragOver={dragOverColumnId === column.id}
-              draggingColumnId={draggingColumnId}
-              onAddTask={(colId) => {
-                setCreateTaskColumnId(colId);
-                setCreateTaskModalOpen(true);
-              }}
-              onTaskDragStart={handleTaskDragStart}
-              onTaskDragOver={handleTaskDragOver}
-              onTaskDrop={handleTaskDrop}
-              onTaskDragEnd={handleTaskDragEnd}
-              draggingTaskId={draggingTaskId}
-              dragOverTaskTarget={dragOverTaskTarget}
-              availableColumns={columns.map((c) => ({ id: c.id, title: c.title }))}
-              onMoveTaskToColumn={handleMoveTaskToColumn}
-              onDeleteTask={handleDeleteTask}
-              onSelectTask={handleOpenTask}
-            />
-          ))}
+        <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div
+            ref={columnsContainerRef}
+            data-kanban-container="true"
+            className="flex items-start gap-4 sm:gap-5 overflow-x-auto pb-6 pt-1 max-w-full scrollbar-thin snap-x snap-mandatory sm:snap-none scroll-smooth px-1"
+          >
+            {columns.map((column, index) => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                index={index}
+                totalColumns={columns.length}
+                canManage={canManage}
+                onEditColumn={(col) => setColumnToEdit(col)}
+                onDeleteColumn={(col) => setColumnToDelete(col)}
+                onMoveColumn={handleMoveColumn}
+                onAddTask={(colId) => {
+                  setCreateTaskColumnId(colId);
+                  setCreateTaskModalOpen(true);
+                }}
+                availableColumns={columns.map((c) => ({ id: c.id, title: c.title }))}
+                onMoveTaskToColumn={handleMoveTaskToColumn}
+                onDeleteTask={handleDeleteTask}
+                onSelectTask={handleOpenTask}
+              />
+            ))}
 
-          {/* Quick Add Column Card */}
-          {canManage && (
-            <button
-              type="button"
-              onClick={() => setCreateColumnOpen(true)}
-              className="group flex flex-col items-center justify-center w-72 sm:w-80 shrink-0 min-h-[160px] rounded-2xl border-2 border-dashed border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-primary/5 transition-all cursor-pointer p-6 space-y-2 text-muted-foreground hover:text-primary"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background border border-border group-hover:border-primary/40 group-hover:bg-primary/10 transition-colors">
-                <Plus className="h-5 w-5" />
+            {/* Quick Add Column Card */}
+            {canManage && (
+              <button
+                type="button"
+                onClick={() => setCreateColumnOpen(true)}
+                className="group flex flex-col items-center justify-center w-[86vw] max-w-[340px] sm:w-80 shrink-0 snap-center sm:snap-align-none min-h-[160px] rounded-2xl border-2 border-dashed border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-primary/5 transition-all cursor-pointer p-6 space-y-2 text-muted-foreground hover:text-primary"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background border border-border group-hover:border-primary/40 group-hover:bg-primary/10 transition-colors">
+                  <Plus className="h-5 w-5" />
+                </div>
+                <span className="text-xs font-semibold tracking-wide">
+                  Add another column
+                </span>
+              </button>
+            )}
+          </div>
+
+          <DragOverlay>
+            {activeTask ? (
+              <div className="w-[86vw] max-w-[340px] sm:w-80 pointer-events-none">
+                <TaskCard
+                  task={activeTask}
+                  canManage={false}
+                  columnId={activeTask.columnId}
+                  isOverlay
+                />
               </div>
-              <span className="text-xs font-semibold tracking-wide">
-                Add another column
-              </span>
-            </button>
-          )}
-        </div>
+            ) : activeColumn ? (
+              <div className="w-[86vw] max-w-[340px] sm:w-80 rounded-2xl border-2 border-primary bg-card/95 shadow-2xl p-3.5 backdrop-blur-md opacity-95 pointer-events-none">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground truncate">{activeColumn.title}</h3>
+                  <Badge variant="secondary" className="h-5 px-1.5 rounded-full text-xs">
+                    {activeColumn.tasks?.length || 0}
+                  </Badge>
+                </div>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DragDropProvider>
       )}
 
       {/* Board Modals */}

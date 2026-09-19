@@ -273,13 +273,13 @@ export function TaskDetailSheet({
         ) : (
           <div className="flex flex-col min-h-full">
             {/* Top Toolbar */}
-            <div className="flex items-center justify-between border-b border-border/80 px-6 py-3.5 bg-muted/20">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 px-4 sm:px-6 py-3 bg-muted/20 pr-12 sm:pr-6">
+              <div className="flex flex-wrap items-center gap-2">
                 {/* Key Chip */}
                 <button
                   type="button"
                   onClick={handleCopyKey}
-                  className="group flex items-center gap-1 rounded-md bg-secondary/80 px-2 py-0.5 font-mono text-xs font-semibold text-foreground hover:bg-secondary transition-colors"
+                  className="group flex items-center gap-1 rounded-md bg-secondary/80 px-2 py-0.5 font-mono text-xs font-semibold text-foreground hover:bg-secondary transition-colors cursor-pointer"
                   title="Click to copy task key"
                 >
                   <span>{task.key}</span>
@@ -360,16 +360,16 @@ export function TaskDetailSheet({
               {/* Action Menu */}
               <div className="flex items-center gap-1">
                 {updateMutation.isPending && (
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1 mr-2">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1 mr-1">
                     <Loader2 className="size-3 animate-spin" />
-                    Saving...
+                    <span className="hidden sm:inline">Saving...</span>
                   </span>
                 )}
 
                 {canManage && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-8">
+                      <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
                         <MoreVertical className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -396,7 +396,7 @@ export function TaskDetailSheet({
             </div>
 
             {/* Main Content Area */}
-            <div className="p-6 space-y-6 flex-1">
+            <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1">
               {/* Task Title */}
               <div>
                 <Input
@@ -405,12 +405,12 @@ export function TaskDetailSheet({
                   onBlur={handleTitleBlur}
                   disabled={!canManage}
                   placeholder="Task title..."
-                  className="text-lg md:text-xl font-bold border-none px-1 h-auto py-1 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 text-foreground bg-transparent"
+                  className="text-base sm:text-lg md:text-xl font-bold border-none px-1 h-auto py-1 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 text-foreground bg-transparent"
                 />
               </div>
 
               {/* Attributes Grid (Assignee, Due Date, Story Points) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 sm:p-3.5">
                 {/* Assignee */}
                 <div className="space-y-1">
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
@@ -540,12 +540,12 @@ export function TaskDetailSheet({
 
               {/* Tabs for Checklists, Attachments, Links */}
               <div className="space-y-4 pt-2">
-                <div className="flex border-b border-border/80 gap-4 text-xs font-medium">
+                <div className="flex border-b border-border/80 gap-3 sm:gap-4 text-xs font-medium overflow-x-auto scrollbar-none pb-0.5">
                   <button
                     type="button"
                     onClick={() => setActiveTab('checklists')}
                     className={cn(
-                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer',
+                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap',
                       activeTab === 'checklists'
                         ? 'text-primary font-semibold'
                         : 'text-muted-foreground hover:text-foreground',
@@ -562,7 +562,7 @@ export function TaskDetailSheet({
                     type="button"
                     onClick={() => setActiveTab('attachments')}
                     className={cn(
-                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer',
+                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap',
                       activeTab === 'attachments'
                         ? 'text-primary font-semibold'
                         : 'text-muted-foreground hover:text-foreground',
@@ -579,7 +579,7 @@ export function TaskDetailSheet({
                     type="button"
                     onClick={() => setActiveTab('links')}
                     className={cn(
-                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer',
+                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap',
                       activeTab === 'links'
                         ? 'text-primary font-semibold'
                         : 'text-muted-foreground hover:text-foreground',

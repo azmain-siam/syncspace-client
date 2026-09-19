@@ -118,13 +118,13 @@ export function CreateTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[540px] rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[94vw] max-w-[540px] rounded-2xl p-4 sm:p-6 max-h-[88dvh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 text-primary mb-1">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <CheckSquare className="h-4 w-4" />
             </div>
-            <DialogTitle className="text-lg font-bold text-foreground">
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
               Create New Task
             </DialogTitle>
           </div>
@@ -173,7 +173,7 @@ export function CreateTaskModal({
           </div>
 
           {/* Stage & Priority */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Column / Stage */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground">
@@ -210,7 +210,7 @@ export function CreateTaskModal({
           </div>
 
           {/* Assignee & Due Date */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Assignee */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground">
@@ -244,7 +244,7 @@ export function CreateTaskModal({
           </div>
 
           {/* Story Points & Estimated Hours */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="task-points" className="text-xs font-semibold text-foreground">
                 Story Points
@@ -277,7 +277,7 @@ export function CreateTaskModal({
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-border/60">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-3 border-t border-border/60">
             <Button
               type="button"
               variant="outline"
