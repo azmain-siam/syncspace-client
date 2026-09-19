@@ -10,10 +10,10 @@ import {
   Clock,
   FolderKanban,
   Kanban,
-  ListTodo,
   Pencil,
   Settings,
   Trash2,
+  Flag,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { ArchiveProjectModal } from '@/features/project/components/archive-proje
 import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
 import { KanbanBoard } from '@/features/board/components';
+import { SprintBacklogView } from '@/features/sprint';
 
 export default function ProjectDetailsPage({
   params,
@@ -79,7 +80,7 @@ export default function ProjectDetailsPage({
 
   const tabs = [
     { id: 'boards', label: 'Boards', icon: Kanban },
-    { id: 'tasks', label: 'Tasks', icon: ListTodo },
+    { id: 'tasks', label: 'Sprints & Backlog', icon: Flag },
     { id: 'activity', label: 'Activity', icon: Activity },
     { id: 'settings', label: 'Settings', icon: Settings },
   ] as const;
@@ -205,15 +206,10 @@ export default function ProjectDetailsPage({
         )}
 
         {activeTab === 'tasks' && (
-          <Card className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center space-y-3">
-            <ListTodo className="h-10 w-10 text-primary mx-auto opacity-80" />
-            <div className="space-y-1 max-w-sm mx-auto">
-              <h3 className="font-bold text-foreground text-base">Tasks Stream Shell Ready</h3>
-              <p className="text-xs text-muted-foreground">
-                Task items list architecture established for next phase.
-              </p>
-            </div>
-          </Card>
+          <SprintBacklogView
+            workspaceId={workspaceId}
+            projectId={project.id}
+          />
         )}
 
         {activeTab === 'activity' && (
