@@ -10,3 +10,4 @@ export * from './use-bulk-delete-tasks';
 export * from './use-checklists';
 export * from './use-attachments';
 export * from './use-links';
+export * from './use-task-realtime';

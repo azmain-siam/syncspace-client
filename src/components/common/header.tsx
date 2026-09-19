@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { Bell, Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileMenu } from '@/features/workspace/components/user-profile-menu';
+import { useSocket } from '@/providers/socket-provider';
+import { useUserNotifications } from '@/features/realtime';
 import { Breadcrumb } from './breadcrumb';
 import { SearchCommandModal } from './search-command-modal';
 import { ThemeToggle } from './theme-toggle';
@@ -15,6 +17,8 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle }: HeaderProps) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const { isConnected } = useSocket();
+  const { unreadCount, markAllAsRead } = useUserNotifications();
 
   // Global Keyboard Shortcut: Ctrl+K / Cmd+K
   useEffect(() => {
@@ -73,20 +77,38 @@ export function Header({ onMenuToggle }: HeaderProps) {
           </Button>
 
           {/* Online Presence Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live
-          </div>
+          {isConnected ? (
+            <div
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-500/20"
+              title="Real-time WebSocket connection active"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live
+            </div>
+          ) : (
+            <div
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-medium border border-amber-500/20"
+              title="Connecting to real-time gateway..."
+            >
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              Offline
+            </div>
+          )}
 
           {/* Notification Bell */}
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
+            onClick={markAllAsRead}
+            className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-primary-foreground shadow-xs animate-in zoom-in-50">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Button>
 
           {/* Theme Toggle */}

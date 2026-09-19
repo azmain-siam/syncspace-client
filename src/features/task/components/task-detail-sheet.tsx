@@ -41,6 +41,7 @@ import { cn } from '@/lib/utils';
 import { useDeleteTask } from '../hooks/use-delete-task';
 import { useTaskDetails } from '../hooks/use-task-details';
 import { useUpdateTask } from '../hooks/use-update-task';
+import { useTaskRealtime } from '../hooks/use-task-realtime';
 import type { Task, TaskPriority, TaskStatus } from '../types/task.types';
 import { TaskAttachments } from './task-attachments';
 import { TaskChecklists } from './task-checklists';
@@ -131,6 +132,9 @@ export function TaskDetailSheet({
     open ? taskIdOrKey : null,
   );
   const task: Task | undefined = taskResponse?.data;
+
+  // Subscribe to real-time task room events (task updates, comments, reactions)
+  useTaskRealtime(open ? task?.id || taskIdOrKey : null);
 
   const updateMutation = useUpdateTask(workspaceId, projectId, boardId);
   const deleteMutation = useDeleteTask(workspaceId, projectId, boardId);

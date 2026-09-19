@@ -8,3 +8,4 @@ export * from './use-create-column';
 export * from './use-update-column';
 export * from './use-reorder-columns';
 export * from './use-delete-column';
+export * from './use-board-realtime';

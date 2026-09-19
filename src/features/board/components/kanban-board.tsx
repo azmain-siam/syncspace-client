@@ -30,6 +30,7 @@ import {
   useBoard,
   useBoardColumns,
   useReorderColumns,
+  useBoardRealtime,
 } from '../hooks';
 
 import { KanbanColumn } from './kanban-column';
@@ -92,6 +93,9 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     () => boards.find((b) => b.id === activeBoardId) || null,
     [boards, activeBoardId],
   );
+
+  // Subscribe to real-time board updates (card moves, creates, deletes)
+  useBoardRealtime(activeBoard?.id, { workspaceId, projectId });
 
   // Active Board Columns Query
   const {

@@ -38,8 +38,10 @@ import { useUpdateMemberRole } from '../hooks/use-update-member-role';
 import { InviteMemberModal } from './invite-member-modal';
 import { TransferOwnershipModal } from './transfer-ownership-modal';
 import { RemoveMemberDialog } from './remove-member-dialog';
+import { useWorkspacePresence } from '@/features/realtime';
 
 export function MembersTable({ workspaceId }: { workspaceId: string }) {
+  const { isUserOnline } = useWorkspacePresence(workspaceId);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [transferMember, setTransferMember] = useState<WorkspaceMember | null>(null);
   const [memberToRemove, setMemberToRemove] = useState<WorkspaceMember | null>(null);
@@ -142,12 +144,20 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
                 {/* User Info */}
                 <TableCell className="px-3 py-3 sm:p-4">
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9 shrink-0">
-                      {memberUser?.avatar && (
-                        <AvatarImage src={memberUser.avatar} alt={memberUser.name} />
+                    <div className="relative shrink-0">
+                      <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
+                        {memberUser?.avatar && (
+                          <AvatarImage src={memberUser.avatar} alt={memberUser.name} />
+                        )}
+                        <AvatarFallback>{initials}</AvatarFallback>
+                      </Avatar>
+                      {isUserOnline(member.userId) && (
+                        <span
+                          className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card"
+                          title="Online now"
+                        />
                       )}
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
+                    </div>
                     <div className="flex flex-col min-w-0">
                       <span className="font-bold text-xs sm:text-sm text-foreground truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-none">
                         {memberUser?.name || 'User'}{' '}
