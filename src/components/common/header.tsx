@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Bell, Menu, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileMenu } from '@/features/workspace/components/user-profile-menu';
 import { useSocket } from '@/providers/socket-provider';
-import { useUserNotifications } from '@/features/realtime';
+import { NotificationPopover } from '@/features/notification';
 import { Breadcrumb } from './breadcrumb';
 import { SearchCommandModal } from './search-command-modal';
 import { ThemeToggle } from './theme-toggle';
@@ -18,7 +18,6 @@ interface HeaderProps {
 export function Header({ onMenuToggle }: HeaderProps) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const { isConnected } = useSocket();
-  const { unreadCount, markAllAsRead } = useUserNotifications();
 
   // Global Keyboard Shortcut: Ctrl+K / Cmd+K
   useEffect(() => {
@@ -95,21 +94,8 @@ export function Header({ onMenuToggle }: HeaderProps) {
             </div>
           )}
 
-          {/* Notification Bell */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={markAllAsRead}
-            className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-primary-foreground shadow-xs animate-in zoom-in-50">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </Button>
+          {/* In-App Notification Dropdown Popover */}
+          <NotificationPopover />
 
           {/* Theme Toggle */}
           <ThemeToggle />
