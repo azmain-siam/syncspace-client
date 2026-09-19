@@ -268,6 +268,94 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     deleteTaskMutation.mutate(task.id);
   };
 
+  // Auto-scroll loop for dragging near viewport/container edges
+  const scrollSpeedRef = React.useRef(0);
+  const animFrameRef = React.useRef<number | null>(null);
+
+  const stopAutoScroll = React.useCallback(() => {
+    scrollSpeedRef.current = 0;
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+  }, []);
+
+  const startAutoScrollLoop = React.useCallback(() => {
+    if (animFrameRef.current !== null) return;
+
+    const step = () => {
+      const container = columnsContainerRef.current;
+      if (container && scrollSpeedRef.current !== 0) {
+        container.scrollLeft += scrollSpeedRef.current;
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animFrameRef.current = null;
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(step);
+  }, []);
+
+  const updateScrollSpeedFromPointer = React.useCallback(
+    (clientX: number) => {
+      const container = columnsContainerRef.current;
+      if (!container) {
+        scrollSpeedRef.current = 0;
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
+      const leftEdge = Math.max(0, rect.left);
+      const rightEdge = Math.min(viewportWidth, rect.right);
+      const EDGE_ZONE = 75; // 75px activation zone from edge
+      const MIN_SPEED = 6;
+      const MAX_SPEED = 22;
+
+      if (clientX >= rightEdge - EDGE_ZONE) {
+        // Approaching or beyond right edge -> scroll right
+        const progress = Math.min(1, Math.max(0, (clientX - (rightEdge - EDGE_ZONE)) / EDGE_ZONE));
+        scrollSpeedRef.current = Math.round(MIN_SPEED + (MAX_SPEED - MIN_SPEED) * progress);
+        startAutoScrollLoop();
+      } else if (clientX <= leftEdge + EDGE_ZONE) {
+        // Approaching or beyond left edge -> scroll left
+        const progress = Math.min(1, Math.max(0, ((leftEdge + EDGE_ZONE) - clientX) / EDGE_ZONE));
+        scrollSpeedRef.current = -Math.round(MIN_SPEED + (MAX_SPEED - MIN_SPEED) * progress);
+        startAutoScrollLoop();
+      } else {
+        scrollSpeedRef.current = 0;
+      }
+    },
+    [startAutoScrollLoop],
+  );
+
+  React.useEffect(() => {
+    const isDragging = Boolean(activeTaskId || activeColumnId);
+    if (!isDragging) {
+      stopAutoScroll();
+      return;
+    }
+
+    const handlePointerMove = (e: PointerEvent) => {
+      updateScrollSpeedFromPointer(e.clientX);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        updateScrollSpeedFromPointer(e.touches[0].clientX);
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    return () => {
+      stopAutoScroll();
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [activeTaskId, activeColumnId, updateScrollSpeedFromPointer, stopAutoScroll]);
+
   // DragDropProvider event handlers
   const handleDragStart = (event: DragStartEvent) => {
     if (!canManage) return;
@@ -283,6 +371,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    stopAutoScroll();
     setActiveTaskId(null);
     setActiveColumnId(null);
 
@@ -605,7 +694,12 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           <div
             ref={columnsContainerRef}
             data-kanban-container="true"
-            className="flex items-start gap-4 sm:gap-5 overflow-x-auto pb-6 pt-1 max-w-full scrollbar-thin snap-x snap-mandatory sm:snap-none scroll-smooth px-1"
+            className={cn(
+              "flex items-start gap-4 sm:gap-5 overflow-x-auto pb-6 pt-1 max-w-full scrollbar-thin px-1",
+              (activeTaskId || activeColumnId)
+                ? "snap-none scroll-auto"
+                : "snap-x snap-mandatory sm:snap-none scroll-smooth"
+            )}
           >
             {columns.map((column, index) => (
               <KanbanColumn
