@@ -6,15 +6,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import {
+  ArrowRight,
   Building2,
   Globe,
   Image as ImageIcon,
   Loader2,
   Lock,
   LogOut,
+  Shield,
   ShieldAlert,
   Trash2,
-  User as UserIcon,
   Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-work
 import { useUpdateWorkspace } from '@/features/workspace/hooks/use-update-workspace';
 import { DeleteWorkspaceDialog } from '@/features/workspace/components/delete-workspace-dialog';
 import { LeaveWorkspaceDialog } from '@/features/workspace/components/leave-workspace-dialog';
+import { WorkspaceSettingsNav } from '@/features/workspace/components/workspace-settings-nav';
 
 export default function WorkspaceSettingsPage({
   params,
@@ -47,6 +49,10 @@ export default function WorkspaceSettingsPage({
 
   const currentUser = useAuthStore((state) => state.user);
   const isOwner = !!(workspace && currentUser && workspace.ownerId === currentUser.id);
+  const isOwnerOrAdmin =
+    isOwner ||
+    (workspace as { role?: string })?.role === 'ADMIN' ||
+    (workspace as { role?: string })?.role === 'OWNER';
 
   const updateSettingsMutation = useUpdateWorkspace(workspaceId);
 
@@ -81,33 +87,12 @@ export default function WorkspaceSettingsPage({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-            Workspace Settings
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Manage workspace preferences, visibility, and team lifecycle.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/workspaces/${workspaceSlug}/members`}>
-            <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs font-semibold rounded-lg">
-              <Users className="h-4 w-4 text-primary" />
-              <span>Members & Roles</span>
-            </Button>
-          </Link>
-          <Link href="/profile">
-            <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs font-semibold rounded-lg">
-              <UserIcon className="h-4 w-4 text-primary" />
-              <span>Personal Profile →</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Settings Navigation Header */}
+      <WorkspaceSettingsNav
+        workspaceSlug={workspaceSlug}
+        isOwnerOrAdmin={isOwnerOrAdmin}
+      />
 
       {/* Permissions notice if non-owner */}
       {!isOwner && (
@@ -264,6 +249,90 @@ export default function WorkspaceSettingsPage({
           </form>
         </CardContent>
       </Card>
+
+      {/* Data Safety & Governance Section */}
+      {isOwnerOrAdmin && (
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" /> Data Safety & Access Control
+            </CardTitle>
+            <CardDescription>
+              Direct administration for workspace assets, team access, and compliance trails.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 divide-y divide-border/40">
+            {/* Members row */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 first:pt-0">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 mt-0.5">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="font-bold text-sm text-foreground">
+                    Members & Roles
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Invite team members, assign workspace permission levels, and monitor presence.
+                  </div>
+                </div>
+              </div>
+              <Link href={`/workspaces/${workspaceSlug}/members`}>
+                <Button variant="outline" size="sm" className="h-9 px-3.5 text-xs font-semibold rounded-lg gap-1.5 shrink-0">
+                  <span>Manage Members</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Trash row */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground border border-border/80 mt-0.5">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="font-bold text-sm text-foreground">
+                    Workspace Trash Bin
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Inspect soft-deleted projects and tasks, restore items, or permanently purge them.
+                  </div>
+                </div>
+              </div>
+              <Link href={`/workspaces/${workspaceSlug}/settings/trash`}>
+                <Button variant="outline" size="sm" className="h-9 px-3.5 text-xs font-semibold rounded-lg gap-1.5 shrink-0">
+                  <span>Open Trash Bin</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Audit Logs row */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 mt-0.5">
+                  <Shield className="h-5 w-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="font-bold text-sm text-foreground">
+                    Security Audit Logs
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Track authentication history, credential changes, membership events, and data purges.
+                  </div>
+                </div>
+              </div>
+              <Link href={`/workspaces/${workspaceSlug}/settings/audit-logs`}>
+                <Button variant="outline" size="sm" className="h-9 px-3.5 text-xs font-semibold rounded-lg gap-1.5 shrink-0">
+                  <span>View Audit Logs</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Danger Zone Card */}
       <Card className="rounded-2xl border-danger/30">

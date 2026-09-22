@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import {
+  Activity,
   AlertTriangle,
   Calendar,
   Check,
@@ -36,6 +37,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { CommentThread } from '@/features/comment';
+import { TaskActivityHistory } from '@/features/safety';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
 import { cn } from '@/lib/utils';
 import { useDeleteTask } from '../hooks/use-delete-task';
@@ -147,7 +149,7 @@ export function TaskDetailSheet({
   const [description, setDescription] = React.useState('');
   const [copiedKey, setCopiedKey] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<
-    'comments' | 'checklists' | 'attachments' | 'links'
+    'comments' | 'checklists' | 'attachments' | 'links' | 'activity'
   >('comments');
 
   // Synchronize state during render when task changes
@@ -621,6 +623,23 @@ export function TaskDetailSheet({
                       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
                     )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('activity')}
+                    className={cn(
+                      'pb-2 transition-colors relative flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap',
+                      activeTab === 'activity'
+                        ? 'text-primary font-semibold'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <Activity className="size-3.5" />
+                    Activity
+                    {activeTab === 'activity' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </button>
                 </div>
 
                 {/* Tab Contents */}
@@ -636,6 +655,9 @@ export function TaskDetailSheet({
                   )}
                   {activeTab === 'links' && (
                     <TaskLinks taskId={task.id} canManage={canManage} />
+                  )}
+                  {activeTab === 'activity' && (
+                    <TaskActivityHistory taskId={task.id} />
                   )}
                 </div>
               </div>
