@@ -4,7 +4,6 @@ import * as React from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import {
-  Activity,
   ArrowRight,
   Building2,
   FolderKanban,
@@ -15,9 +14,20 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
+import {
+  DashboardKpiGrid,
+  DashboardSkeleton,
+  MemberWorkloadTable,
+  ProductivityVelocityCard,
+  TaskPriorityChart,
+  TaskStatusChart,
+  useDashboardSummary,
+  useMemberWorkload,
+  useTaskDistribution,
+} from '@/features/dashboard';
 
 export default function WorkspaceDashboardPage({
   params,
@@ -28,28 +38,24 @@ export default function WorkspaceDashboardPage({
   const { workspace, isLoading: workspaceLoading } = useCurrentWorkspace(workspaceSlug);
 
   const workspaceId = workspace?.id || '';
+  const displaySlug = workspace?.slug || workspaceSlug;
+
+  // Live analytics queries
   const { data: membersResponse } = useWorkspaceMembers(workspaceId);
   const members = membersResponse?.data || [];
 
-  const displaySlug = workspace?.slug || workspaceSlug;
+  const { data: summary, isLoading: summaryLoading } = useDashboardSummary(workspaceId);
+  const { data: distribution, isLoading: distributionLoading } = useTaskDistribution(workspaceId);
+  const { data: workload, isLoading: workloadLoading } = useMemberWorkload(workspaceId);
 
   if (workspaceLoading && !workspace) {
-    return (
-      <div className="space-y-4">
-        <div className="h-32 w-full bg-card animate-pulse rounded-2xl border border-border" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-6">
-      {/* Workspace Header Banner */}
-      <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
+    <div className="space-y-8">
+      {/* 1. Workspace Header Banner */}
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-7 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           <Avatar className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border shrink-0">
             {workspace?.logo && (
@@ -62,7 +68,7 @@ export default function WorkspaceDashboardPage({
           <div className="space-y-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground truncate break-words">
-                {workspace?.name || 'SyncSpace Workspace'}
+                {workspace?.name || 'Workspace Dashboard'}
               </h1>
               <Badge variant="default" className="gap-1 text-[10px] sm:text-xs shrink-0">
                 <Shield className="h-3 w-3" /> ACTIVE
@@ -75,6 +81,11 @@ export default function WorkspaceDashboardPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+          <Link href={`/workspaces/${displaySlug}/projects`}>
+            <Button variant="outline" className="h-9 sm:h-10 text-xs sm:text-sm rounded-lg gap-2">
+              <FolderKanban className="h-4 w-4" /> Projects
+            </Button>
+          </Link>
           <Link href={`/workspaces/${displaySlug}/members`}>
             <Button variant="outline" className="h-9 sm:h-10 text-xs sm:text-sm rounded-lg gap-2">
               <Users className="h-4 w-4" /> Members ({members.length})
@@ -88,91 +99,89 @@ export default function WorkspaceDashboardPage({
         </div>
       </div>
 
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Projects Metric Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Total Projects
-            </CardTitle>
-            <FolderKanban className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight">0</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Ready for project setup
-            </p>
-          </CardContent>
-        </Card>
+      {/* 2. Executive KPI Grid (4 Summary Cards) */}
+      <section aria-label="Executive Key Performance Indicators">
+        <DashboardKpiGrid summary={summary} isLoading={summaryLoading} />
+      </section>
 
-        {/* Members Metric Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Team Members
-            </CardTitle>
-            <Users className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight">
-              {members.length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Active collaborators
-            </p>
-          </CardContent>
-        </Card>
+      {/* 3. Categorical Distribution Charts Grid */}
+      <section
+        aria-label="Workflow Distribution Analysis"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <TaskStatusChart
+          distribution={distribution}
+          isLoading={distributionLoading}
+        />
+        <TaskPriorityChart
+          distribution={distribution}
+          isLoading={distributionLoading}
+        />
+      </section>
 
-        {/* Activity Status Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Sync Engine Status
-            </CardTitle>
-            <Activity className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-              Connected
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Realtime WebSocket active
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* 4. Productivity Velocity & Throughput */}
+      {workspaceId && (
+        <section aria-label="Productivity Velocity">
+          <ProductivityVelocityCard workspaceId={workspaceId} />
+        </section>
+      )}
 
-      {/* Quick Launch Card */}
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
+      {/* 5. Team Member Workload Breakdown */}
+      <section aria-label="Team Workload Breakdown">
+        <MemberWorkloadTable
+          workload={workload}
+          isLoading={workloadLoading}
+        />
+      </section>
+
+      {/* 6. Executive Navigation & Quick Launch */}
+      <Card className="rounded-2xl border-border bg-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-bold tracking-tight">
+            Workspace Operations
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Direct shortcuts to manage workspace projects, permissions, and team safety
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link href={`/workspaces/${displaySlug}/members`}>
-            <div className="p-4 rounded-xl border border-border/80 bg-background hover:bg-accent transition-all cursor-pointer group flex items-center justify-between">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link href={`/workspaces/${displaySlug}/projects`}>
+            <div className="p-4 rounded-xl border border-border/70 bg-background hover:bg-accent/40 transition-all cursor-pointer group flex items-center justify-between">
               <div className="space-y-1">
-                <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" /> Invite Team Members
+                <div className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-2">
+                  <FolderKanban className="h-4 w-4 text-primary" /> Active Projects
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Send email invitations to bring your team into this workspace.
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Launch sprints, manage kanban boards, and backlog task items.
+                </p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
+            </div>
+          </Link>
+
+          <Link href={`/workspaces/${displaySlug}/members`}>
+            <div className="p-4 rounded-xl border border-border/70 bg-background hover:bg-accent/40 transition-all cursor-pointer group flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" /> Invite Collaborators
                 </div>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Invite teammates via email with role-based access controls.
+                </p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
             </div>
           </Link>
 
           <Link href={`/workspaces/${displaySlug}/settings`}>
-            <div className="p-4 rounded-xl border border-border/80 bg-background hover:bg-accent transition-all cursor-pointer group flex items-center justify-between">
+            <div className="p-4 rounded-xl border border-border/70 bg-background hover:bg-accent/40 transition-all cursor-pointer group flex items-center justify-between">
               <div className="space-y-1">
-                <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" /> Workspace Settings
+                <div className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" /> Governance & Settings
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Update workspace name, logo, or manage access control.
-                </div>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Configure workspace profile, audit logs, and data safety trash bin.
+                </p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
             </div>
