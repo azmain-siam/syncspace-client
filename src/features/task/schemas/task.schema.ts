@@ -24,8 +24,18 @@ export const createTaskSchema = z.object({
   assigneeId: z.string().uuid('Invalid user ID').optional().nullable().or(z.literal('')),
   dueDate: z.string().optional().nullable().or(z.literal('')),
   order: z.number().int().min(0).optional(),
-  storyPoints: z.number().int().min(0).max(100).optional().nullable(),
-  estimatedHours: z.number().min(0).optional().nullable(),
+  storyPoints: z
+    .number()
+    .int('Story points must be a whole number')
+    .min(0, 'Story points must be at least 0')
+    .max(100, 'Story points cannot exceed 100')
+    .optional()
+    .nullable(),
+  estimatedHours: z
+    .number()
+    .min(0, 'Estimated hours must be at least 0')
+    .optional()
+    .nullable(),
   isBacklog: z.boolean().optional(),
   sprintId: z.string().uuid().optional().nullable().or(z.literal('')),
 });

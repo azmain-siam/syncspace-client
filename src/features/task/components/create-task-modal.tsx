@@ -112,8 +112,14 @@ export function CreateTaskModal({
       status: derivedStatus,
       dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : null,
       assigneeId: data.assigneeId || null,
-      storyPoints: data.storyPoints ? Number(data.storyPoints) : null,
-      estimatedHours: data.estimatedHours ? Number(data.estimatedHours) : null,
+      storyPoints:
+        data.storyPoints !== null && data.storyPoints !== undefined
+          ? Number(data.storyPoints)
+          : null,
+      estimatedHours:
+        data.estimatedHours !== null && data.estimatedHours !== undefined
+          ? Number(data.estimatedHours)
+          : null,
     };
 
     createTaskMutation.mutate({
@@ -262,8 +268,16 @@ export function CreateTaskModal({
                 max={100}
                 placeholder="e.g. 5"
                 className="h-10 rounded-xl text-xs"
-                {...register('storyPoints')}
+                {...register('storyPoints', {
+                  setValueAs: (v) =>
+                    v === '' || v === null || v === undefined ? null : Number(v),
+                })}
               />
+              {errors.storyPoints && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.storyPoints.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -277,8 +291,16 @@ export function CreateTaskModal({
                 step={0.5}
                 placeholder="e.g. 4.5"
                 className="h-10 rounded-xl text-xs"
-                {...register('estimatedHours')}
+                {...register('estimatedHours', {
+                  setValueAs: (v) =>
+                    v === '' || v === null || v === undefined ? null : Number(v),
+                })}
               />
+              {errors.estimatedHours && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.estimatedHours.message}
+                </p>
+              )}
             </div>
           </div>
 
