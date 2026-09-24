@@ -18,6 +18,9 @@ interface KanbanColumnProps {
   index: number;
   totalColumns: number;
   canManage: boolean;
+  canCreateTask?: boolean;
+  canMoveTask?: boolean;
+  canDeleteTask?: (taskCreatorId?: string | null) => boolean;
   onEditColumn: (column: BoardColumn) => void;
   onDeleteColumn: (column: BoardColumn) => void;
   onMoveColumn: (fromIndex: number, toIndex: number) => void;
@@ -34,6 +37,9 @@ export function KanbanColumn({
   index,
   totalColumns,
   canManage,
+  canCreateTask,
+  canMoveTask,
+  canDeleteTask,
   onEditColumn,
   onDeleteColumn,
   onMoveColumn,
@@ -43,6 +49,8 @@ export function KanbanColumn({
   onMoveTaskToColumn,
   onDeleteTask,
 }: KanbanColumnProps) {
+  const allowCreate = canCreateTask ?? canManage;
+  const allowMove = canMoveTask ?? canManage;
   // Query column tasks from the dedicated API
   const { data: columnTasksResponse, isLoading: tasksLoading } = useColumnTasks(column.id);
 
@@ -161,14 +169,14 @@ export function KanbanColumn({
           </div>
         ) : taskCount === 0 ? (
           <div
-            onClick={() => canManage && onAddTask?.(column.id)}
+            onClick={() => allowCreate && onAddTask?.(column.id)}
             className="flex flex-col items-center justify-center h-48 rounded-xl border border-dashed border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors p-4 text-center cursor-pointer group/empty"
           >
             <p className="text-xs font-medium text-muted-foreground group-hover/empty:text-foreground transition-colors">
               No tasks in this stage
             </p>
             <p className="text-[11px] text-muted-foreground/70 mt-1">
-              {canManage ? 'Click to add a task or drag here' : 'Empty stage'}
+              {allowCreate ? 'Click to add a task or drag here' : 'Empty stage'}
             </p>
           </div>
         ) : (
@@ -179,11 +187,15 @@ export function KanbanColumn({
                 task={task}
                 index={taskIdx}
                 columnId={column.id}
-                canManage={canManage}
+                canManage={allowMove}
                 onSelectTask={onSelectTask}
                 availableColumns={availableColumns}
                 onMoveToColumn={onMoveTaskToColumn}
-                onDeleteTask={onDeleteTask}
+                onDeleteTask={
+                  onDeleteTask && (canDeleteTask ? canDeleteTask(task.createdBy) : true)
+                    ? onDeleteTask
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -191,7 +203,7 @@ export function KanbanColumn({
       </div>
 
       {/* Column Footer */}
-      {canManage && (
+      {allowCreate && (
         <div className="p-2.5 pt-0">
           <Button
             variant="ghost"

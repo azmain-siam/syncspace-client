@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Archive, Calendar, MoreVertical, Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -18,6 +18,8 @@ import { ProjectPriority, ProjectStatus } from '@/types/domain';
 interface ProjectCardProps {
   project: Project;
   workspaceSlug: string;
+  canEdit?: boolean;
+  canArchive?: boolean;
   onEdit: (project: Project) => void;
   onArchive: (project: Project) => void;
 }
@@ -25,6 +27,8 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   workspaceSlug,
+  canEdit = false,
+  canArchive = false,
   onEdit,
   onArchive,
 }: ProjectCardProps) {
@@ -95,31 +99,37 @@ export function ProjectCard({
           </div>
 
           {/* Action Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-lg text-muted-foreground opacity-80 group-hover:opacity-100 hover:text-foreground shrink-0"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl w-36 p-1">
-              <DropdownMenuItem
-                onSelect={() => onEdit(project)}
-                className="rounded-lg gap-2 text-xs font-semibold cursor-pointer py-2"
-              >
-                <Pencil className="h-3.5 w-3.5" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => onArchive(project)}
-                className="rounded-lg gap-2 text-xs font-semibold cursor-pointer py-2 text-danger focus:text-danger"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Archive
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {(canEdit || canArchive) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg text-muted-foreground opacity-80 group-hover:opacity-100 hover:text-foreground shrink-0"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl w-36 p-1">
+                {canEdit && (
+                  <DropdownMenuItem
+                    onSelect={() => onEdit(project)}
+                    className="rounded-lg gap-2 text-xs font-semibold cursor-pointer py-2"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Edit
+                  </DropdownMenuItem>
+                )}
+                {canArchive && (
+                  <DropdownMenuItem
+                    onSelect={() => onArchive(project)}
+                    className="rounded-lg gap-2 text-xs font-semibold cursor-pointer py-2 text-muted-foreground hover:text-foreground focus:text-foreground"
+                  >
+                    <Archive className="h-3.5 w-3.5" /> Archive
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </CardHeader>
 

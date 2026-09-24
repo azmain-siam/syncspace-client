@@ -39,6 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CommentThread } from '@/features/comment';
 import { TaskActivityHistory } from '@/features/safety';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
 import { cn } from '@/lib/utils';
 import { useDeleteTask } from '../hooks/use-delete-task';
 import { useTaskDetails } from '../hooks/use-task-details';
@@ -57,6 +58,7 @@ interface TaskDetailSheetProps {
   projectId: string;
   boardId?: string;
   canManage?: boolean;
+  canDelete?: boolean;
   onTaskDeleted?: () => void;
 }
 
@@ -128,12 +130,15 @@ export function TaskDetailSheet({
   projectId,
   boardId,
   canManage = true,
+  canDelete,
   onTaskDeleted,
 }: TaskDetailSheetProps) {
+  const permissions = useWorkspacePermissions(workspaceId);
   const { data: taskResponse, isLoading, error } = useTaskDetails(
     open ? taskIdOrKey : null,
   );
   const task: Task | undefined = taskResponse?.data;
+  const canDeleteResolved = canDelete ?? (task ? permissions.canDeleteTask(task.createdBy) : false);
 
   // Subscribe to real-time task room events (task updates, comments, reactions)
   useTaskRealtime(open ? task?.id || taskIdOrKey : null);
@@ -231,7 +236,7 @@ export function TaskDetailSheet({
   };
 
   const handleDelete = () => {
-    if (!task || !canManage) return;
+    if (!task || !canDeleteResolved) return;
     if (confirm(`Are you sure you want to delete task ${task.key}?`)) {
       deleteMutation.mutate(task.id, {
         onSuccess: () => {
@@ -376,32 +381,34 @@ export function TaskDetailSheet({
                   </span>
                 )}
 
-                {canManage && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
-                        <MoreVertical className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={handleCopyKey}
-                        className="text-xs cursor-pointer"
-                      >
-                        <Copy className="size-3.5 mr-2" />
-                        Copy Task Key
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={handleDelete}
-                        className="text-xs text-destructive focus:text-destructive cursor-pointer"
-                      >
-                        <Trash2 className="size-3.5 mr-2" />
-                        Delete Task
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={handleCopyKey}
+                      className="text-xs cursor-pointer"
+                    >
+                      <Copy className="size-3.5 mr-2" />
+                      Copy Task Key
+                    </DropdownMenuItem>
+                    {canDeleteResolved && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={handleDelete}
+                          className="text-xs text-destructive focus:text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="size-3.5 mr-2" />
+                          Delete Task
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 

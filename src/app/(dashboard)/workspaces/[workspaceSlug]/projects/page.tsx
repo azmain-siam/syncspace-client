@@ -6,6 +6,7 @@ import { Filter, FolderKanban, Plus, RefreshCw, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
 import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
 import { ProjectCard } from '@/features/project/components/project-card';
 import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
@@ -22,6 +23,7 @@ export default function WorkspaceProjectsPage({
   const { workspace, isLoading: workspaceLoading } = useCurrentWorkspace(workspaceSlug);
 
   const workspaceId = workspace?.id || '';
+  const permissions = useWorkspacePermissions(workspaceId);
   const {
     data: projectsResponse,
     isLoading: projectsLoading,
@@ -78,15 +80,17 @@ export default function WorkspaceProjectsPage({
           </p>
         </div>
 
-        <Button
-          onClick={() => {
-            setProjectToEdit(null);
-            setCreateModalOpen(true);
-          }}
-          className="h-11 rounded-lg font-semibold shadow-xs gap-2 shrink-0"
-        >
-          <Plus className="h-4 w-4" /> New Project
-        </Button>
+        {permissions.canCreateProject && (
+          <Button
+            onClick={() => {
+              setProjectToEdit(null);
+              setCreateModalOpen(true);
+            }}
+            className="h-11 rounded-lg font-semibold shadow-xs gap-2 shrink-0"
+          >
+            <Plus className="h-4 w-4" /> New Project
+          </Button>
+        )}
       </div>
 
       {/* Filter & Search Toolbar */}
@@ -192,6 +196,8 @@ export default function WorkspaceProjectsPage({
               key={project.id}
               project={project}
               workspaceSlug={workspaceSlug}
+              canEdit={permissions.canEditProject}
+              canArchive={permissions.canArchiveProject}
               onEdit={handleEdit}
               onArchive={handleArchive}
             />

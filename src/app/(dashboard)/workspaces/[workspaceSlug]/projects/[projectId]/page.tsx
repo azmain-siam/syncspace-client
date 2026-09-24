@@ -6,6 +6,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Activity,
+  Archive,
   ArrowLeft,
   Calendar,
   Clock,
@@ -13,13 +14,13 @@ import {
   Kanban,
   Pencil,
   Settings,
-  Trash2,
   Flag,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
 import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
 import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
@@ -41,6 +42,7 @@ function ProjectDetailsContent({
   const { workspace, isLoading: workspaceLoading } = useCurrentWorkspace(workspaceSlug);
 
   const workspaceId = workspace?.id || '';
+  const permissions = useWorkspacePermissions(workspaceId);
   const {
     data: projectResponse,
     isLoading: projectLoading,
@@ -144,23 +146,29 @@ function ProjectDetailsContent({
           </div>
 
           {/* Edit / Archive Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => setEditModalOpen(true)}
-              className="h-10 rounded-lg gap-2 text-xs font-semibold"
-            >
-              <Pencil className="h-3.5 w-3.5" /> Edit
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setArchiveModalOpen(true)}
-              className="h-10 w-10 rounded-lg text-danger hover:text-danger hover:bg-danger/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          {(permissions.canEditProject || permissions.canArchiveProject) && (
+            <div className="flex items-center gap-2 shrink-0">
+              {permissions.canEditProject && (
+                <Button
+                  variant="outline"
+                  onClick={() => setEditModalOpen(true)}
+                  className="h-10 rounded-lg gap-2 text-xs font-semibold"
+                >
+                  <Pencil className="h-3.5 w-3.5" /> Edit
+                </Button>
+              )}
+              {permissions.canArchiveProject && (
+                <Button
+                  variant="outline"
+                  onClick={() => setArchiveModalOpen(true)}
+                  className="h-10 rounded-lg gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  title="Archive Project"
+                >
+                  <Archive className="h-3.5 w-3.5" /> Archive
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Metadata Footer */}
@@ -228,6 +236,7 @@ function ProjectDetailsContent({
           <SprintBacklogView
             workspaceId={workspaceId}
             projectId={project.id}
+            canManage={permissions.canManageSprints}
           />
         )}
 
@@ -247,17 +256,21 @@ function ProjectDetailsContent({
           <Card className="rounded-2xl border border-border bg-card p-6 space-y-4 max-w-xl">
             <h3 className="font-bold text-foreground text-base">Project Settings</h3>
             <p className="text-xs text-muted-foreground">
-              Update project attributes or manage member roles.
+              {permissions.canEditProject
+                ? 'Update project attributes or manage project configuration.'
+                : 'Project settings and configuration are viewable by workspace members.'}
             </p>
-            <div className="pt-2 flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setEditModalOpen(true)}
-                className="h-10 rounded-lg gap-2 text-xs font-semibold"
-              >
-                <Pencil className="h-3.5 w-3.5" /> Edit Project Information
-              </Button>
-            </div>
+            {permissions.canEditProject && (
+              <div className="pt-2 flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditModalOpen(true)}
+                  className="h-10 rounded-lg gap-2 text-xs font-semibold"
+                >
+                  <Pencil className="h-3.5 w-3.5" /> Edit Project Information
+                </Button>
+              </div>
+            )}
           </Card>
         )}
       </div>
