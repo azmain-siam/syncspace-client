@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Activity,
+  CheckSquare,
   FolderKanban,
   LayoutDashboard,
   Settings,
@@ -38,6 +39,12 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           label: 'Projects',
           href: workspaceSlug ? `/workspaces/${workspaceSlug}/projects` : '/projects',
           icon: FolderKanban,
+          exact: false,
+        },
+        {
+          label: 'My Tasks',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/my-tasks` : '/my-tasks',
+          icon: CheckSquare,
           exact: false,
         },
         {
