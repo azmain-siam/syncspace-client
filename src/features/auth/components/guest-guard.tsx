@@ -13,7 +13,19 @@ export function GuestGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (mounted && isAuthenticated) {
-      router.replace('/dashboard');
+      let destination = '/dashboard';
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const redirectParam = params.get('redirect');
+        if (
+          redirectParam &&
+          redirectParam.startsWith('/') &&
+          !redirectParam.startsWith('//')
+        ) {
+          destination = redirectParam;
+        }
+      }
+      router.replace(destination);
     }
   }, [mounted, isAuthenticated, router]);
 

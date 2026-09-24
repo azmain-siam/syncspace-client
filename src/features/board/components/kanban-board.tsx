@@ -71,6 +71,11 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     return member?.role === WorkspaceRole.OWNER || member?.role === WorkspaceRole.ADMIN;
   }, [currentUser, activeWorkspace, membersResponse]);
 
+  // Routing & URL synchronization
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const boardParam = searchParams.get('board');
+
   // Project Boards
   const {
     data: boardsResponse,
@@ -83,11 +88,21 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const activeBoardId = useMemo(() => {
+    if (boardParam && boards.some((b) => b.id === boardParam)) {
+      return boardParam;
+    }
     if (selectedBoardId && boards.some((b) => b.id === selectedBoardId)) {
       return selectedBoardId;
     }
     return boards[0]?.id || null;
-  }, [boards, selectedBoardId]);
+  }, [boards, boardParam, selectedBoardId]);
+
+  const handleSelectBoard = (boardId: string) => {
+    setSelectedBoardId(boardId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('board', boardId);
+    window.history.replaceState(null, '', `${pathname}?${params.toString()}`);
+  };
 
   const activeBoard = useMemo(
     () => boards.find((b) => b.id === activeBoardId) || null,
@@ -159,8 +174,6 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [createTaskColumnId, setCreateTaskColumnId] = useState<string>('');
 
   // Task Detail Drawer state & URL synchronization
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const taskParam = searchParams.get('task') || searchParams.get('taskId');
   const [clientTaskId, setClientTaskId] = useState<string | null>(null);
 
@@ -570,7 +583,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
             return (
               <button
                 key={board.id}
-                onClick={() => setSelectedBoardId(board.id)}
+                onClick={() => handleSelectBoard(board.id)}
                 className={`group flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-xs font-bold'

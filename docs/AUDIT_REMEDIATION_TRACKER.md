@@ -17,10 +17,10 @@
 | Phase | Focus Area | Priority | Status | Completed / Total |
 | :--- | :--- | :---: | :---: | :---: |
 | **Phase 0** | Security, Dependencies & Core Foundations | **P0** | 🟢 Complete | 7 / 7 |
-| **Phase 1** | Routing, Permissions & Data Integrity | **P0** | 🟡 Ready | 0 / 8 |
+| **Phase 1** | Routing, Permissions & Data Integrity | **P0** | 🟡 In Progress | 3 / 8 |
 | **Phase 2** | Design System & Missing Primitives | **P1** | ⚪ Pending | 0 / 7 |
 | **Phase 3** | UX Declutter, Dashboard & Performance | **P1 / P2** | ⚪ Pending | 0 / 6 |
-| **Total** | **All Remediation Tracks** | — | — | **7 / 28** |
+| **Total** | **All Remediation Tracks** | — | — | **10 / 28** |
 
 ---
 
@@ -42,11 +42,11 @@
 ### Phase 1: Information Architecture, Routing & Data Integrity (P0)
 *Goal: Fix broken inbound links (404s), unlock Member permissions on boards, establish single sources of truth for tasks/boards, and prevent cache invalidation storms.*
 
-- [ ] **ROUT-01**: Implement Canonical Task Routing (`/tasks/:taskKey` or `/workspaces/:ws/projects/:project?task=:taskKey`) that opens the task detail panel; point notifications, global search, and comments directly to it ([Audit 1: 2.1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#21-links-into-tasks-lead-to-pages-that-dont-exist)).
-- [ ] **ROUT-02**: Introduce URL routing for boards and tabs (`/projects/:projectKey/boards/:boardId` and `/projects/:projectKey/backlog`) so page refresh and sharing preserve active context ([Audit 1: 2.4](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#24-boards-and-project-tabs-have-no-url)).
+- [x] **ROUT-01**: Implement Canonical Task Routing (`/tasks/:taskKey` or `/workspaces/:ws/projects/:project?task=:taskKey`) that opens the task detail panel; point notifications, global search, and comments directly to it ([Audit 1: 2.1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#21-links-into-tasks-lead-to-pages-that-dont-exist)).
+- [x] **ROUT-02**: Introduce URL routing for boards and tabs (`/projects/:projectKey/boards/:boardId` and `/projects/:projectKey/backlog`) so page refresh and sharing preserve active context ([Audit 1: 2.4](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#24-boards-and-project-tabs-have-no-url)).
 - [ ] **PERM-01**: Consolidate RBAC into a single `useWorkspacePermissions` hook matching backend matrix: allow `MEMBER` to create, move, and edit tasks across Board, Sprints, and My Tasks ([Audit 1: 2.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#22-members-get-a-read-only-board), [Audit 4: C5](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/04_FRONTEND_ARCHITECTURE_AUDIT.md#1-architecture-summary)).
 - [ ] **PERM-02**: Restrict project creation, edit, and archive actions to authorized roles only (`OWNER`/`ADMIN`), preventing 403 error toasts ([Audit 1: 3.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#32-project-actions-appear-for-people-who-cant-use-them)).
-- [ ] **AUTH-01**: Preserve `?redirect=` URL query param through login, registration, and email verification so invitees land directly in their joined workspace ([Audit 1: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#23-the-invitation-flow-loses-its-context)).
+- [x] **AUTH-01**: Preserve `?redirect=` URL query param through login, registration, and email verification so invitees land directly in their joined workspace ([Audit 1: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#23-the-invitation-flow-loses-its-context)).
 - [ ] **DATA-01**: Establish single source of truth for Task Status vs. Column: make column authoritative on the board and remove contradictory status pickers ([Audit 1: 2.5](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#25-a-task-has-two-separate-status-values)).
 - [ ] **DATA-02**: Fix query key fragmentation and factory usage: eliminate singular `['task', id]` typos and narrow invalidations to affected columns/tasks, stopping 100-request refetch storms ([Audit 4: C2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/04_FRONTEND_ARCHITECTURE_AUDIT.md#c2-query-keys-dont-match-so-refreshes-rely-on-over-broad-invalidation), [Audit 5: C1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/05_FRONTEND_PERFORMANCE_AUDIT.md#c1-every-task-change-triggers-a-refetch-storm-confirmed-request-counts-need-measuring)).
 - [ ] **DATA-03**: Fix Kanban column task truncation: configure explicit page/limit params and add load-more so columns with >20 tasks are not hidden ([Audit 1: 2.6](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#26-kanban-columns-may-silently-hide-tasks), [Audit 5: C2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/05_FRONTEND_PERFORMANCE_AUDIT.md#c2-large-boards-are-silently-truncated-confirmed)).

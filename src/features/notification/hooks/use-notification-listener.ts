@@ -50,7 +50,10 @@ export function useNotificationListener() {
         action: notif.link
           ? {
               label: 'View',
-              onClick: () => router.push(notif.link!),
+              onClick: () => {
+                const dest = notif.link!.startsWith('/') ? notif.link! : `/${notif.link!}`;
+                router.push(dest);
+              },
             }
           : undefined,
         duration: 6000,

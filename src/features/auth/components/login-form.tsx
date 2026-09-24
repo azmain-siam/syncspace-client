@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/use-login";
 import { useResendVerification } from "../hooks/use-resend-verification";
@@ -27,6 +28,10 @@ import { SocialAuthButtons } from "./social-auth-buttons";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const emailParam = searchParams.get("email");
+
   const loginMutation = useLogin();
   const resendMutation = useResendVerification();
 
@@ -38,7 +43,7 @@ export function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      email: emailParam || "",
       password: "",
     },
   });
@@ -292,7 +297,11 @@ export function LoginForm() {
           <div className="text-center text-xs text-muted-foreground pt-2">
             Don&apos;t have an account?{" "}
             <Link
-              href="/register"
+              href={
+                redirectParam
+                  ? `/register?redirect=${encodeURIComponent(redirectParam)}`
+                  : "/register"
+              }
               className="font-bold text-primary hover:underline transition-all"
             >
               Sign up

@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { use, useState } from 'react';
+import { use, useState, Suspense } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Activity,
@@ -25,12 +26,18 @@ import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
 import { KanbanBoard } from '@/features/board/components';
 import { SprintBacklogView } from '@/features/sprint';
 
-export default function ProjectDetailsPage({
+type ProjectTabType = 'boards' | 'tasks' | 'activity' | 'settings';
+
+function ProjectDetailsContent({
   params,
 }: {
   params: Promise<{ workspaceSlug: string; projectId: string }>;
 }) {
   const { workspaceSlug, projectId } = use(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const { workspace, isLoading: workspaceLoading } = useCurrentWorkspace(workspaceSlug);
 
   const workspaceId = workspace?.id || '';
@@ -42,7 +49,19 @@ export default function ProjectDetailsPage({
 
   const project = projectResponse?.data;
 
-  const [activeTab, setActiveTab] = useState<'boards' | 'tasks' | 'activity' | 'settings'>('boards');
+  // URL-driven active tab
+  const tabParam = searchParams.get('tab') as ProjectTabType | null;
+  const activeTab: ProjectTabType =
+    tabParam && ['boards', 'tasks', 'activity', 'settings'].includes(tabParam)
+      ? tabParam
+      : 'boards';
+
+  const handleTabChange = (tabId: ProjectTabType) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tabId);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
 
@@ -185,7 +204,7 @@ export default function ProjectDetailsPage({
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 isActive
                   ? 'border-primary text-primary'
@@ -259,5 +278,22 @@ export default function ProjectDetailsPage({
         project={project}
       />
     </div>
+  );
+}
+
+export default function ProjectDetailsPage(props: {
+  params: Promise<{ workspaceSlug: string; projectId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6 max-w-7xl mx-auto">
+          <div className="h-36 w-full rounded-2xl border border-border bg-card animate-pulse" />
+          <div className="h-64 w-full rounded-2xl border border-border bg-card animate-pulse" />
+        </div>
+      }
+    >
+      <ProjectDetailsContent {...props} />
+    </Suspense>
   );
 }

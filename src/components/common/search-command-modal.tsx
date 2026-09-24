@@ -183,10 +183,10 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
       res.tasks.forEach((t) => {
         const boardId = t.column?.board?.id;
         const projectId = t.column?.board?.projectId;
-        const href =
-          projectId && boardId
-            ? `/workspaces/${workspaceSlug}/projects/${projectId}/boards/${boardId}?taskId=${t.id}`
-            : `/workspaces/${workspaceSlug}/projects`;
+        const taskKeyOrId = t.key || t.id;
+        const href = projectId
+          ? `/workspaces/${workspaceSlug}/projects/${projectId}?task=${taskKeyOrId}${boardId ? `&tab=boards&board=${boardId}` : ''}`
+          : `/tasks/${taskKeyOrId}`;
 
         list.push({
           id: `task-${t.id}`,
@@ -219,7 +219,9 @@ export function SearchCommandModal({ open, onOpenChange }: SearchCommandModalPro
             : undefined,
           category: 'Comments',
           avatar: c.user?.avatar,
-          href: `/workspaces/${workspaceSlug}/projects`,
+          href: c.taskId
+            ? `/tasks/${c.taskId}`
+            : `/workspaces/${workspaceSlug}/projects`,
         });
       });
     }

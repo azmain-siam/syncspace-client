@@ -85,7 +85,8 @@ export function NotificationPopover({
         markReadMutation.mutate(notification.id);
       }
       if (notification.link) {
-        router.push(notification.link);
+        const dest = notification.link.startsWith('/') ? notification.link : `/${notification.link}`;
+        router.push(dest);
       }
     }
     setOpen(false);

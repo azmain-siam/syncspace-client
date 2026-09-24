@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import { useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -27,6 +28,10 @@ import { AuthDivider } from './auth-divider';
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const emailParam = searchParams.get('email');
+
   const usernameEditedRef = useRef(false);
   const registerMutation = useRegister();
 
@@ -41,7 +46,7 @@ export function RegisterForm() {
     defaultValues: {
       username: '',
       name: '',
-      email: '',
+      email: emailParam || '',
       phone: '',
       password: '',
       confirmPassword: '',
@@ -375,7 +380,11 @@ export function RegisterForm() {
           <div className="border-t border-border/40 pt-4 text-center text-xs text-muted-foreground">
             Already have an account?{' '}
             <Link
-              href="/login"
+              href={
+                redirectParam
+                  ? `/login?redirect=${encodeURIComponent(redirectParam)}`
+                  : '/login'
+              }
               className="font-bold text-primary hover:underline transition-all"
             >
               Log in
