@@ -35,6 +35,11 @@ function GoogleCallbackContent() {
     const accessToken = searchParams.get('accessToken');
     const refreshToken = searchParams.get('refreshToken');
 
+    // Immediately sanitize the URL synchronously to prevent token leakage in history, screen shares, or browser extensions
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     if (!accessToken || !refreshToken) {
       toast.error('Google sign-in failed. Tokens were missing from response.');
       router.replace('/login');

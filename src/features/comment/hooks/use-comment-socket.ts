@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { getSocket } from '@/lib/socket/socket-client';
+import { useSocket } from '@/providers/socket-provider';
 import type { ApiResponse } from '@/types/domain';
 import type {
   PaginatedCommentsResponse,
@@ -17,12 +17,10 @@ type CommentsInfiniteData = InfiniteData<ApiResponse<PaginatedCommentsResponse>>
  */
 export function useCommentSocket(taskId?: string | null) {
   const queryClient = useQueryClient();
+  const { socket } = useSocket();
 
   React.useEffect(() => {
-    if (!taskId) return;
-
-    const socket = getSocket();
-    if (!socket || !socket.on) return;
+    if (!taskId || !socket) return;
 
     // Join task room if backend supports it
     socket.emit('join:task', taskId);
@@ -97,17 +95,25 @@ export function useCommentSocket(taskId?: string | null) {
     };
 
     socket.on('comment.created', handleCreated);
+    socket.on('comment:created', handleCreated);
     socket.on('comment.updated', handleUpdated);
+    socket.on('comment:updated', handleUpdated);
     socket.on('comment.deleted', handleDeleted);
+    socket.on('comment:deleted', handleDeleted);
     socket.on('comment.reaction_updated', handleReactionUpdated);
+    socket.on('comment:reaction_updated', handleReactionUpdated);
 
     return () => {
       socket.emit('leave:task', taskId);
       socket.emit('task:leave', taskId);
       socket.off('comment.created', handleCreated);
+      socket.off('comment:created', handleCreated);
       socket.off('comment.updated', handleUpdated);
+      socket.off('comment:updated', handleUpdated);
       socket.off('comment.deleted', handleDeleted);
+      socket.off('comment:deleted', handleDeleted);
       socket.off('comment.reaction_updated', handleReactionUpdated);
+      socket.off('comment:reaction_updated', handleReactionUpdated);
     };
-  }, [taskId, queryClient]);
+  }, [taskId, queryClient, socket]);
 }

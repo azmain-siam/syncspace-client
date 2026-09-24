@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getSocket } from '@/lib/socket/socket-client';
+import { useSocket } from '@/providers/socket-provider';
 
 interface SprintSocketPayload {
   projectId?: string;
@@ -13,12 +13,10 @@ interface SprintSocketPayload {
  */
 export function useSprintSocket(projectId?: string | null) {
   const queryClient = useQueryClient();
+  const { socket } = useSocket();
 
   React.useEffect(() => {
-    if (!projectId) return;
-
-    const socket = getSocket();
-    if (!socket || !socket.on) return;
+    if (!projectId || !socket) return;
 
     // Join project room for project-level sprint updates
     socket.emit('join:project', projectId);
@@ -33,6 +31,7 @@ export function useSprintSocket(projectId?: string | null) {
           queryClient.invalidateQueries({ queryKey: ['sprint', payload.sprintId] });
         }
         if (payload?.taskId) {
+          queryClient.invalidateQueries({ queryKey: ['tasks', payload.taskId] });
           queryClient.invalidateQueries({ queryKey: ['task', payload.taskId] });
         }
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -40,19 +39,29 @@ export function useSprintSocket(projectId?: string | null) {
     };
 
     socket.on('sprint.created', invalidateSprintData);
+    socket.on('sprint:created', invalidateSprintData);
     socket.on('sprint.updated', invalidateSprintData);
+    socket.on('sprint:updated', invalidateSprintData);
     socket.on('sprint.started', invalidateSprintData);
+    socket.on('sprint:started', invalidateSprintData);
     socket.on('sprint.completed', invalidateSprintData);
+    socket.on('sprint:completed', invalidateSprintData);
     socket.on('task.sprint_changed', invalidateSprintData);
+    socket.on('task:sprint_changed', invalidateSprintData);
 
     return () => {
       socket.off('sprint.created', invalidateSprintData);
+      socket.off('sprint:created', invalidateSprintData);
       socket.off('sprint.updated', invalidateSprintData);
+      socket.off('sprint:updated', invalidateSprintData);
       socket.off('sprint.started', invalidateSprintData);
+      socket.off('sprint:started', invalidateSprintData);
       socket.off('sprint.completed', invalidateSprintData);
+      socket.off('sprint:completed', invalidateSprintData);
       socket.off('task.sprint_changed', invalidateSprintData);
+      socket.off('task:sprint_changed', invalidateSprintData);
       socket.emit('leave:project', projectId);
       socket.emit('project:leave', projectId);
     };
-  }, [projectId, queryClient]);
+  }, [projectId, queryClient, socket]);
 }
