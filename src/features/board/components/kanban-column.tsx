@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GripVertical, Plus } from 'lucide-react';
+import { GripVertical, Loader2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -51,8 +51,13 @@ export function KanbanColumn({
 }: KanbanColumnProps) {
   const allowCreate = canCreateTask ?? canManage;
   const allowMove = canMoveTask ?? canManage;
-  // Query column tasks from the dedicated API
-  const { data: columnTasksResponse, isLoading: tasksLoading } = useColumnTasks(column.id);
+
+  // Pagination limit state to prevent silent truncation of large columns
+  const [limit, setLimit] = React.useState(30);
+
+  // Query column tasks from the dedicated API with configurable limit
+  const { data: columnTasksResponse, isLoading: tasksLoading, isFetching: tasksFetching } =
+    useColumnTasks(column.id, { limit });
 
   const tasks: Task[] = React.useMemo(() => {
     if (columnTasksResponse?.data?.tasks) {
@@ -61,7 +66,9 @@ export function KanbanColumn({
     return (column.tasks as unknown as Task[]) || [];
   }, [columnTasksResponse, column.tasks]);
 
-  const taskCount = tasks.length;
+  const totalCount = columnTasksResponse?.data?.meta?.total ?? tasks.length;
+  const hasMore =
+    (columnTasksResponse?.data?.meta?.hasNextPage ?? false) || tasks.length < totalCount;
 
   const {
     ref: sortableRef,
@@ -135,7 +142,7 @@ export function KanbanColumn({
             variant="secondary"
             className="h-5 min-w-5 px-1.5 rounded-full text-[11px] font-semibold text-muted-foreground bg-muted/80 flex items-center justify-center shrink-0"
           >
-            {taskCount}
+            {totalCount}
           </Badge>
         </div>
 
@@ -160,14 +167,14 @@ export function KanbanColumn({
         ref={droppableRef}
         className={cn(
           'flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[140px] rounded-b-2xl transition-colors',
-          isTaskDropTarget && taskCount === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
+          isTaskDropTarget && tasks.length === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
         )}
       >
         {tasksLoading && tasks.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
             Loading tasks...
           </div>
-        ) : taskCount === 0 ? (
+        ) : tasks.length === 0 ? (
           <div
             onClick={() => allowCreate && onAddTask?.(column.id)}
             className="flex flex-col items-center justify-center h-48 rounded-xl border border-dashed border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors p-4 text-center cursor-pointer group/empty"
@@ -198,6 +205,27 @@ export function KanbanColumn({
                 }
               />
             ))}
+
+            {/* Load More Button for Columns with >30 Tasks */}
+            {hasMore && (
+              <div className="pt-1.5 pb-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLimit((prev) => prev + 30)}
+                  disabled={tasksFetching}
+                  className="w-full h-8 text-[11px] font-semibold text-muted-foreground hover:text-foreground border-dashed rounded-xl"
+                >
+                  {tasksFetching ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin mr-1.5" /> Loading...
+                    </>
+                  ) : (
+                    `Load more (${tasks.length} of ${totalCount})`
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

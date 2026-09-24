@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse, Board, Task as DomainTask } from '@/types/domain';
 import { taskApi } from '../api/task.api';
+import { taskKeys, columnKeys } from './task-keys';
 import type { PaginatedTasksResponse, Task, TaskStatus } from '../types/task.types';
 
 interface MoveTaskVariables {
@@ -15,6 +16,7 @@ interface MoveTaskVariables {
 interface MoveTaskContext {
   previousBoard?: ApiResponse<Board>;
   previousColumnQueries?: [readonly unknown[], unknown][];
+  sourceColumnId?: string;
 }
 
 export function useMoveTask(
@@ -137,7 +139,7 @@ export function useMoveTask(
         }
       }
 
-      return { previousBoard, previousColumnQueries };
+      return { previousBoard, previousColumnQueries, sourceColumnId: movingTask?.columnId };
     },
 
     onError: (error, _variables, context) => {
@@ -155,9 +157,23 @@ export function useMoveTask(
       toast.error(errorMessage);
     },
 
-    onSettled: () => {
-      // Always re-sync with server
-      queryClient.invalidateQueries({ queryKey: ['columns'] });
+    onSettled: (_data, _error, variables, context) => {
+      // Re-sync only the affected source and target columns
+      if (context?.sourceColumnId) {
+        queryClient.invalidateQueries({
+          queryKey: columnKeys.columnTasks(context.sourceColumnId),
+        });
+      }
+      if (variables?.targetColumnId) {
+        queryClient.invalidateQueries({
+          queryKey: columnKeys.columnTasks(variables.targetColumnId),
+        });
+      }
+      if (variables?.taskId) {
+        queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(variables.taskId),
+        });
+      }
       queryClient.invalidateQueries({ queryKey: boardQueryKey });
       queryClient.invalidateQueries({
         queryKey: ['workspaces', workspaceId, 'my-tasks'],

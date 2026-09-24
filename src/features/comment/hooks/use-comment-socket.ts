@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useSocket } from '@/providers/socket-provider';
 import type { ApiResponse } from '@/types/domain';
+import { taskKeys } from '@/features/task/hooks/task-keys';
 import type {
   PaginatedCommentsResponse,
   CommentSocketCreatedPayload,
@@ -29,8 +30,7 @@ export function useCommentSocket(taskId?: string | null) {
     const handleCreated = (payload: CommentSocketCreatedPayload) => {
       if (payload?.taskId === taskId) {
         queryClient.invalidateQueries({ queryKey: ['task-comments', taskId] });
-        queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       }
     };
 
@@ -61,8 +61,7 @@ export function useCommentSocket(taskId?: string | null) {
           },
         );
         queryClient.invalidateQueries({ queryKey: ['task-comments', taskId] });
-        queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       }
     };
 

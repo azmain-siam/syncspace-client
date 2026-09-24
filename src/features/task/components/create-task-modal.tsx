@@ -22,6 +22,7 @@ import {
 } from '../schemas/task.schema';
 import { useCreateTask } from '../hooks/use-create-task';
 import type { Task } from '../types/task.types';
+import { mapColumnTitleToTaskStatus } from '../utils/task-status-mapper';
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -102,8 +103,13 @@ export function CreateTaskModal({
   );
 
   const onSubmit = (data: CreateTaskInput) => {
+    const effectiveColumnId = selectedColumnId || columnId;
+    const selectedCol = columns.find((c) => c.id === effectiveColumnId);
+    const derivedStatus = mapColumnTitleToTaskStatus(selectedCol?.title);
+
     const formattedData = {
       ...data,
+      status: derivedStatus,
       dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : null,
       assigneeId: data.assigneeId || null,
       storyPoints: data.storyPoints ? Number(data.storyPoints) : null,
@@ -111,7 +117,7 @@ export function CreateTaskModal({
     };
 
     createTaskMutation.mutate({
-      columnId: selectedColumnId || columnId,
+      columnId: effectiveColumnId,
       data: formattedData,
     });
   };

@@ -14,6 +14,7 @@ import {
   MessageSquare,
   MoreVertical,
   Paperclip,
+  Kanban,
   Trash2,
   User,
 } from 'lucide-react';
@@ -46,6 +47,8 @@ import { useTaskDetails } from '../hooks/use-task-details';
 import { useUpdateTask } from '../hooks/use-update-task';
 import { useTaskRealtime } from '../hooks/use-task-realtime';
 import type { Task, TaskPriority, TaskStatus } from '../types/task.types';
+import { useMoveTask } from '../hooks/use-move-task';
+import { mapColumnTitleToTaskStatus } from '../utils/task-status-mapper';
 import { TaskAttachments } from './task-attachments';
 import { TaskChecklists } from './task-checklists';
 import { TaskLinks } from './task-links';
@@ -57,6 +60,7 @@ interface TaskDetailSheetProps {
   workspaceId: string;
   projectId: string;
   boardId?: string;
+  columns?: { id: string; title: string }[];
   canManage?: boolean;
   canDelete?: boolean;
   onTaskDeleted?: () => void;
@@ -129,6 +133,7 @@ export function TaskDetailSheet({
   workspaceId,
   projectId,
   boardId,
+  columns,
   canManage = true,
   canDelete,
   onTaskDeleted,
@@ -145,6 +150,7 @@ export function TaskDetailSheet({
 
   const updateMutation = useUpdateTask(workspaceId, projectId, boardId);
   const deleteMutation = useDeleteTask(workspaceId, projectId, boardId);
+  const moveTaskMutation = useMoveTask(workspaceId, projectId, boardId || '');
   const { data: membersResponse } = useWorkspaceMembers(workspaceId);
   const members = membersResponse?.data || [];
 
@@ -191,6 +197,18 @@ export function TaskDetailSheet({
     updateMutation.mutate({
       taskId: task.id,
       data: { status },
+    });
+  };
+
+  const handleMoveToColumn = (targetColumnId: string) => {
+    if (!task || !canManage) return;
+    const targetCol = columns?.find((c) => c.id === targetColumnId);
+    const targetStatus = mapColumnTitleToTaskStatus(targetCol?.title);
+    moveTaskMutation.mutate({
+      taskId: task.id,
+      targetColumnId,
+      targetOrder: 0,
+      status: targetStatus,
     });
   };
 
@@ -305,38 +323,77 @@ export function TaskDetailSheet({
                   )}
                 </button>
 
-                {/* Status Selector */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild disabled={!canManage}>
-                    <button
-                      type="button"
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
-                        STATUS_CONFIG[task.status]?.bg,
-                        STATUS_CONFIG[task.status]?.text,
-                        STATUS_CONFIG[task.status]?.border,
-                      )}
-                    >
-                      {STATUS_CONFIG[task.status]?.label}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map((st) => (
-                      <DropdownMenuItem
-                        key={st}
-                        onClick={() => handleStatusChange(st)}
-                        className="text-xs cursor-pointer flex items-center justify-between"
+                {/* Stage / Column Selector (Authoritative on Board) */}
+                {columns && columns.length > 0 ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild disabled={!canManage}>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold border transition-colors cursor-pointer',
+                          STATUS_CONFIG[task.status]?.bg,
+                          STATUS_CONFIG[task.status]?.text,
+                          STATUS_CONFIG[task.status]?.border,
+                        )}
                       >
-                        <span className={STATUS_CONFIG[st].text}>
-                          {STATUS_CONFIG[st].label}
-                        </span>
-                        {task.status === st && <Check className="size-3 text-primary" />}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        <Kanban className="size-3" />
+                        <span>{columns.find((c) => c.id === task.columnId)?.title || STATUS_CONFIG[task.status]?.label}</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuLabel className="text-xs">Stage / Column</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {columns.map((col) => {
+                        const colStatus = mapColumnTitleToTaskStatus(col.title);
+                        return (
+                          <DropdownMenuItem
+                            key={col.id}
+                            onClick={() => handleMoveToColumn(col.id)}
+                            className="text-xs cursor-pointer flex items-center justify-between"
+                          >
+                            <span className={STATUS_CONFIG[colStatus]?.text}>
+                              {col.title}
+                            </span>
+                            {task.columnId === col.id && <Check className="size-3 text-primary" />}
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  /* Fallback Status Selector when board columns are not available */
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild disabled={!canManage}>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
+                          STATUS_CONFIG[task.status]?.bg,
+                          STATUS_CONFIG[task.status]?.text,
+                          STATUS_CONFIG[task.status]?.border,
+                        )}
+                      >
+                        {STATUS_CONFIG[task.status]?.label}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map((st) => (
+                        <DropdownMenuItem
+                          key={st}
+                          onClick={() => handleStatusChange(st)}
+                          className="text-xs cursor-pointer flex items-center justify-between"
+                        >
+                          <span className={STATUS_CONFIG[st].text}>
+                            {STATUS_CONFIG[st].label}
+                          </span>
+                          {task.status === st && <Check className="size-3 text-primary" />}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
 
                 {/* Priority Selector */}
                 <DropdownMenu>

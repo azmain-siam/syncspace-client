@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/providers/socket-provider';
 
+import { taskKeys } from './task-keys';
+
 /**
  * Hook to subscribe to a Task room (task:<taskId>) via Socket.IO
  * Synchronizes task details, comments, and reactions live across users.
@@ -22,15 +24,15 @@ export function useTaskRealtime(taskId?: string | null) {
     });
 
     const handleTaskChange = () => {
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['columns'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.checklists(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.links(taskId) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.attachments(taskId) });
     };
 
     const handleCommentsChange = () => {
       queryClient.invalidateQueries({ queryKey: ['task-comments', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
     };
 
     socket.on('task:updated', handleTaskChange);

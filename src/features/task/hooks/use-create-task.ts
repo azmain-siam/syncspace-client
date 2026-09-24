@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
 import { taskApi } from '../api/task.api';
+import { columnKeys } from './task-keys';
 import type { Task, CreateTaskRequest } from '../types/task.types';
 
 export function useCreateTask(
@@ -30,7 +31,7 @@ export function useCreateTask(
       });
       // Invalidate specific column tasks if cached
       queryClient.invalidateQueries({
-        queryKey: ['columns', variables.columnId, 'tasks'],
+        queryKey: columnKeys.columnTasks(variables.columnId),
       });
       // Invalidate personal inbox
       queryClient.invalidateQueries({

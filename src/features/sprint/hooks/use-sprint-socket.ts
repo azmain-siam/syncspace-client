@@ -32,9 +32,7 @@ export function useSprintSocket(projectId?: string | null) {
         }
         if (payload?.taskId) {
           queryClient.invalidateQueries({ queryKey: ['tasks', payload.taskId] });
-          queryClient.invalidateQueries({ queryKey: ['task', payload.taskId] });
         }
-        queryClient.invalidateQueries({ queryKey: ['tasks'] });
       }
     };
 

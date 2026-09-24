@@ -888,6 +888,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
             workspaceId={workspaceId}
             projectId={projectId}
             boardId={activeBoard.id}
+            columns={columns.map((c) => ({ id: c.id, title: c.title }))}
             canManage={permissions.canEditTask}
           />
         </>
