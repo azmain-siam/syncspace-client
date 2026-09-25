@@ -12,3 +12,4 @@ export * from './components/task-status-chart';
 export * from './components/task-priority-chart';
 export * from './components/productivity-velocity-card';
 export * from './components/member-workload-table';
+export * from './components/my-work-card';

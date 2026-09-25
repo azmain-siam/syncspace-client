@@ -14,9 +14,18 @@ import {
 } from '@/components/ui/select';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
-import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
 import { ProjectCard } from '@/features/project/components/project-card';
-import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
+import dynamic from 'next/dynamic';
+
+const ProjectDialogModal = dynamic(
+  () => import('@/features/project/components/project-dialog-modal').then((mod) => mod.ProjectDialogModal),
+  { ssr: false },
+);
+
+const ArchiveProjectModal = dynamic(
+  () => import('@/features/project/components/archive-project-modal').then((mod) => mod.ArchiveProjectModal),
+  { ssr: false },
+);
 import { useWorkspaceProjects } from '@/features/project/hooks/use-workspace-projects';
 import type { Project } from '@/types/domain';
 import { ProjectPriority, ProjectStatus } from '@/types/domain';
@@ -211,27 +220,31 @@ export default function WorkspaceProjectsPage({
       )}
 
       {/* Create / Edit Project Modal */}
-      <ProjectDialogModal
-        open={createModalOpen || Boolean(projectToEdit)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setCreateModalOpen(false);
-            setProjectToEdit(null);
-          }
-        }}
-        workspaceId={workspaceId}
-        projectToEdit={projectToEdit}
-      />
+      {(createModalOpen || Boolean(projectToEdit)) && (
+        <ProjectDialogModal
+          open={createModalOpen || Boolean(projectToEdit)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCreateModalOpen(false);
+              setProjectToEdit(null);
+            }
+          }}
+          workspaceId={workspaceId}
+          projectToEdit={projectToEdit}
+        />
+      )}
 
       {/* Archive Confirmation Modal */}
-      <ArchiveProjectModal
-        open={Boolean(projectToArchive)}
-        onOpenChange={(open) => {
-          if (!open) setProjectToArchive(null);
-        }}
-        workspaceId={workspaceId}
-        project={projectToArchive}
-      />
+      {Boolean(projectToArchive) && (
+        <ArchiveProjectModal
+          open={Boolean(projectToArchive)}
+          onOpenChange={(open) => {
+            if (!open) setProjectToArchive(null);
+          }}
+          workspaceId={workspaceId}
+          project={projectToArchive}
+        />
+      )}
     </div>
   );
 }

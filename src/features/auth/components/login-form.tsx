@@ -77,7 +77,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row">
+    <main className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Top Logo */}
@@ -129,9 +129,9 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-3xl font-extrabold tracking-tight text-white">
+            <p className="text-3xl font-extrabold tracking-tight text-white">
               Master your workflow.
-            </h2>
+            </p>
             <p className="text-sm text-white/70 leading-relaxed">
               Experience a high-fidelity workspace designed for focused
               engineering and creative teams.
@@ -319,13 +319,15 @@ export function LoginForm() {
         <div className="w-full max-w-100 mx-auto pt-8 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace</div>
           <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy
-            </span>
-            <span className="hover:text-foreground cursor-pointer">Terms</span>
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

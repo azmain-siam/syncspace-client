@@ -14,9 +14,18 @@ import {
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import dynamic from 'next/dynamic';
 import { useProjectBoards } from '@/features/board/hooks/use-project-boards';
-import { CreateTaskModal } from '@/features/task/components/create-task-modal';
-import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
+
+const CreateTaskModal = dynamic(
+  () => import('@/features/task/components/create-task-modal').then((mod) => mod.CreateTaskModal),
+  { ssr: false },
+);
+
+const TaskDetailSheet = dynamic(
+  () => import('@/features/task/components/task-detail-sheet').then((mod) => mod.TaskDetailSheet),
+  { ssr: false },
+);
 import { useProjectSprints } from '../hooks/use-project-sprints';
 import { useSprintDetails } from '../hooks/use-sprint-details';
 import { useSprintSocket } from '../hooks/use-sprint-socket';
@@ -362,7 +371,7 @@ export function SprintBacklogView({
       />
 
       {/* Create Task Modal (if columns exist) */}
-      {firstBoard && firstColumn && (
+      {isCreateTaskOpen && firstBoard && firstColumn && (
         <CreateTaskModal
           open={isCreateTaskOpen}
           onOpenChange={setIsCreateTaskOpen}
@@ -375,17 +384,19 @@ export function SprintBacklogView({
       )}
 
       {/* Task Detail Sheet */}
-      <TaskDetailSheet
-        taskIdOrKey={selectedTaskId}
-        open={Boolean(selectedTaskId)}
-        onOpenChange={(open) => {
-          if (!open) setSelectedTaskId(null);
-        }}
-        workspaceId={workspaceId}
-        projectId={projectId}
-        boardId={firstBoard?.id}
-        canManage={canManage}
-      />
+      {selectedTaskId && (
+        <TaskDetailSheet
+          taskIdOrKey={selectedTaskId}
+          open={Boolean(selectedTaskId)}
+          onOpenChange={(open) => {
+            if (!open) setSelectedTaskId(null);
+          }}
+          workspaceId={workspaceId}
+          projectId={projectId}
+          boardId={firstBoard?.id}
+          canManage={canManage}
+        />
+      )}
     </div>
   );
 }

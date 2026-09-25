@@ -5,7 +5,6 @@ import { use, useState, Suspense } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Activity,
   Archive,
   ArrowLeft,
   Calendar,
@@ -13,21 +12,28 @@ import {
   FolderKanban,
   Kanban,
   Pencil,
-  Settings,
   Flag,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
-import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
-import { ProjectDialogModal } from '@/features/project/components/project-dialog-modal';
+import dynamic from 'next/dynamic';
+
+const ProjectDialogModal = dynamic(
+  () => import('@/features/project/components/project-dialog-modal').then((mod) => mod.ProjectDialogModal),
+  { ssr: false },
+);
+
+const ArchiveProjectModal = dynamic(
+  () => import('@/features/project/components/archive-project-modal').then((mod) => mod.ArchiveProjectModal),
+  { ssr: false },
+);
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
 import { KanbanBoard } from '@/features/board/components';
 import { SprintBacklogView } from '@/features/sprint';
 
-type ProjectTabType = 'boards' | 'tasks' | 'activity' | 'settings';
+type ProjectTabType = 'boards' | 'tasks';
 
 function ProjectDetailsContent({
   params,
@@ -53,10 +59,7 @@ function ProjectDetailsContent({
 
   // URL-driven active tab
   const tabParam = searchParams.get('tab') as ProjectTabType | null;
-  const activeTab: ProjectTabType =
-    tabParam && ['boards', 'tasks', 'activity', 'settings'].includes(tabParam)
-      ? tabParam
-      : 'boards';
+  const activeTab: ProjectTabType = tabParam === 'tasks' ? 'tasks' : 'boards';
 
   const handleTabChange = (tabId: ProjectTabType) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -102,22 +105,10 @@ function ProjectDetailsContent({
   const tabs = [
     { id: 'boards', label: 'Boards', icon: Kanban },
     { id: 'tasks', label: 'Sprints & Backlog', icon: Flag },
-    { id: 'activity', label: 'Activity', icon: Activity },
-    { id: 'settings', label: 'Settings', icon: Settings },
   ] as const;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Back link */}
-      <div>
-        <Link
-          href={`/workspaces/${workspaceSlug}/projects`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Projects
-        </Link>
-      </div>
-
       {/* Project Details Header Card */}
       <div className="relative rounded-2xl border border-border bg-card p-6 sm:p-8 overflow-hidden space-y-6 shadow-xs">
         {/* Accent Strip */}
@@ -213,7 +204,7 @@ function ProjectDetailsContent({
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring ${
                 isActive
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -239,57 +230,27 @@ function ProjectDetailsContent({
             canManage={permissions.canManageSprints}
           />
         )}
-
-        {activeTab === 'activity' && (
-          <Card className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center space-y-3">
-            <Activity className="h-10 w-10 text-primary mx-auto opacity-80" />
-            <div className="space-y-1 max-w-sm mx-auto">
-              <h3 className="font-bold text-foreground text-base">Activity Log Shell</h3>
-              <p className="text-xs text-muted-foreground">
-                Project audit trail & activity log prepared.
-              </p>
-            </div>
-          </Card>
-        )}
-
-        {activeTab === 'settings' && (
-          <Card className="rounded-2xl border border-border bg-card p-6 space-y-4 max-w-xl">
-            <h3 className="font-bold text-foreground text-base">Project Settings</h3>
-            <p className="text-xs text-muted-foreground">
-              {permissions.canEditProject
-                ? 'Update project attributes or manage project configuration.'
-                : 'Project settings and configuration are viewable by workspace members.'}
-            </p>
-            {permissions.canEditProject && (
-              <div className="pt-2 flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setEditModalOpen(true)}
-                  className="h-10 rounded-lg gap-2 text-xs font-semibold"
-                >
-                  <Pencil className="h-3.5 w-3.5" /> Edit Project Information
-                </Button>
-              </div>
-            )}
-          </Card>
-        )}
       </div>
 
       {/* Edit Project Dialog */}
-      <ProjectDialogModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        workspaceId={workspaceId}
-        projectToEdit={project}
-      />
+      {editModalOpen && (
+        <ProjectDialogModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          workspaceId={workspaceId}
+          projectToEdit={project}
+        />
+      )}
 
       {/* Archive Confirmation Dialog */}
-      <ArchiveProjectModal
-        open={archiveModalOpen}
-        onOpenChange={setArchiveModalOpen}
-        workspaceId={workspaceId}
-        project={project}
-      />
+      {archiveModalOpen && (
+        <ArchiveProjectModal
+          open={archiveModalOpen}
+          onOpenChange={setArchiveModalOpen}
+          workspaceId={workspaceId}
+          project={project}
+        />
+      )}
     </div>
   );
 }

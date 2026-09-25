@@ -19,8 +19,8 @@
 | **Phase 0** | Security, Dependencies & Core Foundations | **P0** | 🟢 Complete | 7 / 7 |
 | **Phase 1** | Routing, Permissions & Data Integrity | **P0** | 🟢 Complete | 8 / 8 |
 | **Phase 2** | Design System & Missing Primitives | **P1** | 🟢 Complete | 7 / 7 |
-| **Phase 3** | UX Declutter, Dashboard & Performance | **P1 / P2** | ⚪ Pending | 0 / 6 |
-| **Total** | **All Remediation Tracks** | — | — | **22 / 28** |
+| **Phase 3** | UX Declutter, Dashboard & Performance | **P1 / P2** | 🟢 Complete | 6 / 6 |
+| **Total** | **All Remediation Tracks** | — | 🟢 **All Remediations Complete** | **28 / 28** |
 
 ---
 
@@ -76,24 +76,24 @@
 ### Phase 3: UX Declutter, Dashboard & Performance (P1 / P2)
 *Goal: Realign executive dashboard around personal actionable work, eliminate dead UI elements, and split heavy client bundles.*
 
-- [ ] **DASH-01**: Refactor Workspace Home/Dashboard:
+- [x] **DASH-01**: Refactor Workspace Home/Dashboard:
   - Add "My Work" section (assigned tasks due soon/overdue)
   - Keep Overdue tasks alert and Member Workload breakdown
   - Remove vanity "Workspace Scale" card, hardcoded "ACTIVE" badge, and duplicate "Workspace Operations" buttons
   ([Audit 1: Section 8](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#8-dashboard-findings), [Audit 2: 4.1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#4-medium-priority-issues)).
-- [ ] **NAV-01**: Clean up redundant navigation:
+- [x] **NAV-01**: Clean up redundant navigation:
   - Build breadcrumbs from real entity names (Workspace › Project › Board)
   - Remove duplicate "Back to..." buttons
   - Remove placeholder project "Activity" tab and redundant `/projects/:id/backlog` route
   ([Audit 1: 3.3, 3.4](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/01_UX_INFORMATION_ARCHITECTURE_AUDIT.md#33-breadcrumbs-are-built-from-raw-url-segments)).
-- [ ] **RESP-01**: Fix mobile viewport cutoff: replace `h-screen` with `dvh` in app shell; add `max-h-[85dvh] overflow-y-auto` to all dialogs so submit buttons cannot be hidden offscreen ([Audit 3: 3.1, 3.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#31-the-app-shell-uses-h-screen-100vh)).
-- [ ] **PERF-01**: Implement route-level dynamic imports with `next/dynamic` for heavy components:
+- [x] **RESP-01**: Fix mobile viewport cutoff: replace `h-screen` with `dvh` in app shell; add `max-h-[85dvh] overflow-y-auto` to all dialogs so submit buttons cannot be hidden offscreen ([Audit 3: 3.1, 3.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#31-the-app-shell-uses-h-screen-100vh)).
+- [x] **PERF-01**: Implement route-level dynamic imports with `next/dynamic` for heavy components:
   - Task Detail Sheet (saves ~38 KB gzip on board/backlog load)
   - Form dialogs (Workspace Create, Project Create, Invite Modal)
   - Command Palette modal (`SearchCommandModal`)
   ([Audit 5: H1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/05_FRONTEND_PERFORMANCE_AUDIT.md#h1-there-are-no-dynamic-imports-so-heavy-modules-load-eagerly-measured)).
-- [ ] **PERF-02**: Decouple public landing & auth routes from the authenticated runtime: move `SocketProvider` and Axios to `(dashboard)` layout so public pages do not ship socket/API client bundles ([Audit 5: H2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/05_FRONTEND_PERFORMANCE_AUDIT.md#h2-the-landing-and-auth-pages-ship-the-whole-app-runtime-measured)).
-- [ ] **POLISH-01**: Remove fake enterprise social proof, mock uptime numbers, and dead legal links from public marketing landing page ([Audit 2: 3.8](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#38-auth-and-landing-pages-use-a-separate-visual-language), [Audit 6: 1. Executive Summary](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/06_SECURITY_PRODUCTION_READINESS_AUDIT.md#1-executive-summary)).
+- [x] **PERF-02**: Decouple public landing & auth routes from the authenticated runtime: move `SocketProvider` and Axios to `(dashboard)` layout so public pages do not ship socket/API client bundles ([Audit 5: H2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/05_FRONTEND_PERFORMANCE_AUDIT.md#h2-the-landing-and-auth-pages-ship-the-whole-app-runtime-measured)).
+- [x] **POLISH-01**: Remove fake enterprise social proof, mock uptime numbers, and dead legal links from public marketing landing page ([Audit 2: 3.8](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#38-auth-and-landing-pages-use-a-separate-visual-language), [Audit 6: 1. Executive Summary](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/06_SECURITY_PRODUCTION_READINESS_AUDIT.md#1-executive-summary)).
 
 ---
 

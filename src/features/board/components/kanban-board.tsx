@@ -45,10 +45,19 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { DragDropProvider, DragOverlay, type DragStartEvent, type DragEndEvent } from '@dnd-kit/react';
 import { useMoveTask, useDeleteTask } from '@/features/task/hooks';
-import { CreateTaskModal } from '@/features/task/components/create-task-modal';
-import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
+import dynamic from 'next/dynamic';
 import { TaskCard } from '@/features/task/components/task-card';
 import type { Task, PaginatedTasksResponse } from '@/features/task/types/task.types';
+
+const CreateTaskModal = dynamic(
+  () => import('@/features/task/components/create-task-modal').then((mod) => mod.CreateTaskModal),
+  { ssr: false },
+);
+
+const TaskDetailSheet = dynamic(
+  () => import('@/features/task/components/task-detail-sheet').then((mod) => mod.TaskDetailSheet),
+  { ssr: false },
+);
 
 interface KanbanBoardProps {
   workspaceId: string;
@@ -870,27 +879,31 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           />
 
           {/* Create Task Modal */}
-          <CreateTaskModal
-            open={createTaskModalOpen}
-            onOpenChange={setCreateTaskModalOpen}
-            workspaceId={workspaceId}
-            projectId={projectId}
-            boardId={activeBoard.id}
-            columnId={createTaskColumnId || columns[0]?.id || ''}
-            columns={columns.map((c) => ({ id: c.id, title: c.title }))}
-          />
+          {createTaskModalOpen && (
+            <CreateTaskModal
+              open={createTaskModalOpen}
+              onOpenChange={setCreateTaskModalOpen}
+              workspaceId={workspaceId}
+              projectId={projectId}
+              boardId={activeBoard.id}
+              columnId={createTaskColumnId || columns[0]?.id || ''}
+              columns={columns.map((c) => ({ id: c.id, title: c.title }))}
+            />
+          )}
 
           {/* Task Detail Sheet */}
-          <TaskDetailSheet
-            taskIdOrKey={selectedTaskIdOrKey}
-            open={taskDetailOpen}
-            onOpenChange={handleCloseTaskDetail}
-            workspaceId={workspaceId}
-            projectId={projectId}
-            boardId={activeBoard.id}
-            columns={columns.map((c) => ({ id: c.id, title: c.title }))}
-            canManage={permissions.canEditTask}
-          />
+          {taskDetailOpen && (
+            <TaskDetailSheet
+              taskIdOrKey={selectedTaskIdOrKey}
+              open={taskDetailOpen}
+              onOpenChange={handleCloseTaskDetail}
+              workspaceId={workspaceId}
+              projectId={projectId}
+              boardId={activeBoard.id}
+              columns={columns.map((c) => ({ id: c.id, title: c.title }))}
+              canManage={permissions.canEditTask}
+            />
+          )}
         </>
       )}
     </div>

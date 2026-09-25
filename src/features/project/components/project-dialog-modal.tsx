@@ -145,7 +145,7 @@ export function ProjectDialogModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl max-h-[90dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <FolderKanban className="h-5 w-5 text-primary" />

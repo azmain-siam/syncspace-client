@@ -92,7 +92,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row">
+    <main className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Decorative Glow */}
@@ -106,9 +106,9 @@ export function RegisterForm() {
         {/* Center Copy & Showcase Mockup */}
         <div className="space-y-8 my-auto max-w-lg mx-auto text-left">
           <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <p className="text-4xl font-extrabold tracking-tight text-white leading-tight">
               Collaborate in real-time, across any distance.
-            </h1>
+            </p>
             <p className="text-sm text-white/70 leading-relaxed font-normal">
               Experience frictionless teamwork with our proprietary sync engine. From wireframes to deep work, SyncSpace keeps your team in flow.
             </p>
@@ -414,11 +414,15 @@ export function RegisterForm() {
         <div className="w-full max-w-100 mx-auto pt-6 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace Technologies.</div>
           <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer">Security</span>
-            <span className="hover:text-foreground cursor-pointer">Help Center</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

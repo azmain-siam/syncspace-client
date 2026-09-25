@@ -7,9 +7,14 @@ import { Button } from '@/components/ui/button';
 import { UserProfileMenu } from '@/features/workspace/components/user-profile-menu';
 import { useSocket } from '@/providers/socket-provider';
 import { NotificationPopover } from '@/features/notification';
+import dynamic from 'next/dynamic';
 import { Breadcrumb } from './breadcrumb';
-import { SearchCommandModal } from './search-command-modal';
 import { ThemeToggle } from './theme-toggle';
+
+const SearchCommandModal = dynamic(
+  () => import('./search-command-modal').then((mod) => mod.SearchCommandModal),
+  { ssr: false },
+);
 
 interface HeaderProps {
   onMenuToggle?: () => void;

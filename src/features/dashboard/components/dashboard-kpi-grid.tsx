@@ -2,15 +2,11 @@
 
 import * as React from 'react';
 import {
-  Activity,
   AlertTriangle,
   CheckCircle2,
   Clock,
-  FolderKanban,
   Layers,
-  Sparkles,
   Timer,
-  Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,13 +34,10 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
   }
 
   const {
-    projectsCount = 0,
     totalTasks = 0,
     completedTasks = 0,
     inProgressTasks = 0,
     overdueTasks = 0,
-    membersCount = 0,
-    activitiesCount = 0,
     completionPercentage = 0,
     totalStoryPoints = 0,
     completedStoryPoints = 0,
@@ -60,21 +53,21 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* 1. Total Tasks & Completion Rate */}
-      <Card className="rounded-2xl border-border bg-card hover:border-primary/40 transition-all duration-200">
-        <CardContent className="p-5 sm:p-6 flex flex-col justify-between h-full space-y-4">
+      {/* 1. Total Deliverables & Completion Rate */}
+      <Card className="rounded-2xl border-border bg-card shadow-xs">
+        <CardContent className="p-5 flex flex-col justify-between h-full space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Total Tasks
+              Total Deliverables
             </span>
-            <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <div className="p-2 rounded-xl bg-primary/10 text-primary">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-3xl font-extrabold tracking-tight text-foreground font-mono">
+              <span className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
                 {totalTasks.toLocaleString()}
               </span>
               <Badge
@@ -82,7 +75,7 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
                 className={cn(
                   'text-[11px] font-semibold px-2 py-0.5 rounded-full border',
                   safeCompletionRate >= 70
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
                     : 'bg-primary/10 text-primary border-primary/20',
                 )}
               >
@@ -90,7 +83,6 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
               </Badge>
             </div>
 
-            {/* Custom high-performance progress bar */}
             <div
               className="h-2 w-full rounded-full bg-muted/60 overflow-hidden"
               role="progressbar"
@@ -101,9 +93,7 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
               <div
                 className={cn(
                   'h-full rounded-full transition-all duration-700 ease-out',
-                  safeCompletionRate >= 70
-                    ? 'bg-emerald-500'
-                    : 'bg-primary',
+                  safeCompletionRate >= 70 ? 'bg-emerald-500' : 'bg-primary',
                 )}
                 style={{ width: `${safeCompletionRate}%` }}
               />
@@ -111,89 +101,124 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
-            <span>Completed</span>
-            <span className="font-semibold text-foreground">
-              {completedTasks.toLocaleString()} of {totalTasks.toLocaleString()}
+            <span>Progress</span>
+            <span className="font-semibold text-foreground tabular-nums">
+              {completedTasks.toLocaleString()} / {totalTasks.toLocaleString()} completed
             </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* 2. Active Execution & Overdue Tasks */}
-      <Card className="rounded-2xl border-border bg-card hover:border-primary/40 transition-all duration-200">
-        <CardContent className="p-5 sm:p-6 flex flex-col justify-between h-full space-y-4">
+      {/* 2. Active Execution (In Progress) */}
+      <Card className="rounded-2xl border-border bg-card shadow-xs">
+        <CardContent className="p-5 flex flex-col justify-between h-full space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Active Execution
+              In Progress
             </span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300">
               <Clock className="h-4 w-4" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-extrabold tracking-tight text-foreground font-mono">
-                  {inProgressTasks.toLocaleString()}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">in progress</span>
-              </div>
-              {overdueTasks > 0 ? (
-                <Badge
-                  variant="danger"
-                  className="gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                >
-                  <AlertTriangle className="h-3 w-3" />
-                  {overdueTasks} overdue
-                </Badge>
-              ) : (
-                <Badge
-                  variant="success"
-                  className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                >
-                  On Track
-                </Badge>
-              )}
+              <span className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
+                {inProgressTasks.toLocaleString()}
+              </span>
+              <span className="text-xs text-muted-foreground font-medium">active tasks</span>
             </div>
-
-            {/* In Progress vs Backlog distribution */}
-            <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-amber-500 transition-all duration-700 ease-out"
-                style={{
-                  width: `${
-                    totalTasks > 0
-                      ? Math.min(100, Math.round((inProgressTasks / totalTasks) * 100))
-                      : 0
-                  }%`,
-                }}
-              />
-            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Items actively in flight on team Kanban boards
+            </p>
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
-            <span>Overdue Alert</span>
-            <span
-              className={cn(
-                'font-semibold',
-                overdueTasks > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400',
-              )}
-            >
-              {overdueTasks > 0 ? `${overdueTasks} urgent attention` : '0 overdue tasks'}
+            <span>Workload ratio</span>
+            <span className="font-semibold text-foreground tabular-nums">
+              {totalTasks > 0 ? Math.round((inProgressTasks / totalTasks) * 100) : 0}% of all tasks
             </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* 3. Story Points & Velocity */}
-      <Card className="rounded-2xl border-border bg-card hover:border-primary/40 transition-all duration-200">
-        <CardContent className="p-5 sm:p-6 flex flex-col justify-between h-full space-y-4">
+      {/* 3. Actionable Overdue Tasks Alert */}
+      <Card
+        className={cn(
+          'rounded-2xl border bg-card shadow-xs transition-colors',
+          overdueTasks > 0 ? 'border-destructive/40 bg-destructive/5' : 'border-border',
+        )}
+      >
+        <CardContent className="p-5 flex flex-col justify-between h-full space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Story Points
+              Overdue Alert
             </span>
-            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+            <div
+              className={cn(
+                'p-2 rounded-xl',
+                overdueTasks > 0
+                  ? 'bg-destructive/15 text-destructive'
+                  : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+              )}
+            >
+              {overdueTasks > 0 ? (
+                <AlertTriangle className="h-4 w-4" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span
+                className={cn(
+                  'text-3xl font-extrabold tracking-tight tabular-nums',
+                  overdueTasks > 0 ? 'text-destructive' : 'text-foreground',
+                )}
+              >
+                {overdueTasks.toLocaleString()}
+              </span>
+              <Badge
+                variant={overdueTasks > 0 ? 'danger' : 'default'}
+                className={cn(
+                  'text-[11px] font-semibold px-2 py-0.5 rounded-full',
+                  overdueTasks === 0 && 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20',
+                )}
+              >
+                {overdueTasks > 0 ? 'Action Required' : 'On Track'}
+              </Badge>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {overdueTasks > 0
+                ? 'Tasks past their due date requiring attention'
+                : 'Zero overdue tasks across the workspace'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+            <span>Status</span>
+            <span
+              className={cn(
+                'font-semibold',
+                overdueTasks > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-300',
+              )}
+            >
+              {overdueTasks > 0 ? 'Attention Needed' : 'All Clear'}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 4. Velocity & Estimation Effort */}
+      <Card className="rounded-2xl border-border bg-card shadow-xs">
+        <CardContent className="p-5 flex flex-col justify-between h-full space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Effort &amp; Velocity
+            </span>
+            <div className="p-2 rounded-xl bg-primary/10 text-primary">
               <Layers className="h-4 w-4" />
             </div>
           </div>
@@ -201,16 +226,16 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
           <div className="space-y-2">
             <div className="flex items-baseline justify-between gap-2">
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold tracking-tight text-foreground font-mono">
+                <span className="text-3xl font-extrabold tracking-tight text-foreground tabular-nums">
                   {completedStoryPoints.toLocaleString()}
                 </span>
-                <span className="text-sm font-semibold text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   / {totalStoryPoints.toLocaleString()} SP
                 </span>
               </div>
               <Badge
                 variant="default"
-                className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20"
               >
                 {spCompletionRate}% SP
               </Badge>
@@ -224,7 +249,7 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
               aria-valuemax={100}
             >
               <div
-                className="h-full rounded-full bg-indigo-500 dark:bg-indigo-400 transition-all duration-700 ease-out"
+                className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
                 style={{ width: `${Math.min(100, Math.max(0, spCompletionRate))}%` }}
               />
             </div>
@@ -232,68 +257,12 @@ export function DashboardKpiGrid({ summary, isLoading }: DashboardKpiGridProps) 
 
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
             <span className="flex items-center gap-1">
-              <Timer className="h-3 w-3" /> Effort
+              <Timer className="h-3 w-3" /> Hours
             </span>
-            <span className="font-semibold text-foreground font-mono">
+            <span className="font-semibold text-foreground tabular-nums">
               {totalEstimatedHours > 0
                 ? `${totalEstimatedHours.toLocaleString(undefined, { maximumFractionDigits: 1 })}h estimated`
-                : '0h logged'}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 4. Workspace Scale */}
-      <Card className="rounded-2xl border-border bg-card hover:border-primary/40 transition-all duration-200">
-        <CardContent className="p-5 sm:p-6 flex flex-col justify-between h-full space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Workspace Scale
-            </span>
-            <div className="p-2 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
-              <FolderKanban className="h-4 w-4" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-extrabold tracking-tight text-foreground font-mono">
-                  {projectsCount.toLocaleString()}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">projects</span>
-              </div>
-              <Badge
-                variant="default"
-                className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 flex items-center gap-1"
-              >
-                <Sparkles className="h-2.5 w-2.5" /> Active
-              </Badge>
-            </div>
-
-            {/* Dual sub-metric chips */}
-            <div className="grid grid-cols-2 gap-2 pt-0.5">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/40 border border-border/60 text-xs">
-                <Users className="h-3 w-3 text-muted-foreground shrink-0" />
-                <span className="font-semibold text-foreground font-mono">
-                  {membersCount}
-                </span>
-                <span className="text-muted-foreground text-[10px]">members</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/40 border border-border/60 text-xs">
-                <Activity className="h-3 w-3 text-muted-foreground shrink-0" />
-                <span className="font-semibold text-foreground font-mono">
-                  {activitiesCount.toLocaleString()}
-                </span>
-                <span className="text-muted-foreground text-[10px]">events</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
-            <span>Collaborative Scope</span>
-            <span className="font-semibold text-foreground">
-              {membersCount > 0 ? `${membersCount} active peers` : 'Solo workspace'}
+                : '0h estimated'}
             </span>
           </div>
         </CardContent>

@@ -15,7 +15,12 @@ import {
   Search,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
+import dynamic from 'next/dynamic';
+
+const TaskDetailSheet = dynamic(
+  () => import('@/features/task/components/task-detail-sheet').then((mod) => mod.TaskDetailSheet),
+  { ssr: false },
+);
 import { useMyTasks } from '@/features/task/hooks/use-my-tasks';
 import type { Task, TaskPriority, TaskStatus } from '@/features/task/types/task.types';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
@@ -506,14 +511,16 @@ export default function MyTasksPage({
       )}
 
       {/* Task Detail Sheet */}
-      <TaskDetailSheet
-        taskIdOrKey={selectedTaskIdOrKey}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        workspaceId={workspaceId}
-        projectId={selectedTaskProject}
-        canManage={true}
-      />
+      {detailOpen && (
+        <TaskDetailSheet
+          taskIdOrKey={selectedTaskIdOrKey}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          workspaceId={workspaceId}
+          projectId={selectedTaskProject}
+          canManage={true}
+        />
+      )}
     </div>
   );
 }

@@ -1,48 +1,25 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import * as React from 'react';
-import { use, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-
-function ProjectBoardRedirectContent({
+export default async function ProjectBoardRedirectPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ workspaceSlug: string; projectId: string; boardId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { workspaceSlug, projectId, boardId } = use(params);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { workspaceSlug, projectId, boardId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const q = new URLSearchParams();
 
-  useEffect(() => {
-    const q = new URLSearchParams(searchParams.toString());
-    q.set('tab', 'boards');
-    q.set('board', boardId);
-    router.replace(`/workspaces/${workspaceSlug}/projects/${projectId}?${q.toString()}`);
-  }, [workspaceSlug, projectId, boardId, router, searchParams]);
+  for (const [key, val] of Object.entries(resolvedSearchParams)) {
+    if (typeof val === 'string') {
+      q.set(key, val);
+    } else if (Array.isArray(val)) {
+      val.forEach((v) => q.append(key, v));
+    }
+  }
 
-  return (
-    <div className="flex min-h-[50vh] w-full items-center justify-center">
-      <div className="flex flex-col items-center gap-2.5">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        <span className="text-xs text-muted-foreground">Opening board...</span>
-      </div>
-    </div>
-  );
-}
-
-export default function ProjectBoardRedirectPage(props: {
-  params: Promise<{ workspaceSlug: string; projectId: string; boardId: string }>;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[50vh] w-full items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        </div>
-      }
-    >
-      <ProjectBoardRedirectContent {...props} />
-    </Suspense>
-  );
+  q.set('tab', 'boards');
+  q.set('board', boardId);
+  redirect(`/workspaces/${workspaceSlug}/projects/${projectId}?${q.toString()}`);
 }

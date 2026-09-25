@@ -3,8 +3,6 @@ import { Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
-import { SocketProvider } from '@/providers/socket-provider';
-import { NotificationToastListener } from '@/features/notification';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -37,11 +35,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <SocketProvider>
-              {children}
-              <NotificationToastListener />
-              <Toaster position="top-right" richColors />
-            </SocketProvider>
+            {children}
+            <Toaster position="top-right" richColors />
           </QueryProvider>
         </ThemeProvider>
       </body>
