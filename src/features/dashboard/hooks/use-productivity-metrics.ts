@@ -1,18 +1,27 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../api/dashboard.api';
 import { dashboardKeys } from './dashboard-keys';
-import type { ProductivityMetricsResponse } from '../types/dashboard.types';
+import type { AnalyticsInterval, ProductivityMetricsResponse } from '../types/dashboard.types';
 
-export function useProductivityMetrics(workspaceId: string, days = 30) {
+export function useProductivityMetrics(
+  workspaceId: string,
+  days = 30,
+  interval: AnalyticsInterval = 'day',
+  enabled = true,
+) {
   return useQuery<ProductivityMetricsResponse>({
-    queryKey: dashboardKeys.productivity(workspaceId, days),
+    queryKey: dashboardKeys.productivity(workspaceId, days, interval),
     queryFn: async () => {
-      const response = await dashboardApi.getProductivityMetrics(workspaceId, { days });
+      const response = await dashboardApi.getProductivityMetrics(workspaceId, {
+        days,
+        interval,
+      });
       return response.data;
     },
-    enabled: Boolean(workspaceId),
-    staleTime: 30000,
+    enabled: Boolean(workspaceId) && enabled,
+    staleTime: 60000,
+    placeholderData: keepPreviousData,
   });
 }

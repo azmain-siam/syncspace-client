@@ -45,6 +45,9 @@ export interface WorkspacePermissions {
   // Sprint & Agile backlog permissions (Module 08: Owner, Admin, & Member)
   canManageSprints: boolean;
 
+  // Executive dashboard analytics (Module 13: Owner, Admin, Member — not Guest)
+  canViewWorkspaceAnalytics: boolean;
+
   // Loading state
   isLoading: boolean;
 }
@@ -94,6 +97,7 @@ export function useWorkspacePermissions(workspaceId?: string | null): WorkspaceP
         canManageAttachments: false,
         canManageLinks: false,
         canManageSprints: false,
+        canViewWorkspaceAnalytics: false,
         isLoading: membersLoading,
       };
     }
@@ -118,6 +122,10 @@ export function useWorkspacePermissions(workspaceId?: string | null): WorkspaceP
     const isAdmin = isOwner || role === WorkspaceRole.ADMIN;
     const isMember = isAdmin || role === WorkspaceRole.MEMBER;
     const isGuest = role === WorkspaceRole.GUEST;
+    const hasExplicitMembership = Boolean(
+      isDirectOwner || currentMember || activeWorkspace?.ownerId === currentUser.id,
+    );
+    const isRoleResolved = !membersLoading && Boolean(currentUser && effectiveWorkspaceId);
 
     return {
       role,
@@ -159,6 +167,9 @@ export function useWorkspacePermissions(workspaceId?: string | null): WorkspaceP
 
       // Sprint Level (Per Backend Contract 08)
       canManageSprints: isMember,
+
+      canViewWorkspaceAnalytics:
+        isRoleResolved && !isGuest && hasExplicitMembership,
 
       isLoading: membersLoading,
     };

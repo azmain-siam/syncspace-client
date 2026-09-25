@@ -7,6 +7,7 @@ import {
   Activity,
   CheckSquare,
   FolderKanban,
+  ListTodo,
   LayoutDashboard,
   Settings,
   Users,
@@ -39,6 +40,12 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           label: 'Projects',
           href: workspaceSlug ? `/workspaces/${workspaceSlug}/projects` : '/projects',
           icon: FolderKanban,
+          exact: false,
+        },
+        {
+          label: 'Tasks',
+          href: workspaceSlug ? `/workspaces/${workspaceSlug}/tasks` : '/tasks',
+          icon: ListTodo,
           exact: false,
         },
         {

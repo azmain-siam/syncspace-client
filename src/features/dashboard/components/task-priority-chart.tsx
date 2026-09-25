@@ -14,10 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { TaskDistributionResponse } from '../types/dashboard.types';
 import type { TaskPriority } from '@/types/domain';
+import { DashboardQueryError } from './dashboard-query-state';
 
 interface TaskPriorityChartProps {
   distribution?: TaskDistributionResponse;
   isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
+  onSelectPriority?: (priority: TaskPriority) => void;
 }
 
 interface PriorityConfig {
@@ -61,7 +65,13 @@ const PRIORITY_CONFIGS: Record<TaskPriority, PriorityConfig> = {
 
 const ORDERED_PRIORITIES: TaskPriority[] = ['URGENT', 'HIGH', 'MEDIUM', 'LOW'];
 
-export function TaskPriorityChart({ distribution, isLoading }: TaskPriorityChartProps) {
+export function TaskPriorityChart({
+  distribution,
+  isLoading,
+  isError,
+  onRetry,
+  onSelectPriority,
+}: TaskPriorityChartProps) {
   if (isLoading) {
     return (
       <Card className="rounded-2xl border-border bg-card p-6 space-y-4 animate-pulse">
@@ -77,7 +87,11 @@ export function TaskPriorityChart({ distribution, isLoading }: TaskPriorityChart
     );
   }
 
-  const rawByPriority = distribution?.byPriority || [];
+  if (isError || !distribution) {
+    return <DashboardQueryError title="priority distribution" onRetry={onRetry} />;
+  }
+
+  const rawByPriority = distribution.byPriority || [];
   const priorityMap = new Map<TaskPriority, number>();
   let totalTasks = 0;
 
@@ -148,9 +162,13 @@ export function TaskPriorityChart({ distribution, isLoading }: TaskPriorityChart
             const Icon = config.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={priority}
-                className="p-3.5 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors flex flex-col justify-between space-y-2"
+                onClick={() => onSelectPriority?.(priority)}
+                disabled={!onSelectPriority || count === 0}
+                aria-label={`View ${count} ${config.label} priority tasks`}
+                className="p-3.5 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors flex flex-col justify-between space-y-2 text-left disabled:opacity-60 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">
@@ -169,7 +187,7 @@ export function TaskPriorityChart({ distribution, isLoading }: TaskPriorityChart
                     {percentage}%
                   </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

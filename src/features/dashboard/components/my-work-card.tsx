@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import dynamic from 'next/dynamic';
 
@@ -88,12 +89,21 @@ export function MyWorkCard({ workspaceId, workspaceSlug }: MyWorkCardProps) {
                 My Work &amp; Deliverables
               </CardTitle>
               {attentionTasks.length > 0 && (
-                <Badge
-                  variant="danger"
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                >
-                  {attentionTasks.length} need attention
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <Badge
+                        variant="danger"
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      >
+                        {attentionTasks.length} my attention
+                      </Badge>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    Your overdue, due-today, or urgent tasks — not the workspace overdue KPI.
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
             <CardDescription className="text-xs text-muted-foreground mt-1">
