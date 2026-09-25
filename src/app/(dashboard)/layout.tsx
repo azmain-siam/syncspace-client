@@ -41,8 +41,8 @@ export default function DashboardLayout({
             <Header onMenuToggle={() => setMobileMenuOpen(true)} />
 
             {/* Main View Area */}
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto space-y-6">
+            <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+              <div className="w-full max-w-none space-y-6">
                 {children}
               </div>
             </main>

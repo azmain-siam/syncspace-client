@@ -61,7 +61,7 @@ export default function WorkspaceAuditLogsPage({
 
   if (wsLoading && !workspace) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         <div className="h-20 rounded-2xl bg-card animate-pulse border border-border" />
         <div className="h-96 rounded-2xl bg-card animate-pulse border border-border" />
       </div>
@@ -92,7 +92,7 @@ export default function WorkspaceAuditLogsPage({
   const meta = data?.meta;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Settings Navigation Header */}
       <WorkspaceSettingsNav
         workspaceSlug={workspaceSlug}

@@ -129,7 +129,7 @@ export default function WorkspaceTrashPage({
 
   if (wsLoading && !workspace) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         <div className="h-20 rounded-2xl bg-card animate-pulse border border-border" />
         <TrashSkeleton count={5} />
       </div>
@@ -161,7 +161,7 @@ export default function WorkspaceTrashPage({
   const totalItems = meta?.total ?? 0;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Settings Navigation Header */}
       <WorkspaceSettingsNav
         workspaceSlug={workspaceSlug}

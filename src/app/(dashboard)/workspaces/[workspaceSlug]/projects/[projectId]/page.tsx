@@ -74,7 +74,7 @@ function ProjectDetailsContent({
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="w-full space-y-6">
         <div className="h-36 w-full rounded-2xl border border-border bg-card animate-pulse" />
         <div className="h-64 w-full rounded-2xl border border-border bg-card animate-pulse" />
       </div>
@@ -108,7 +108,7 @@ function ProjectDetailsContent({
   ] as const;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="w-full space-y-6">
       {/* Project Details Header Card */}
       <div className="relative rounded-2xl border border-border bg-card p-6 sm:p-8 overflow-hidden space-y-6 shadow-xs">
         {/* Accent Strip */}
@@ -261,7 +261,7 @@ export default function ProjectDetailsPage(props: {
   return (
     <Suspense
       fallback={
-        <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="w-full space-y-6">
           <div className="h-36 w-full rounded-2xl border border-border bg-card animate-pulse" />
           <div className="h-64 w-full rounded-2xl border border-border bg-card animate-pulse" />
         </div>
