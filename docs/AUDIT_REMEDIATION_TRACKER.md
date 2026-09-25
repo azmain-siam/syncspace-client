@@ -18,9 +18,9 @@
 | :--- | :--- | :---: | :---: | :---: |
 | **Phase 0** | Security, Dependencies & Core Foundations | **P0** | 🟢 Complete | 7 / 7 |
 | **Phase 1** | Routing, Permissions & Data Integrity | **P0** | 🟢 Complete | 8 / 8 |
-| **Phase 2** | Design System & Missing Primitives | **P1** | ⚪ Pending | 0 / 7 |
+| **Phase 2** | Design System & Missing Primitives | **P1** | 🟡 In Progress | 1 / 7 |
 | **Phase 3** | UX Declutter, Dashboard & Performance | **P1 / P2** | ⚪ Pending | 0 / 6 |
-| **Total** | **All Remediation Tracks** | — | — | **15 / 28** |
+| **Total** | **All Remediation Tracks** | — | — | **16 / 28** |
 
 ---
 
@@ -56,11 +56,12 @@
 ### Phase 2: Design System & Missing Primitives (P1)
 *Goal: Build missing core UI primitives, eliminate 390 raw color classes, restore keyboard accessibility, and enforce WCAG contrast.*
 
-- [ ] **PRIM-01**: Implement missing Radix UI primitives:
+- [x] **PRIM-01**: Implement missing Radix UI primitives:
   - `Select` (replaces ~14 divergent native `<select>` tags)
   - `Tooltip` (replaces raw `title=""` attributes)
   - `AlertDialog` (replaces browser native `confirm()` in task detail sheet)
   - `Tabs` (replaces 4 fragmented tab patterns)
+  - `Popover` (replaces nested dropdown traps in popovers)
   - `EmptyState` & `ErrorState` reusable primitives
   ([Audit 2: 3.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#33-missing-primitives-cause-visual-fragmentation)).
 - [ ] **TOK-01**: Align design tokens and semantic colors: resolve discrepancies between `.ai/DESIGN_SYSTEM.md` and `globals.css`, eliminating 390 ad-hoc palette classes ([Audit 2: 1. Executive Summary](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#1-executive-summary)).

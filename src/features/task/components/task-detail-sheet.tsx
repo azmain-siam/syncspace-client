@@ -36,6 +36,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { CommentThread } from '@/features/comment';
 import { TaskActivityHistory } from '@/features/safety';
@@ -159,6 +169,7 @@ export function TaskDetailSheet({
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [copiedKey, setCopiedKey] = React.useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<
     'comments' | 'checklists' | 'attachments' | 'links' | 'activity'
   >('comments');
@@ -255,14 +266,18 @@ export function TaskDetailSheet({
 
   const handleDelete = () => {
     if (!task || !canDeleteResolved) return;
-    if (confirm(`Are you sure you want to delete task ${task.key}?`)) {
-      deleteMutation.mutate(task.id, {
-        onSuccess: () => {
-          onOpenChange(false);
-          onTaskDeleted?.();
-        },
-      });
-    }
+    setShowDeleteAlert(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!task) return;
+    deleteMutation.mutate(task.id, {
+      onSuccess: () => {
+        setShowDeleteAlert(false);
+        onOpenChange(false);
+        onTaskDeleted?.();
+      },
+    });
   };
 
   const formattedDueDate = task?.dueDate
@@ -729,6 +744,30 @@ export function TaskDetailSheet({
           </div>
         )}
       </SheetContent>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete task{' '}
+              <span className="font-semibold text-foreground">{task?.key}</span>?
+              This action cannot be undone and will permanently remove this task and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete Task'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   );
 }

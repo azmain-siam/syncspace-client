@@ -113,18 +113,13 @@ export function KanbanColumn({
         (isColumnDropTarget || isTaskDropTarget) && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
       )}
     >
-      {/* Column Header (serves as drag handle for column) */}
-      <div
-        ref={canManage ? handleRef : undefined}
-        className={cn(
-          'flex items-center justify-between gap-2 p-3.5 border-b border-border/60 select-none',
-          canManage && 'cursor-grab active:cursor-grabbing',
-        )}
-      >
+      {/* Column Header */}
+      <div className="flex items-center justify-between gap-2 p-3.5 border-b border-border/60 select-none">
         <div className="flex items-center gap-2 min-w-0">
           {canManage && (
             <div
-              className="text-muted-foreground/50 group-hover/column:text-muted-foreground transition-colors -ml-1 p-0.5 rounded hover:bg-muted"
+              ref={handleRef}
+              className="text-muted-foreground/50 group-hover/column:text-muted-foreground transition-colors -ml-1 p-0.5 rounded hover:bg-muted cursor-grab active:cursor-grabbing"
               title="Drag to reorder column"
             >
               <GripVertical className="h-4 w-4" />
@@ -146,10 +141,7 @@ export function KanbanColumn({
           </Badge>
         </div>
 
-        <div
-          className="flex items-center gap-1 shrink-0"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center gap-1 shrink-0">
           <ColumnActionMenu
             onEdit={() => onEditColumn(column)}
             onDelete={() => onDeleteColumn(column)}
