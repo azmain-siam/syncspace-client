@@ -21,44 +21,46 @@ import type { Task, TaskPriority, TaskStatus } from '@/features/task/types/task.
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { cn } from '@/lib/utils';
 
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from '@/lib/constants/task-theme';
+
 type FilterTab = 'ALL' | 'DUE_TODAY' | 'OVERDUE' | 'IN_PROGRESS' | 'DONE';
 type GroupBy = 'PROJECT' | 'STATUS' | 'PRIORITY' | 'DUE_DATE';
 
 const PRIORITY_BADGES: Record<TaskPriority, { label: string; className: string }> = {
   URGENT: {
-    label: 'Urgent',
-    className: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
+    label: TASK_PRIORITY_CONFIG.URGENT.label,
+    className: TASK_PRIORITY_CONFIG.URGENT.badgeClass,
   },
   HIGH: {
-    label: 'High',
-    className: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    label: TASK_PRIORITY_CONFIG.HIGH.label,
+    className: TASK_PRIORITY_CONFIG.HIGH.badgeClass,
   },
   MEDIUM: {
-    label: 'Medium',
-    className: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    label: TASK_PRIORITY_CONFIG.MEDIUM.label,
+    className: TASK_PRIORITY_CONFIG.MEDIUM.badgeClass,
   },
   LOW: {
-    label: 'Low',
-    className: 'bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30',
+    label: TASK_PRIORITY_CONFIG.LOW.label,
+    className: TASK_PRIORITY_CONFIG.LOW.badgeClass,
   },
 };
 
 const STATUS_BADGES: Record<TaskStatus, { label: string; className: string }> = {
   TODO: {
-    label: 'To Do',
-    className: 'bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30',
+    label: TASK_STATUS_CONFIG.TODO.label,
+    className: TASK_STATUS_CONFIG.TODO.badgeClass,
   },
   IN_PROGRESS: {
-    label: 'In Progress',
-    className: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    label: TASK_STATUS_CONFIG.IN_PROGRESS.label,
+    className: TASK_STATUS_CONFIG.IN_PROGRESS.badgeClass,
   },
   REVIEW: {
-    label: 'In Review',
-    className: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    label: TASK_STATUS_CONFIG.REVIEW.label,
+    className: TASK_STATUS_CONFIG.REVIEW.badgeClass,
   },
   DONE: {
-    label: 'Completed',
-    className: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+    label: TASK_STATUS_CONFIG.DONE.label,
+    className: TASK_STATUS_CONFIG.DONE.badgeClass,
   },
 };
 

@@ -98,11 +98,14 @@ export function CreateBoardModal({
               id="title"
               placeholder="e.g. Sprint Backlog, Engineering Kanban"
               className="h-11 rounded-xl"
+              error={Boolean(errors.title)}
+              aria-invalid={Boolean(errors.title)}
+              aria-describedby={errors.title ? 'board-title-error' : undefined}
               {...register('title')}
               autoFocus
             />
             {errors.title && (
-              <p className="text-xs font-medium text-destructive">
+              <p id="board-title-error" role="alert" className="text-xs font-medium text-destructive">
                 {errors.title.message}
               </p>
             )}

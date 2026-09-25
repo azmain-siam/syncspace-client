@@ -191,6 +191,7 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
                 {editingItemId === item.id ? (
                   <div className="flex flex-1 items-center gap-1.5">
                     <Input
+                      aria-label="Edit checklist item title"
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
                       onKeyDown={(e) => {
@@ -204,6 +205,7 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
                       type="button"
                       size="icon"
                       variant="ghost"
+                      aria-label="Save checklist item title"
                       className="size-6 text-emerald-600 hover:text-emerald-700"
                       onClick={() => handleSaveEdit(item.id)}
                     >
@@ -213,6 +215,7 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
                       type="button"
                       size="icon"
                       variant="ghost"
+                      aria-label="Cancel editing checklist item"
                       className="size-6 text-muted-foreground hover:text-foreground"
                       onClick={() => setEditingItemId(null)}
                     >
@@ -236,11 +239,12 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
 
               {/* Actions */}
               {canManage && editingItemId !== item.id && (
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-within:opacity-100 transition-opacity">
                   <button
                     type="button"
                     onClick={() => handleStartEdit(item)}
-                    className="rounded p-1 text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer"
+                    className="rounded p-1 text-muted-foreground/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden transition-colors cursor-pointer"
+                    aria-label="Edit item"
                     title="Edit item"
                   >
                     <Edit2 className="size-3" />
@@ -249,7 +253,8 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
                     type="button"
                     disabled={deleteMutation.isPending}
                     onClick={() => deleteMutation.mutate(item.id)}
-                    className="rounded p-1 text-muted-foreground/60 hover:text-destructive transition-colors cursor-pointer"
+                    className="rounded p-1 text-muted-foreground/60 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-hidden transition-colors cursor-pointer"
+                    aria-label="Delete item"
                     title="Delete item"
                   >
                     <Trash2 className="size-3" />
@@ -268,6 +273,7 @@ export function TaskChecklists({ taskId, canManage = true }: TaskChecklistsProps
             <form onSubmit={handleAddItem} className="flex items-center gap-2 pt-1">
               <Input
                 placeholder="Add checklist item..."
+                aria-label="Add checklist item"
                 value={newItemTitle}
                 onChange={(e) => setNewItemTitle(e.target.value)}
                 onKeyDown={(e) => {

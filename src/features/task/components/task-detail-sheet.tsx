@@ -58,6 +58,7 @@ import { useUpdateTask } from '../hooks/use-update-task';
 import { useTaskRealtime } from '../hooks/use-task-realtime';
 import type { Task, TaskPriority, TaskStatus } from '../types/task.types';
 import { useMoveTask } from '../hooks/use-move-task';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from '@/lib/constants/task-theme';
 import { mapColumnTitleToTaskStatus } from '../utils/task-status-mapper';
 import { TaskAttachments } from './task-attachments';
 import { TaskChecklists } from './task-checklists';
@@ -76,65 +77,7 @@ interface TaskDetailSheetProps {
   onTaskDeleted?: () => void;
 }
 
-const PRIORITY_CONFIG: Record<
-  TaskPriority,
-  { label: string; bg: string; text: string; border: string }
-> = {
-  URGENT: {
-    label: 'Urgent',
-    bg: 'bg-red-500/10',
-    text: 'text-red-600 dark:text-red-400',
-    border: 'border-red-500/30',
-  },
-  HIGH: {
-    label: 'High',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-500/30',
-  },
-  MEDIUM: {
-    label: 'Medium',
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-600 dark:text-blue-400',
-    border: 'border-blue-500/30',
-  },
-  LOW: {
-    label: 'Low',
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-600 dark:text-slate-400',
-    border: 'border-slate-500/30',
-  },
-};
 
-const STATUS_CONFIG: Record<
-  TaskStatus,
-  { label: string; bg: string; text: string; border: string }
-> = {
-  TODO: {
-    label: 'To Do',
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-600 dark:text-slate-400',
-    border: 'border-slate-500/30',
-  },
-  IN_PROGRESS: {
-    label: 'In Progress',
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-600 dark:text-blue-400',
-    border: 'border-blue-500/30',
-  },
-  REVIEW: {
-    label: 'In Review',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-500/30',
-  },
-  DONE: {
-    label: 'Completed',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    border: 'border-emerald-500/30',
-  },
-};
 
 export function TaskDetailSheet({
   taskIdOrKey,
@@ -346,13 +289,11 @@ export function TaskDetailSheet({
                         type="button"
                         className={cn(
                           'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold border transition-colors cursor-pointer',
-                          STATUS_CONFIG[task.status]?.bg,
-                          STATUS_CONFIG[task.status]?.text,
-                          STATUS_CONFIG[task.status]?.border,
+                          TASK_STATUS_CONFIG[task.status]?.badgeClass,
                         )}
                       >
                         <Kanban className="size-3" />
-                        <span>{columns.find((c) => c.id === task.columnId)?.title || STATUS_CONFIG[task.status]?.label}</span>
+                        <span>{columns.find((c) => c.id === task.columnId)?.title || TASK_STATUS_CONFIG[task.status]?.label}</span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
@@ -366,7 +307,7 @@ export function TaskDetailSheet({
                             onClick={() => handleMoveToColumn(col.id)}
                             className="text-xs cursor-pointer flex items-center justify-between"
                           >
-                            <span className={STATUS_CONFIG[colStatus]?.text}>
+                            <span className={TASK_STATUS_CONFIG[colStatus]?.badgeClass ? cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_STATUS_CONFIG[colStatus]?.badgeClass) : undefined}>
                               {col.title}
                             </span>
                             {task.columnId === col.id && <Check className="size-3 text-primary" />}
@@ -383,25 +324,23 @@ export function TaskDetailSheet({
                         type="button"
                         className={cn(
                           'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
-                          STATUS_CONFIG[task.status]?.bg,
-                          STATUS_CONFIG[task.status]?.text,
-                          STATUS_CONFIG[task.status]?.border,
+                          TASK_STATUS_CONFIG[task.status]?.badgeClass,
                         )}
                       >
-                        {STATUS_CONFIG[task.status]?.label}
+                        {TASK_STATUS_CONFIG[task.status]?.label}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                       <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map((st) => (
+                      {(Object.keys(TASK_STATUS_CONFIG) as TaskStatus[]).map((st) => (
                         <DropdownMenuItem
                           key={st}
                           onClick={() => handleStatusChange(st)}
                           className="text-xs cursor-pointer flex items-center justify-between"
                         >
-                          <span className={STATUS_CONFIG[st].text}>
-                            {STATUS_CONFIG[st].label}
+                          <span className={cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_STATUS_CONFIG[st].badgeClass)}>
+                            {TASK_STATUS_CONFIG[st].label}
                           </span>
                           {task.status === st && <Check className="size-3 text-primary" />}
                         </DropdownMenuItem>
@@ -417,25 +356,23 @@ export function TaskDetailSheet({
                       type="button"
                       className={cn(
                         'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
-                        PRIORITY_CONFIG[task.priority]?.bg,
-                        PRIORITY_CONFIG[task.priority]?.text,
-                        PRIORITY_CONFIG[task.priority]?.border,
+                        TASK_PRIORITY_CONFIG[task.priority]?.badgeClass,
                       )}
                     >
-                      {PRIORITY_CONFIG[task.priority]?.label}
+                      {TASK_PRIORITY_CONFIG[task.priority]?.label}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
                     <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {(Object.keys(PRIORITY_CONFIG) as TaskPriority[]).map((pr) => (
+                    {(Object.keys(TASK_PRIORITY_CONFIG) as TaskPriority[]).map((pr) => (
                       <DropdownMenuItem
                         key={pr}
                         onClick={() => handlePriorityChange(pr)}
                         className="text-xs cursor-pointer flex items-center justify-between"
                       >
-                        <span className={PRIORITY_CONFIG[pr].text}>
-                          {PRIORITY_CONFIG[pr].label}
+                        <span className={cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_PRIORITY_CONFIG[pr].badgeClass)}>
+                          {TASK_PRIORITY_CONFIG[pr].label}
                         </span>
                         {task.priority === pr && <Check className="size-3 text-primary" />}
                       </DropdownMenuItem>
@@ -489,6 +426,7 @@ export function TaskDetailSheet({
               {/* Task Title */}
               <div>
                 <Input
+                  aria-label="Task title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={handleTitleBlur}
@@ -599,6 +537,8 @@ export function TaskDetailSheet({
                     <Layers className="size-3" /> Story Points
                   </span>
                   <Input
+                    id="task-sheet-story-points"
+                    aria-label="Story Points"
                     type="number"
                     min="0"
                     max="100"
@@ -613,10 +553,11 @@ export function TaskDetailSheet({
 
               {/* Description */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-foreground">
+                <Label htmlFor="task-sheet-desc" className="text-xs font-semibold text-foreground">
                   Description
                 </Label>
                 <Textarea
+                  id="task-sheet-desc"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onBlur={handleDescriptionBlur}

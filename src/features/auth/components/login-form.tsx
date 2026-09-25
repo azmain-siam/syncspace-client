@@ -229,14 +229,17 @@ export function LoginForm() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="name@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   {...register("email")}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="email-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
@@ -258,9 +261,12 @@ export function LoginForm() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.password}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register("password")}
                 />
                 <button
@@ -277,7 +283,7 @@ export function LoginForm() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.password.message}
                 </p>
               )}

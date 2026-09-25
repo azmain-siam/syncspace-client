@@ -145,7 +145,7 @@ export function ProjectDialogModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
             <FolderKanban className="h-5 w-5 text-primary" />
@@ -162,10 +162,12 @@ export function ProjectDialogModal({
               placeholder="e.g. Mobile App Redesign"
               className="h-10 sm:h-11 rounded-lg"
               error={!!errors.title}
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? 'project-title-error' : undefined}
               {...register('title')}
             />
             {errors.title && (
-              <p className="text-xs text-danger font-medium">{errors.title.message}</p>
+              <p id="project-title-error" role="alert" className="text-xs text-danger font-medium">{errors.title.message}</p>
             )}
           </div>
 
@@ -176,10 +178,13 @@ export function ProjectDialogModal({
               id="project-desc"
               placeholder="Brief overview of project scope..."
               className="rounded-lg min-h-[80px] resize-none text-xs sm:text-sm"
+              error={!!errors.description}
+              aria-invalid={!!errors.description}
+              aria-describedby={errors.description ? 'project-desc-error' : undefined}
               {...register('description')}
             />
             {errors.description && (
-              <p className="text-xs text-danger font-medium">
+              <p id="project-desc-error" role="alert" className="text-xs text-danger font-medium">
                 {errors.description.message}
               </p>
             )}
@@ -195,6 +200,7 @@ export function ProjectDialogModal({
                 <button
                   key={color}
                   type="button"
+                  aria-label={`Select color ${color}`}
                   onClick={() => setValue('color', color, { shouldValidate: true })}
                   className="h-8 w-8 rounded-lg flex items-center justify-center border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring shrink-0"
                   style={{ backgroundColor: color }}
@@ -211,8 +217,9 @@ export function ProjectDialogModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Priority */}
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label htmlFor="project-priority">Priority</Label>
               <select
+                id="project-priority"
                 value={selectedPriority}
                 onChange={(e) =>
                   setValue('priority', e.target.value as ProjectPriority, {
@@ -231,8 +238,9 @@ export function ProjectDialogModal({
             {/* Status (If editing) */}
             {isEditing && (
               <div className="space-y-1.5">
-                <Label>Status</Label>
+                <Label htmlFor="project-status">Status</Label>
                 <select
+                  id="project-status"
                   value={selectedStatus}
                   onChange={(e) =>
                     setValue('status', e.target.value as ProjectStatus, {

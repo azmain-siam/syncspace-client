@@ -5,6 +5,13 @@ import { use, useState } from 'react';
 import { Filter, FolderKanban, Plus, RefreshCw, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
 import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
 import { ArchiveProjectModal } from '@/features/project/components/archive-project-modal';
@@ -109,35 +116,33 @@ export default function WorkspaceProjectsPage({
         {/* Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Priority Select */}
-          <div className="flex items-center gap-1.5 px-3 h-11 rounded-lg border border-border/80 bg-background text-xs font-semibold">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              className="bg-transparent focus:outline-none text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">All Priorities</option>
-              <option value={ProjectPriority.LOW}>Low</option>
-              <option value={ProjectPriority.MEDIUM}>Medium</option>
-              <option value={ProjectPriority.HIGH}>High</option>
-              <option value={ProjectPriority.CRITICAL}>Critical</option>
-            </select>
-          </div>
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="h-11 min-w-[145px] rounded-lg border-border/80 bg-background text-xs font-semibold gap-1.5 cursor-pointer">
+              <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <SelectValue placeholder="All Priorities" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Priorities</SelectItem>
+              <SelectItem value={ProjectPriority.LOW}>Low</SelectItem>
+              <SelectItem value={ProjectPriority.MEDIUM}>Medium</SelectItem>
+              <SelectItem value={ProjectPriority.HIGH}>High</SelectItem>
+              <SelectItem value={ProjectPriority.CRITICAL}>Critical</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Status Select */}
-          <div className="flex items-center gap-1.5 px-3 h-11 rounded-lg border border-border/80 bg-background text-xs font-semibold">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent focus:outline-none text-xs font-medium cursor-pointer"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value={ProjectStatus.PLANNING}>Planning</option>
-              <option value={ProjectStatus.ACTIVE}>Active</option>
-              <option value={ProjectStatus.ON_HOLD}>On Hold</option>
-              <option value={ProjectStatus.COMPLETED}>Completed</option>
-            </select>
-          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-11 min-w-[145px] rounded-lg border-border/80 bg-background text-xs font-semibold cursor-pointer">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Statuses</SelectItem>
+              <SelectItem value={ProjectStatus.PLANNING}>Planning</SelectItem>
+              <SelectItem value={ProjectStatus.ACTIVE}>Active</SelectItem>
+              <SelectItem value={ProjectStatus.ON_HOLD}>On Hold</SelectItem>
+              <SelectItem value={ProjectStatus.COMPLETED}>Completed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

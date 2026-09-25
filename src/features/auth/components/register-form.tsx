@@ -186,16 +186,19 @@ export function RegisterForm() {
                 <Input
                   id="name"
                   type="text"
+                  autoComplete="name"
                   placeholder="Alex Johnson"
                   className="pl-10 h-11"
                   error={!!errors.name}
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
                   {...register('name', {
                     onChange: handleNameChange,
                   })}
                 />
               </div>
               {errors.name && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="name-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.name.message}
                 </p>
               )}
@@ -212,9 +215,12 @@ export function RegisterForm() {
                 <Input
                   id="username"
                   type="text"
+                  autoComplete="username"
                   placeholder="alexj"
                   className="pl-10 h-11 font-mono text-sm"
                   error={!!errors.username}
+                  aria-invalid={!!errors.username}
+                  aria-describedby={errors.username ? 'username-error' : 'username-desc'}
                   {...register('username', {
                     onChange: () => {
                       usernameEditedRef.current = true;
@@ -223,11 +229,11 @@ export function RegisterForm() {
                 />
               </div>
               {errors.username ? (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="username-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.username.message}
                 </p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">
+                <p id="username-desc" className="text-[11px] text-muted-foreground">
                   Letters, numbers, underscores, and hyphens (3–30 characters).
                 </p>
               )}
@@ -241,16 +247,19 @@ export function RegisterForm() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="alex@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   {...register('email', {
                     onChange: handleEmailChange,
                   })}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="email-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
@@ -267,14 +276,17 @@ export function RegisterForm() {
                 <Input
                   id="phone"
                   type="tel"
+                  autoComplete="tel"
                   placeholder="+1 (555) 123-4567"
                   className="pl-10 h-11"
                   error={!!errors.phone}
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? 'phone-error' : undefined}
                   {...register('phone')}
                 />
               </div>
               {errors.phone && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="phone-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.phone.message}
                 </p>
               )}
@@ -288,9 +300,12 @@ export function RegisterForm() {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.password}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register('password')}
                 />
                 <button
@@ -319,7 +334,7 @@ export function RegisterForm() {
               </p>
 
               {errors.password && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.password.message}
                 </p>
               )}
@@ -333,9 +348,12 @@ export function RegisterForm() {
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.confirmPassword}
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
                   {...register('confirmPassword')}
                 />
                 <button
@@ -353,7 +371,7 @@ export function RegisterForm() {
               </div>
 
               {errors.confirmPassword && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="confirm-password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.confirmPassword.message}
                 </p>
               )}

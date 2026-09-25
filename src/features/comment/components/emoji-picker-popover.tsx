@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { Smile, Plus } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 interface EmojiPickerPopoverProps {
@@ -35,8 +35,8 @@ export function EmojiPickerPopover({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild disabled={disabled}>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild disabled={disabled}>
         {triggerVariant === 'pill' ? (
           <button
             type="button"
@@ -63,8 +63,8 @@ export function EmojiPickerPopover({
             <Smile className="size-3.5" />
           </button>
         )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
+      </PopoverTrigger>
+      <PopoverContent
         align="start"
         side="top"
         sideOffset={6}
@@ -85,7 +85,7 @@ export function EmojiPickerPopover({
             </button>
           ))}
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }

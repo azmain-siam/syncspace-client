@@ -18,9 +18,9 @@
 | :--- | :--- | :---: | :---: | :---: |
 | **Phase 0** | Security, Dependencies & Core Foundations | **P0** | 🟢 Complete | 7 / 7 |
 | **Phase 1** | Routing, Permissions & Data Integrity | **P0** | 🟢 Complete | 8 / 8 |
-| **Phase 2** | Design System & Missing Primitives | **P1** | 🟡 In Progress | 1 / 7 |
+| **Phase 2** | Design System & Missing Primitives | **P1** | 🟢 Complete | 7 / 7 |
 | **Phase 3** | UX Declutter, Dashboard & Performance | **P1 / P2** | ⚪ Pending | 0 / 6 |
-| **Total** | **All Remediation Tracks** | — | — | **16 / 28** |
+| **Total** | **All Remediation Tracks** | — | — | **22 / 28** |
 
 ---
 
@@ -64,12 +64,12 @@
   - `Popover` (replaces nested dropdown traps in popovers)
   - `EmptyState` & `ErrorState` reusable primitives
   ([Audit 2: 3.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#33-missing-primitives-cause-visual-fragmentation)).
-- [ ] **TOK-01**: Align design tokens and semantic colors: resolve discrepancies between `.ai/DESIGN_SYSTEM.md` and `globals.css`, eliminating 390 ad-hoc palette classes ([Audit 2: 1. Executive Summary](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#1-executive-summary)).
-- [ ] **TOK-02**: Standardize Task Status and Priority colors across Board, Cards, Task Sheet, My Tasks, Sprints, and Dashboard charts ([Audit 2: 2.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#22-status-and-priority-colors-contradict-each-other-across-pages)).
-- [ ] **A11Y-01**: Restore visible keyboard focus rings on `SegmentedControl`, `WorkspaceSettingsNav`, board filters, and notification rows ([Audit 2: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#23-keyboard-focus-is-invisible-on-several-core-controls), [Audit 3: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#23-several-controls-show-no-focus-indicator)).
-- [ ] **A11Y-02**: Fix Notification popover & Emoji picker keyboard trap: replace `DropdownMenu` wrapper with Radix `Popover` so Tab and arrow keys reach all child items ([Audit 3: 2.1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#21-notifications-and-emoji-reactions-cant-be-reached-by-keyboard)).
-- [ ] **A11Y-03**: Fix Kanban card keyboard interaction: separate Enter/Space to open detail sheet from drag-and-drop picking; add sensible accessible announcements ([Audit 3: 2.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#22-tasks-cant-be-opened-from-the-board-by-keyboard)).
-- [ ] **A11Y-04**: Form accessibility: associate error messages using `aria-invalid` and `aria-describedby`; connect all inputs to visible `<label htmlFor>` elements ([Audit 3: 2.4](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#24-form-errors-arent-connected-to-their-fields-and-many-inputs-have-no-real-name)).
+- [x] **TOK-01**: Align design tokens and semantic colors: resolve discrepancies between `.ai/DESIGN_SYSTEM.md` and `globals.css`, eliminating 390 ad-hoc palette classes ([Audit 2: 1. Executive Summary](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#1-executive-summary)).
+- [x] **TOK-02**: Standardize Task Status and Priority colors across Board, Cards, Task Sheet, My Tasks, Sprints, and Dashboard charts ([Audit 2: 2.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#22-status-and-priority-colors-contradict-each-other-across-pages)).
+- [x] **A11Y-01**: Restore visible keyboard focus rings on `SegmentedControl`, `WorkspaceSettingsNav`, board filters, and notification rows ([Audit 2: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/02_VISUAL_DESIGN_SYSTEM_AUDIT.md#23-keyboard-focus-is-invisible-on-several-core-controls), [Audit 3: 2.3](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#23-several-controls-show-no-focus-indicator)).
+- [x] **A11Y-02**: Fix Notification popover & Emoji picker keyboard trap: replace `DropdownMenu` wrapper with Radix `Popover` so Tab and arrow keys reach all child items ([Audit 3: 2.1](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#21-notifications-and-emoji-reactions-cant-be-reached-by-keyboard)).
+- [x] **A11Y-03**: Fix Kanban card keyboard interaction: separate Enter/Space to open detail sheet from drag-and-drop picking; add sensible accessible announcements ([Audit 3: 2.2](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#22-tasks-cant-be-opened-from-the-board-by-keyboard)).
+- [x] **A11Y-04**: Form accessibility: associate error messages using `aria-invalid` and `aria-describedby`; connect all inputs to visible `<label htmlFor>` elements ([Audit 3: 2.4](file:///home/siam/Documents/Projects/syncspace-client/docs/audit-reports/03_RESPONSIVE_ACCESSIBILITY_AUDIT.md#24-form-errors-arent-connected-to-their-fields-and-many-inputs-have-no-real-name)).
 
 ---
 

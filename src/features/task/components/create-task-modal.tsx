@@ -155,11 +155,14 @@ export function CreateTaskModal({
               id="task-title"
               placeholder="e.g. Implement refresh token rotation"
               className="h-10 rounded-xl text-xs"
+              error={Boolean(errors.title)}
+              aria-invalid={Boolean(errors.title)}
+              aria-describedby={errors.title ? 'task-title-error' : undefined}
               {...register('title')}
               autoFocus
             />
             {errors.title && (
-              <p className="text-[11px] font-medium text-destructive">
+              <p id="task-title-error" role="alert" className="text-[11px] font-medium text-destructive">
                 {errors.title.message}
               </p>
             )}
@@ -175,10 +178,13 @@ export function CreateTaskModal({
               placeholder="Add details, acceptance criteria, or context..."
               rows={3}
               className="rounded-xl text-xs resize-none"
+              error={Boolean(errors.description)}
+              aria-invalid={Boolean(errors.description)}
+              aria-describedby={errors.description ? 'task-desc-error' : undefined}
               {...register('description')}
             />
             {errors.description && (
-              <p className="text-[11px] font-medium text-destructive">
+              <p id="task-desc-error" role="alert" className="text-[11px] font-medium text-destructive">
                 {errors.description.message}
               </p>
             )}
@@ -188,10 +194,11 @@ export function CreateTaskModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Column / Stage */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">
+              <Label htmlFor="task-stage" className="text-xs font-semibold text-foreground">
                 Column / Stage
               </Label>
               <select
+                id="task-stage"
                 value={selectedColumnId}
                 onChange={(e) => setSelectedColumnId(e.target.value)}
                 className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-ring"
@@ -206,10 +213,11 @@ export function CreateTaskModal({
 
             {/* Priority */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">
+              <Label htmlFor="task-priority" className="text-xs font-semibold text-foreground">
                 Priority
               </Label>
               <select
+                id="task-priority"
                 {...register('priority')}
                 className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-ring"
               >
@@ -225,10 +233,11 @@ export function CreateTaskModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Assignee */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">
+              <Label htmlFor="task-assignee" className="text-xs font-semibold text-foreground">
                 Assignee
               </Label>
               <select
+                id="task-assignee"
                 {...register('assigneeId')}
                 className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-ring"
               >
@@ -268,13 +277,16 @@ export function CreateTaskModal({
                 max={100}
                 placeholder="e.g. 5"
                 className="h-10 rounded-xl text-xs"
+                error={Boolean(errors.storyPoints)}
+                aria-invalid={Boolean(errors.storyPoints)}
+                aria-describedby={errors.storyPoints ? 'task-points-error' : undefined}
                 {...register('storyPoints', {
                   setValueAs: (v) =>
                     v === '' || v === null || v === undefined ? null : Number(v),
                 })}
               />
               {errors.storyPoints && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p id="task-points-error" role="alert" className="text-[11px] font-medium text-destructive">
                   {errors.storyPoints.message}
                 </p>
               )}
@@ -291,13 +303,16 @@ export function CreateTaskModal({
                 step={0.5}
                 placeholder="e.g. 4.5"
                 className="h-10 rounded-xl text-xs"
+                error={Boolean(errors.estimatedHours)}
+                aria-invalid={Boolean(errors.estimatedHours)}
+                aria-describedby={errors.estimatedHours ? 'task-hours-error' : undefined}
                 {...register('estimatedHours', {
                   setValueAs: (v) =>
                     v === '' || v === null || v === undefined ? null : Number(v),
                 })}
               />
               {errors.estimatedHours && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p id="task-hours-error" role="alert" className="text-[11px] font-medium text-destructive">
                   {errors.estimatedHours.message}
                 </p>
               )}

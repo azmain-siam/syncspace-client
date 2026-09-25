@@ -4,10 +4,10 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, CheckCheck, Loader2 } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -117,8 +117,8 @@ export function NotificationPopover({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -136,9 +136,9 @@ export function NotificationPopover({
             </span>
           )}
         </Button>
-      </DropdownMenuTrigger>
+      </PopoverTrigger>
 
-      <DropdownMenuContent
+      <PopoverContent
         align="end"
         sideOffset={8}
         className="w-[360px] sm:w-[420px] p-0 rounded-2xl border border-border bg-popover shadow-xl overflow-hidden z-50 flex flex-col max-h-[580px]"
@@ -262,7 +262,7 @@ export function NotificationPopover({
             </Button>
           </div>
         )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }

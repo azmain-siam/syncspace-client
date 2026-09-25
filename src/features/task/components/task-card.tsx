@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/react/sortable';
-import type { Task, TaskPriority } from '../types/task.types';
+import { TASK_PRIORITY_CONFIG } from '@/lib/constants/task-theme';
+import type { Task } from '../types/task.types';
 
 interface TaskCardProps {
   task: Task;
@@ -55,13 +56,6 @@ export function TaskCard({
     },
     disabled: !canManage || isOverlay,
   });
-
-  const priorityColors: Record<TaskPriority, string> = {
-    URGENT: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
-    HIGH: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
-    MEDIUM: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
-    LOW: 'bg-slate-500/15 text-slate-600 dark:text-slate-300 border-slate-500/30',
-  };
 
   // Due date calculation
   const isOverdue = React.useMemo(() => {
@@ -131,11 +125,22 @@ export function TaskCard({
       ref={isOverlay ? undefined : ref}
       data-task-card="true"
       data-task-id={task.id}
+      tabIndex={isOverlay ? undefined : 0}
+      role="button"
+      aria-label={`Task ${task.key || ''}: ${task.title}`}
       onClick={() => {
         onSelectTask?.(task);
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if ((e.target as HTMLElement).closest('button, a, [role="menuitem"]')) return;
+          e.preventDefault();
+          onSelectTask?.(task);
+        }
+      }}
       className={cn(
         'group/task relative flex flex-col gap-2.5 rounded-xl border border-border/80 bg-card p-3 shadow-xs transition-all select-none',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background',
         !isOverlay && 'hover:border-primary/50 hover:shadow-md cursor-grab active:cursor-grabbing',
         isDragSource && 'opacity-30 scale-[0.98] border-dashed border-primary shadow-lg',
         isOverlay && 'shadow-2xl ring-2 ring-primary/80 border-primary scale-[1.02] cursor-grabbing rotate-1 pointer-events-none',
@@ -153,7 +158,7 @@ export function TaskCard({
           <span
             className={cn(
               'text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider',
-              priorityColors[task.priority] || priorityColors.MEDIUM,
+              TASK_PRIORITY_CONFIG[task.priority]?.badgeClass,
             )}
           >
             {task.priority}
