@@ -32,4 +32,4 @@
 6. Click In Progress, a status row, a priority tile, a member name, and a project overdue count.
 7. Change Comparison Window; delta badges and burn-up update; other cards stay all-time.
 8. Open `/tasks?dueDate=overdue` and `/tasks?status=IN_PROGRESS,REVIEW` from the sheet footer; filters persist.
-9. Confirm labels are not rendered on workspace task rows (R2-01 still open).
+9. Confirm workspace task rows render flat label chips when present.
