@@ -16,6 +16,7 @@ export const createProjectSchema = z.object({
     ProjectPriority.LOW,
     ProjectPriority.MEDIUM,
     ProjectPriority.HIGH,
+    ProjectPriority.URGENT,
     ProjectPriority.CRITICAL,
   ]).optional(),
   dueDate: z.string().optional().or(z.literal('')),

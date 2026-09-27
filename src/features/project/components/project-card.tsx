@@ -53,6 +53,7 @@ export function ProjectCard({
   const getPriorityBadgeColor = (priority: ProjectPriority) => {
     switch (priority) {
       case ProjectPriority.CRITICAL:
+      case ProjectPriority.URGENT:
         return 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30';
       case ProjectPriority.HIGH:
         return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';

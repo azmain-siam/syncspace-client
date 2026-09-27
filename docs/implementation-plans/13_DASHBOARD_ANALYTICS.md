@@ -10,7 +10,14 @@
 
 **Contract integrity.** Module 13 §2.3 and §7 are authoritative. Do not copy §4 hook snippets (`useWorkspaceSummary`, `['workspace-summary']`, `@/lib/api-client`) — they would create a second cache under a different key (Audit 4 C2). Keep `src/features/dashboard/hooks/dashboard-keys.ts` and `src/lib/api/api-client.ts`.
 
-**Open backend items (do not block this plan).** R2-01 labels shape, R2-02/03/04 grouped pagination. Flat `GET /workspaces/:id/tasks` is enough for every drill-down in this wave.
+**Backend items resolved ([02_MODULE_04_AND_13.md](file:///home/siam/Documents/Projects/syncspace-client/docs/backend-requests/02_MODULE_04_AND_13.md)).**
+- **R2-01 (Labels shape)**: Confirmed `labels: Array<{ id: string; name: string; color: string }>`.
+- **R2-02/03/04 (Grouped pagination)**: Confirmed global page-based pagination partitioned into `groups` array (`key`, `label`, `tasksCount`, `hasMore`, `tasks`). Flat `GET /workspaces/:id/tasks` remains the active explorer baseline for this wave.
+- **Task Permissions**: Confirmed on every item (`task.permissions: { canEdit, canDelete, canAssign }`).
+- **Guest RBAC**: Confirmed `/dashboard/*` returns 403 Forbidden for Guests (frontend gates analytics queries), whereas `/tasks` is permitted and automatically scoped to projects the guest belongs to.
+- **Analytics Suite**: All 6 endpoints (`/summary`, `/productivity`, `/task-distribution`, `/sprint-health`, `/project-rollups`, `/member-workload`) are active and maintained.
+- **Global User Minimal**: Confirmed `avatar: string | null` (not `avatarUrl`).
+- **Global Task Status**: Confirmed strictly `REVIEW` (`TODO`, `IN_PROGRESS`, `REVIEW`, `DONE`).
 
 ---
 

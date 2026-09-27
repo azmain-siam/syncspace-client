@@ -207,14 +207,20 @@ export interface ProjectRollupItem {
   key: string | null;
   slug: string | null;
   description: string | null;
+  brief?: string | null;
+  icon?: string | null;
   status: string;
   priority: string;
   color: string | null;
+  visibility?: 'PUBLIC' | 'PRIVATE';
+  executiveHealth?: 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK';
+  repoUrl?: string | null;
   startDate: string | null;
   dueDate: string | null;
   createdAt: string;
   updatedAt: string;
   createdBy: UserMinimal;
+  lead?: UserMinimal | null;
   membersCount: number;
   boardsCount: number;
   taskCounts: {

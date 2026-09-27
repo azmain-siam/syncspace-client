@@ -110,10 +110,22 @@ export interface WorkspaceTaskItem {
   };
 }
 
-export interface FlatWorkspaceTasksResponse {
+export interface WorkspaceTasksGroupItem {
+  key: string;
+  label: string;
+  tasksCount: number;
+  hasMore: boolean;
   tasks: WorkspaceTaskItem[];
+}
+
+export interface WorkspaceTasksResponse {
+  tasks: WorkspaceTaskItem[];
+  groupedBy?: string;
+  groups?: WorkspaceTasksGroupItem[];
   meta: WorkspaceTasksPaginationMeta;
 }
+
+export type FlatWorkspaceTasksResponse = WorkspaceTasksResponse;
 
 export interface WorkspaceTaskDrilldown {
   title: string;

@@ -11,18 +11,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { Project } from '@/types/domain';
 import { ProjectPriority, ProjectStatus } from '@/types/domain';
 import type { CreateProjectInput } from '../schemas/create-project.schema';
 import type { UpdateProjectInput } from '../schemas/update-project.schema';
 import { useCreateProject } from '../hooks/use-create-project';
 import { useUpdateProject } from '../hooks/use-update-project';
 
+export interface ProjectFormTarget {
+  id: string;
+  title: string;
+  description?: string | null;
+  color?: string | null;
+  priority?: ProjectPriority;
+  status?: ProjectStatus;
+  dueDate?: string | null;
+}
+
 interface ProjectDialogModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId: string;
-  projectToEdit?: Project | null;
+  projectToEdit?: ProjectFormTarget | null;
 }
 
 const projectFormSchema = z.object({
@@ -40,6 +49,7 @@ const projectFormSchema = z.object({
     ProjectPriority.LOW,
     ProjectPriority.MEDIUM,
     ProjectPriority.HIGH,
+    ProjectPriority.URGENT,
     ProjectPriority.CRITICAL,
   ]).optional(),
   status: z.enum([
@@ -231,6 +241,7 @@ export function ProjectDialogModal({
                 <option value={ProjectPriority.LOW}>Low</option>
                 <option value={ProjectPriority.MEDIUM}>Medium</option>
                 <option value={ProjectPriority.HIGH}>High</option>
+                <option value={ProjectPriority.URGENT}>Urgent</option>
                 <option value={ProjectPriority.CRITICAL}>Critical</option>
               </select>
             </div>

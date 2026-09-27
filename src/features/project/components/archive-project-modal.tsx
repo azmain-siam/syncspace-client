@@ -4,14 +4,13 @@ import * as React from 'react';
 import { Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import type { Project } from '@/types/domain';
 import { useArchiveProject } from '../hooks/use-archive-project';
 
 interface ArchiveProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId: string;
-  project: Project | null;
+  project: { id: string; title: string } | null;
 }
 
 export function ArchiveProjectModal({

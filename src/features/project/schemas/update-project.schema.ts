@@ -17,6 +17,7 @@ export const updateProjectSchema = z.object({
     ProjectPriority.LOW,
     ProjectPriority.MEDIUM,
     ProjectPriority.HIGH,
+    ProjectPriority.URGENT,
     ProjectPriority.CRITICAL,
   ]).optional(),
   status: z.enum([

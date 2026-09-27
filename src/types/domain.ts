@@ -24,12 +24,20 @@ export const ProjectStatus = {
   ARCHIVED: 'ARCHIVED',
 } as const;
 
-export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'CRITICAL';
 export const ProjectPriority = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
   HIGH: 'HIGH',
+  URGENT: 'URGENT',
   CRITICAL: 'CRITICAL',
+} as const;
+
+export type ProjectHealth = 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK';
+export const ProjectHealth = {
+  ON_TRACK: 'ON_TRACK',
+  AT_RISK: 'AT_RISK',
+  OFF_TRACK: 'OFF_TRACK',
 } as const;
 
 export type ProjectMemberRole = 'MANAGER' | 'LEAD' | 'MEMBER' | 'VIEWER';
