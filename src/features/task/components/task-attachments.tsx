@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
   useAttachments,
@@ -74,7 +75,7 @@ export function TaskAttachments({ taskId, canManage = true }: TaskAttachmentsPro
     if (!files || files.length === 0) return;
     const file = files[0];
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      alert(`File size exceeds 10MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose a smaller file.`);
+      toast.error(`File size exceeds 10MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose a smaller file.`);
       return;
     }
     uploadMutation.mutate(file);

@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/api-client';
-import type { ApiResponse, Project, Task } from '@/types/domain';
+import type { ApiResponse, Project } from '@/types/domain';
 import type { CreateProjectInput } from '../schemas/create-project.schema';
 import type { UpdateProjectInput } from '../schemas/update-project.schema';
 import type {

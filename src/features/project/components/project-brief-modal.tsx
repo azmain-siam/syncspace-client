@@ -40,6 +40,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { useUpdateProject } from '../hooks/use-update-project';
 import {
   PROJECT_BRIEF_TEMPLATES,
@@ -245,16 +247,27 @@ function ProjectBriefModalContent({
     }, 0);
   };
 
+  const [pendingTemplate, setPendingTemplate] =
+    React.useState<ProjectBriefTemplate | null>(null);
+  const [confirmTemplateOpen, setConfirmTemplateOpen] = React.useState(false);
+
   const handleApplyTemplate = (template: ProjectBriefTemplate) => {
-    if (
-      content.trim().length > 0 &&
-      !window.confirm(
-        'Applying this template will replace your current brief draft. Do you want to proceed?',
-      )
-    ) {
+    if (content.trim().length > 0) {
+      setPendingTemplate(template);
+      setConfirmTemplateOpen(true);
       return;
     }
     setContent(template.content);
+    toast.info(`Applied "${template.title}" template`);
+  };
+
+  const handleConfirmTemplate = () => {
+    if (pendingTemplate) {
+      setContent(pendingTemplate.content);
+      toast.info(`Applied "${pendingTemplate.title}" template`);
+      setPendingTemplate(null);
+    }
+    setConfirmTemplateOpen(false);
   };
 
   const handleSave = async () => {
@@ -286,8 +299,9 @@ function ProjectBriefModalContent({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl sm:max-w-5xl h-[88vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl bg-card border border-border shadow-2xl">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl sm:max-w-5xl h-[88vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl bg-card border border-border shadow-2xl">
         {/* 1. Header Bar */}
         <DialogHeader className="p-5 border-b border-border/80 bg-muted/20 shrink-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -627,7 +641,32 @@ function ProjectBriefModalContent({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+
+    <ConfirmDialog
+      open={confirmTemplateOpen}
+      onOpenChange={(isOpen) => {
+        setConfirmTemplateOpen(isOpen);
+        if (!isOpen) setPendingTemplate(null);
+      }}
+      title="Replace current brief draft?"
+      description={
+        <span>
+          Applying the{' '}
+          <strong className="text-foreground font-semibold">
+            {pendingTemplate?.title}
+          </strong>{' '}
+          template will overwrite your current draft in the editor. Any unsaved
+          changes will be replaced.
+        </span>
+      }
+      confirmText="Apply Template"
+      cancelText="Keep Current Draft"
+      variant="warning"
+      icon={<Sparkles className="size-4.5" />}
+      onConfirm={handleConfirmTemplate}
+    />
+  </>
+);
 }
 
 export function ProjectBriefModal(props: ProjectBriefModalProps) {

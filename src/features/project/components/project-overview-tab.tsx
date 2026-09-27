@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { ProjectHealth, ProjectStatus } from '@/types/domain';
 import type { ProjectDetail, ProjectMemberRole } from '../types/project.types';
 import { useProjectStatusUpdates } from '../hooks/use-project-status-updates';
@@ -120,14 +121,15 @@ export function ProjectOverviewTab({
     }
   };
 
-  const handleClearBrief = async () => {
-    if (
-      window.confirm(
-        'Are you sure you want to clear the project brief? This action cannot be undone.',
-      )
-    ) {
-      await updateProjectMutation.mutateAsync({ brief: '' });
-    }
+  const [isClearBriefDialogOpen, setIsClearBriefDialogOpen] = React.useState(false);
+
+  const handleClearBrief = () => {
+    setIsClearBriefDialogOpen(true);
+  };
+
+  const handleConfirmClearBrief = async () => {
+    await updateProjectMutation.mutateAsync({ brief: '' });
+    setIsClearBriefDialogOpen(false);
   };
 
   return (
@@ -567,6 +569,18 @@ export function ProjectOverviewTab({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={isClearBriefDialogOpen}
+        onOpenChange={setIsClearBriefDialogOpen}
+        title="Clear project brief?"
+        description="Are you sure you want to clear the project brief? All documented requirements and specifications for this project will be removed. This action cannot be undone."
+        confirmText="Clear Brief"
+        cancelText="Cancel"
+        variant="destructive"
+        isLoading={updateProjectMutation.isPending}
+        onConfirm={handleConfirmClearBrief}
+      />
     </div>
   );
 }
