@@ -40,6 +40,12 @@ export const ProjectHealth = {
   OFF_TRACK: 'OFF_TRACK',
 } as const;
 
+export type ProjectVisibility = 'PUBLIC' | 'PRIVATE';
+export const ProjectVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
+} as const;
+
 export type ProjectMemberRole = 'MANAGER' | 'LEAD' | 'MEMBER' | 'VIEWER';
 
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -187,22 +193,44 @@ export interface WorkspaceInvitation {
   invitedBy?: User;
 }
 
+export interface ProjectCountMeta {
+  projectMembers: number;
+  boards: number;
+  sprints: number;
+  links: number;
+}
+
 export interface Project {
   id: string;
   workspaceId: string;
   title: string;
+  key?: string | null;
   slug?: string | null;
   description?: string | null;
+  brief?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  visibility?: ProjectVisibility;
   status: ProjectStatus;
   priority: ProjectPriority;
+  health?: ProjectHealth;
+  leadId?: string | null;
+  lead?: {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string | null;
+  } | null;
   createdById: string;
   startDate?: string | null;
   dueDate?: string | null;
-  color?: string | null;
+  repoUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
-  createdBy?: User;
+  createdBy?: User | { id: string; name: string; email: string; avatar?: string | null };
   boards?: Board[];
+  _count?: ProjectCountMeta;
 }
 
 export interface Board {
