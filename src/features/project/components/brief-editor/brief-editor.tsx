@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useEditor, EditorContent, type Editor } from '@tiptap/react';
+import { useEditor, EditorContent, Extension, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Table } from '@tiptap/extension-table';
@@ -16,6 +16,56 @@ import { Markdown, type MarkdownStorage } from 'tiptap-markdown';
 import { cn } from '@/lib/utils';
 import { BriefEditorToolbar } from './brief-editor-toolbar';
 import type { ProjectBriefTemplate } from '../../lib/project-brief-templates';
+
+/**
+ * Custom Tab/Shift+Tab keymap for the brief editor.
+ *
+ * - Tab inside a list   → indent (sink) the list item
+ * - Tab elsewhere       → insert two non-breaking spaces (soft indent)
+ * - Shift+Tab in a list → outdent (lift) the list item
+ * - Shift+Tab elsewhere → no-op (prevents focus leaving the editor)
+ */
+const TabKeymap = Extension.create({
+  name: 'tabKeymap',
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor: e }) => {
+        // In code blocks: insert a real tab character
+        if (e.isActive('codeBlock')) {
+          return e.commands.insertContent('\t');
+        }
+
+        // Inside a bullet/ordered list item: indent (sink)
+        if (e.isActive('listItem')) {
+          return e.commands.sinkListItem('listItem');
+        }
+
+        // Inside a task list item: indent (sink)
+        if (e.isActive('taskItem')) {
+          return e.commands.sinkListItem('taskItem');
+        }
+
+        // Default: insert two spaces as soft indent
+        return e.commands.insertContent('  ');
+      },
+
+      'Shift-Tab': ({ editor: e }) => {
+        // Inside a bullet/ordered list item: outdent (lift)
+        if (e.isActive('listItem')) {
+          return e.commands.liftListItem('listItem');
+        }
+
+        // Inside a task list item: outdent (lift)
+        if (e.isActive('taskItem')) {
+          return e.commands.liftListItem('taskItem');
+        }
+
+        // Prevent focus from escaping the editor
+        return true;
+      },
+    };
+  },
+});
 
 export interface BriefEditorProps {
   initialContent: string;
@@ -62,6 +112,7 @@ export function BriefEditor({
         transformPastedText: true,
         transformCopiedText: true,
       }),
+      TabKeymap,
     ],
     content: initialContent,
     immediatelyRender: false,
