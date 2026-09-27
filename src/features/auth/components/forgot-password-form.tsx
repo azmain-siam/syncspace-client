@@ -33,7 +33,7 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
+    <main className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
       {/* Top Brand Mark */}
       <div className="pt-6 pb-2 text-center flex flex-col items-center gap-2">
         <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-xs">
@@ -46,9 +46,9 @@ export function ForgotPasswordForm() {
         </span>
       </div>
 
-      {/* Centered Card (Image 2) */}
+      {/* Centered Card */}
       <div className="w-full max-w-[440px] my-auto">
-        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-6 sm:p-8 text-center space-y-6">
+        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-5 sm:p-8 text-center space-y-6">
           {/* Top Key Icon Badge */}
           <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20">
             <KeyRound className="h-6 w-6" />
@@ -65,9 +65,13 @@ export function ForgotPasswordForm() {
 
           {forgotPasswordMutation.isSuccess ? (
             <div className="space-y-4 pt-2">
-              <div className="p-4 rounded-xl bg-success/10 border border-success/20 text-success-foreground text-xs font-semibold">
+              <div className="p-4 rounded-xl bg-success/10 border border-success/20 text-success-foreground text-xs font-semibold space-y-1">
                 <CheckCircle2 className="h-5 w-5 mx-auto mb-1 text-emerald-500" />
-                Password reset instructions have been sent to your email.
+                <p>
+                  {forgotPasswordMutation.data?.data?.message ||
+                    forgotPasswordMutation.data?.message ||
+                    'If an account exists, a password reset link has been sent.'}
+                </p>
               </div>
               <Link href="/login" className="block">
                 <Button variant="outline" className="w-full h-11 gap-2 rounded-lg">
@@ -80,7 +84,7 @@ export function ForgotPasswordForm() {
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
@@ -126,13 +130,11 @@ export function ForgotPasswordForm() {
       <footer className="w-full max-w-5xl py-6 border-t border-border/60 text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="font-extrabold text-foreground tracking-tight">SyncSpace</div>
         <div className="flex flex-wrap items-center gap-6">
-          <span className="hover:text-foreground cursor-pointer">Privacy Policy</span>
-          <span className="hover:text-foreground cursor-pointer">Terms of Service</span>
-          <span className="hover:text-foreground cursor-pointer">Security</span>
-          <span className="hover:text-foreground cursor-pointer">Help Center</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
         </div>
         <div>© {new Date().getFullYear()} SyncSpace Technologies. All rights reserved.</div>
       </footer>
-    </div>
+    </main>
   );
 }

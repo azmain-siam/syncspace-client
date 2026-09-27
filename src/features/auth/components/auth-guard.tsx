@@ -13,7 +13,16 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.replace('/login');
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname + window.location.search;
+        const redirectQuery =
+          currentPath && currentPath !== '/' && currentPath !== '/login'
+            ? `?redirect=${encodeURIComponent(currentPath)}`
+            : '';
+        router.replace(`/login${redirectQuery}`);
+      } else {
+        router.replace('/login');
+      }
     }
   }, [mounted, isAuthenticated, router]);
 

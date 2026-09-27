@@ -3,21 +3,31 @@
 import * as React from 'react';
 import { use } from 'react';
 import Link from 'next/link';
-import {
-  Activity,
-  ArrowRight,
-  Building2,
-  FolderKanban,
-  Settings,
-  Shield,
-  Users,
-} from 'lucide-react';
+import { FolderKanban, History, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCurrentWorkspace } from '@/features/workspace/hooks/use-current-workspace';
-import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
+import {
+  DashboardKpiGrid,
+  DashboardSkeleton,
+  MemberWorkloadTable,
+  MyWorkCard,
+  ProductivityVelocityCard,
+  ProjectRollupTable,
+  SprintHealthBanner,
+  TaskListSheet,
+  TaskPriorityChart,
+  TaskStatusChart,
+  useDashboardSummary,
+  useMemberWorkload,
+  useProjectRollups,
+  useTaskDistribution,
+  useWorkspaceSprintHealth,
+} from '@/features/dashboard';
+import { formatRelativeUpdated } from '@/features/dashboard/lib/format-dashboard';
+import type { WorkspaceTaskDrilldown } from '@/features/dashboard/types/workspace-tasks.types';
+import type { TaskPriority, TaskStatus } from '@/types/domain';
 
 export default function WorkspaceDashboardPage({
   params,
@@ -26,159 +36,289 @@ export default function WorkspaceDashboardPage({
 }) {
   const { workspaceSlug } = use(params);
   const { workspace, isLoading: workspaceLoading } = useCurrentWorkspace(workspaceSlug);
-
   const workspaceId = workspace?.id || '';
-  const { data: membersResponse } = useWorkspaceMembers(workspaceId);
-  const members = membersResponse?.data || [];
-
   const displaySlug = workspace?.slug || workspaceSlug;
+  const permissions = useWorkspacePermissions(workspaceId);
+  const canViewAnalytics = permissions.canViewWorkspaceAnalytics;
 
-  if (workspaceLoading && !workspace) {
-    return (
-      <div className="space-y-4">
-        <div className="h-32 w-full bg-card animate-pulse rounded-2xl border border-border" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-          <div className="h-28 bg-card animate-pulse rounded-2xl border border-border" />
-        </div>
-      </div>
-    );
+  const [comparisonDays, setComparisonDays] = React.useState(30);
+  const [drilldown, setDrilldown] = React.useState<WorkspaceTaskDrilldown | null>(null);
+
+  const summaryQuery = useDashboardSummary(workspaceId, comparisonDays, canViewAnalytics);
+  const distributionQuery = useTaskDistribution(workspaceId, canViewAnalytics);
+  const workloadQuery = useMemberWorkload(workspaceId, canViewAnalytics);
+  const sprintQuery = useWorkspaceSprintHealth(workspaceId, canViewAnalytics);
+  const rollupQuery = useProjectRollups(workspaceId, canViewAnalytics);
+
+  const updatedAt = latestUpdatedAt([
+    summaryQuery.dataUpdatedAt,
+    distributionQuery.dataUpdatedAt,
+    workloadQuery.dataUpdatedAt,
+    sprintQuery.dataUpdatedAt,
+    rollupQuery.dataUpdatedAt,
+  ]);
+
+  const openDrilldown = React.useCallback((next: WorkspaceTaskDrilldown) => {
+    setDrilldown(next);
+  }, []);
+
+  if ((workspaceLoading && !workspace) || permissions.isLoading) {
+    return <DashboardSkeleton />;
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Workspace Header Banner */}
-      <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 rounded-xl border border-border">
-            {workspace?.logo && (
-              <AvatarImage src={workspace.logo} alt={workspace.name} />
-            )}
-            <AvatarFallback className="rounded-xl bg-primary/10 text-primary font-bold text-lg">
+  const header = (
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <Avatar className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl border border-border shrink-0">
+            {workspace?.logo && <AvatarImage src={workspace.logo} alt={workspace.name} />}
+            <AvatarFallback className="rounded-xl bg-primary/10 text-primary font-bold text-base sm:text-lg">
               {workspace?.name ? workspace.name.substring(0, 2).toUpperCase() : 'WS'}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-                {workspace?.name || 'SyncSpace Workspace'}
-              </h1>
-              <Badge variant="default" className="gap-1">
-                <Shield className="h-3 w-3" /> ACTIVE
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Slug: <code className="font-mono text-[11px] font-semibold text-primary">{displaySlug}</code>
+          <div className="space-y-0.5 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground truncate">
+              {workspace?.name || 'Workspace'}
+            </h1>
+            <p className="text-xs text-muted-foreground truncate">
+              {workspace?.description || 'Workspace overview'}
             </p>
           </div>
         </div>
+        {updatedAt && canViewAnalytics && (
+          <p className="text-[11px] font-mono text-muted-foreground shrink-0">
+            {formatRelativeUpdated(updatedAt)}
+          </p>
+        )}
+      </div>
 
-        <div className="flex items-center gap-3">
-          <Link href={`/workspaces/${displaySlug}/members`}>
-            <Button variant="outline" className="h-10 rounded-lg gap-2">
-              <Users className="h-4 w-4" /> Members ({members.length})
-            </Button>
+      {canViewAnalytics && summaryQuery.data && (
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <Link
+            href={`/workspaces/${displaySlug}/projects`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          >
+            <FolderKanban className="h-3.5 w-3.5" />
+            {summaryQuery.data.projectsCount} projects
           </Link>
-          <Link href={`/workspaces/${displaySlug}/settings`}>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-              <Settings className="h-4 w-4" />
-            </Button>
+          <Link
+            href={`/workspaces/${displaySlug}/members`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          >
+            <Users className="h-3.5 w-3.5" />
+            {summaryQuery.data.membersCount} members
+          </Link>
+          <Link
+            href={`/workspaces/${displaySlug}/activity`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          >
+            <History className="h-3.5 w-3.5" />
+            {summaryQuery.data.activitiesCount} activities
           </Link>
         </div>
-      </div>
-
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Projects Metric Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Total Projects
-            </CardTitle>
-            <FolderKanban className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight">0</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Ready for project setup
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Members Metric Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Team Members
-            </CardTitle>
-            <Users className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight">
-              {members.length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Active collaborators
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Activity Status Card */}
-        <Card className="rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Sync Engine Status
-            </CardTitle>
-            <Activity className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-              Connected
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Realtime WebSocket active
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Launch Card */}
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link href={`/workspaces/${displaySlug}/members`}>
-            <div className="p-4 rounded-xl border border-border/80 bg-background hover:bg-accent transition-all cursor-pointer group flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" /> Invite Team Members
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Send email invitations to bring your team into this workspace.
-                </div>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
-            </div>
-          </Link>
-
-          <Link href={`/workspaces/${displaySlug}/settings`}>
-            <div className="p-4 rounded-xl border border-border/80 bg-background hover:bg-accent transition-all cursor-pointer group flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" /> Workspace Settings
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Update workspace name, logo, or manage access control.
-                </div>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
-            </div>
-          </Link>
-        </CardContent>
-      </Card>
+      )}
     </div>
   );
+
+  const myWork = workspaceId ? (
+    <section aria-label="Personal assigned deliverables">
+      <MyWorkCard workspaceId={workspaceId} workspaceSlug={displaySlug} />
+    </section>
+  ) : null;
+
+  const kpis = (
+    <section aria-label="Executive key performance indicators">
+      <DashboardKpiGrid
+        summary={summaryQuery.data}
+        isLoading={summaryQuery.isLoading}
+        isError={summaryQuery.isError}
+        onRetry={() => void summaryQuery.refetch()}
+        onSelectTotal={() =>
+          openDrilldown({
+            title: 'All workspace tasks',
+            description: 'Every task across projects in this workspace',
+            filters: {},
+          })
+        }
+        onSelectInProgress={() =>
+          openDrilldown({
+            title: 'In progress and review',
+            description: 'Workspace tasks currently in flight',
+            filters: { status: ['IN_PROGRESS', 'REVIEW'] },
+          })
+        }
+        onSelectOverdue={() =>
+          openDrilldown({
+            title: 'Workspace overdue tasks',
+            description: 'Past-due tasks that are not Done, across the workspace',
+            filters: { dueDate: 'overdue' },
+          })
+        }
+      />
+    </section>
+  );
+
+  const sprint = (
+    <section aria-label="Active sprint health">
+      <SprintHealthBanner
+        health={sprintQuery.data}
+        isLoading={sprintQuery.isLoading}
+        isError={sprintQuery.isError}
+        onRetry={() => void sprintQuery.refetch()}
+        workspaceSlug={displaySlug}
+        onSelectSprint={(sprintId, name) =>
+          openDrilldown({
+            title: name,
+            description: 'Tasks committed to this sprint',
+            filters: { sprintId },
+          })
+        }
+      />
+    </section>
+  );
+
+  const charts = (
+    <section aria-label="Workflow distribution analysis" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <TaskStatusChart
+        distribution={distributionQuery.data}
+        isLoading={distributionQuery.isLoading}
+        isError={distributionQuery.isError}
+        onRetry={() => void distributionQuery.refetch()}
+        onSelectStatus={(status: TaskStatus) =>
+          openDrilldown({
+            title: `${status.replace('_', ' ')} tasks`,
+            filters: { status },
+          })
+        }
+      />
+      <TaskPriorityChart
+        distribution={distributionQuery.data}
+        isLoading={distributionQuery.isLoading}
+        isError={distributionQuery.isError}
+        onRetry={() => void distributionQuery.refetch()}
+        onSelectPriority={(priority: TaskPriority) =>
+          openDrilldown({
+            title: `${priority} priority tasks`,
+            filters: { priority },
+          })
+        }
+      />
+    </section>
+  );
+
+  const productivity = workspaceId ? (
+    <section aria-label="Productivity velocity">
+      <ProductivityVelocityCard
+        workspaceId={workspaceId}
+        days={comparisonDays}
+        onDaysChange={setComparisonDays}
+        enabled={canViewAnalytics}
+        onSelectCompleted={() =>
+          openDrilldown({
+            title: 'Completed tasks',
+            description: 'Current Done tasks. The comparison window does not filter this list.',
+            filters: { status: 'DONE' },
+          })
+        }
+      />
+    </section>
+  ) : null;
+
+  const rollups = (
+    <section aria-label="Project portfolio">
+      <ProjectRollupTable
+        rollups={rollupQuery.data}
+        isLoading={rollupQuery.isLoading}
+        isError={rollupQuery.isError}
+        onRetry={() => void rollupQuery.refetch()}
+        workspaceSlug={displaySlug}
+        onSelectProject={(projectId, title) =>
+          openDrilldown({
+            title,
+            description: 'All tasks in this project',
+            filters: { projectId },
+          })
+        }
+        onSelectProjectOverdue={(projectId, title, count) =>
+          openDrilldown({
+            title: `${count} overdue in ${title}`,
+            filters: { projectId, dueDate: 'overdue' },
+          })
+        }
+      />
+    </section>
+  );
+
+  const workload = (
+    <section aria-label="Team workload breakdown">
+      <MemberWorkloadTable
+        workload={workloadQuery.data}
+        isLoading={workloadQuery.isLoading}
+        isError={workloadQuery.isError}
+        onRetry={() => void workloadQuery.refetch()}
+        onSelectMember={(userId, name) =>
+          openDrilldown({
+            title: `${name}'s tasks`,
+            filters: { assigneeId: userId },
+          })
+        }
+        onSelectMemberOverdue={(userId, name, count) =>
+          openDrilldown({
+            title: `${count} overdue for ${name}`,
+            filters: { assigneeId: userId, dueDate: 'overdue' },
+          })
+        }
+      />
+    </section>
+  );
+
+  const isLead = permissions.isOwner || permissions.role === 'ADMIN';
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <div className="space-y-6 sm:space-y-8">
+        {header}
+        {!canViewAnalytics ? (
+          myWork
+        ) : isLead ? (
+          <>
+            {kpis}
+            {sprint}
+            {myWork}
+            {charts}
+            {productivity}
+            {rollups}
+            {workload}
+          </>
+        ) : (
+          <>
+            {myWork}
+            {kpis}
+            {sprint}
+            {charts}
+            {productivity}
+            {rollups}
+            {workload}
+          </>
+        )}
+      </div>
+
+      <TaskListSheet
+        key={drilldown ? `${drilldown.title}:${JSON.stringify(drilldown.filters)}` : 'closed'}
+        open={Boolean(drilldown)}
+        onOpenChange={(open) => {
+          if (!open) setDrilldown(null);
+        }}
+        workspaceId={workspaceId}
+        workspaceSlug={displaySlug}
+        drilldown={drilldown}
+      />
+    </TooltipProvider>
+  );
+}
+
+function latestUpdatedAt(values: Array<number | undefined>): Date | null {
+  const valid = values.filter((value): value is number => typeof value === 'number' && value > 0);
+  if (valid.length === 0) return null;
+  return new Date(Math.max(...valid));
 }

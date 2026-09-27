@@ -38,7 +38,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
+    <main className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
       {/* Top Brand Mark */}
       <div className="pt-6 pb-2 text-center flex flex-col items-center gap-2">
         <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-xs">
@@ -53,7 +53,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       {/* Centered Card */}
       <div className="w-full max-w-[440px] my-auto">
-        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-6 sm:p-8 text-center space-y-6">
+        <div className="bg-card rounded-2xl border border-border/80 shadow-sm p-5 sm:p-8 text-center space-y-6">
           <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20">
             <Lock className="h-6 w-6" />
           </div>
@@ -74,7 +74,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             <div className="space-y-1.5">
               <Label htmlFor="password">New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -86,8 +86,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  tabIndex={-1}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -107,7 +107,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             <div className="space-y-1.5">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -119,8 +119,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  tabIndex={-1}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -160,13 +160,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <footer className="w-full max-w-5xl py-6 border-t border-border/60 text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="font-extrabold text-foreground tracking-tight">SyncSpace</div>
         <div className="flex flex-wrap items-center gap-6">
-          <span className="hover:text-foreground cursor-pointer">Privacy Policy</span>
-          <span className="hover:text-foreground cursor-pointer">Terms of Service</span>
-          <span className="hover:text-foreground cursor-pointer">Security</span>
-          <span className="hover:text-foreground cursor-pointer">Help Center</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
         </div>
         <div>© {new Date().getFullYear()} SyncSpace Technologies. All rights reserved.</div>
       </footer>
-    </div>
+    </main>
   );
 }

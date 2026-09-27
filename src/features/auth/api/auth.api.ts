@@ -3,6 +3,7 @@ import type { ApiResponse, User } from '@/types/domain';
 import type { ForgotPasswordInput } from '../schemas/forgot-password.schema';
 import type { LoginInput } from '../schemas/login.schema';
 import type { RegisterInput } from '../schemas/register.schema';
+import type { ResendVerificationInput } from '../schemas/resend-verification.schema';
 import type { ResetPasswordInput } from '../schemas/reset-password.schema';
 
 export interface AuthTokens {
@@ -18,6 +19,15 @@ export interface LoginResponseData {
 export interface RegisterResponseData {
   message: string;
   user: User;
+}
+
+export interface VerifyEmailResponseData {
+  message: string;
+  user?: User;
+}
+
+export interface ResendVerificationResponseData {
+  message: string;
 }
 
 export const authApi = {
@@ -42,9 +52,21 @@ export const authApi = {
     return res.data;
   },
 
-  verifyEmail: async (token: string): Promise<ApiResponse<{ user?: User }>> => {
-    const res = await apiClient.get<ApiResponse<{ user?: User }>>(
+  verifyEmail: async (
+    token: string,
+  ): Promise<ApiResponse<VerifyEmailResponseData>> => {
+    const res = await apiClient.get<ApiResponse<VerifyEmailResponseData>>(
       `/auth/verify-email?token=${encodeURIComponent(token)}`,
+    );
+    return res.data;
+  },
+
+  resendVerification: async (
+    data: ResendVerificationInput,
+  ): Promise<ApiResponse<ResendVerificationResponseData>> => {
+    const res = await apiClient.post<ApiResponse<ResendVerificationResponseData>>(
+      '/auth/resend-verification',
+      data,
     );
     return res.data;
   },

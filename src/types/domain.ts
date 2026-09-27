@@ -1,14 +1,19 @@
 // SyncSpace Global Domain & API Interfaces
 
-export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'GUEST';
 
 export const WorkspaceRole = {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER',
+  GUEST: 'GUEST',
 } as const;
 
 export type WorkspaceVisibility = 'PRIVATE' | 'PUBLIC';
+export const WorkspaceVisibility = {
+  PRIVATE: 'PRIVATE',
+  PUBLIC: 'PUBLIC',
+} as const;
 
 export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'ARCHIVED';
 export const ProjectStatus = {
@@ -19,12 +24,26 @@ export const ProjectStatus = {
   ARCHIVED: 'ARCHIVED',
 } as const;
 
-export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'CRITICAL';
 export const ProjectPriority = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
   HIGH: 'HIGH',
+  URGENT: 'URGENT',
   CRITICAL: 'CRITICAL',
+} as const;
+
+export type ProjectHealth = 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK';
+export const ProjectHealth = {
+  ON_TRACK: 'ON_TRACK',
+  AT_RISK: 'AT_RISK',
+  OFF_TRACK: 'OFF_TRACK',
+} as const;
+
+export type ProjectVisibility = 'PUBLIC' | 'PRIVATE';
+export const ProjectVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
 } as const;
 
 export type ProjectMemberRole = 'MANAGER' | 'LEAD' | 'MEMBER' | 'VIEWER';
@@ -56,10 +75,35 @@ export interface User {
   username: string;
   phone?: string | null;
   avatar?: string | null;
-  provider: 'LOCAL' | 'GOOGLE';
-  isEmailVerified: boolean;
+  bio?: string | null;
+  timezone?: string;
+  provider?: 'LOCAL' | 'GOOGLE';
+  isEmailVerified?: boolean;
+  emailVerifiedAt?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+}
+
+export type AuthUser = User;
+
+export interface UserProfile extends User {
+  avatar: string | null;
+  phone: string | null;
+  bio: string | null;
+  timezone: string;
+}
+
+export interface UpdateUserRequest {
+  name?: string;
+  bio?: string;
+  phone?: string;
+  timezone?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface Workspace {
@@ -72,7 +116,16 @@ export interface Workspace {
   visibility: WorkspaceVisibility;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string | null;
   owner?: User;
+}
+
+export interface WorkspaceMemberUser {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  avatar?: string | null;
 }
 
 export interface WorkspaceMember {
@@ -82,6 +135,47 @@ export interface WorkspaceMember {
   role: WorkspaceRole;
   joinedAt: string;
   user: User;
+}
+
+export interface WorkspaceInvitationDetails {
+  workspaceName: string;
+  workspaceLogo: string | null;
+  invitedEmail: string;
+  role: WorkspaceRole;
+  inviterName: string;
+  expiresAt: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+}
+
+export interface CreateWorkspaceRequest {
+  name: string;
+  logo?: string;
+}
+
+export interface UpdateWorkspaceSettingsRequest {
+  name?: string;
+  description?: string;
+  logo?: string;
+  visibility?: WorkspaceVisibility;
+}
+
+export interface TransferOwnershipRequest {
+  memberId: string;
+}
+
+export interface DirectAddMemberRequest {
+  email: string;
+  role?: WorkspaceRole;
+}
+
+export interface CreateInvitationRequest {
+  email: string;
+  role: WorkspaceRole;
+}
+
+export interface SendInvitationResponse {
+  message: string;
+  invitationId: string;
 }
 
 export interface WorkspaceInvitation {
@@ -99,22 +193,44 @@ export interface WorkspaceInvitation {
   invitedBy?: User;
 }
 
+export interface ProjectCountMeta {
+  projectMembers: number;
+  boards: number;
+  sprints: number;
+  links: number;
+}
+
 export interface Project {
   id: string;
   workspaceId: string;
   title: string;
+  key?: string | null;
   slug?: string | null;
   description?: string | null;
+  brief?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  visibility?: ProjectVisibility;
   status: ProjectStatus;
   priority: ProjectPriority;
+  health?: ProjectHealth;
+  leadId?: string | null;
+  lead?: {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string | null;
+  } | null;
   createdById: string;
   startDate?: string | null;
   dueDate?: string | null;
-  color?: string | null;
+  repoUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
-  createdBy?: User;
+  createdBy?: User | { id: string; name: string; email: string; avatar?: string | null };
   boards?: Board[];
+  _count?: ProjectCountMeta;
 }
 
 export interface Board {
@@ -232,4 +348,13 @@ export interface ApiResponse<T> {
     hasMore?: boolean;
     nextCursor?: string;
   };
+}
+
+// Standard API Error Response Envelope
+export interface ApiErrorResponse {
+  success: false;
+  statusCode: number;
+  message: string | string[];
+  data: null;
+  error: string;
 }

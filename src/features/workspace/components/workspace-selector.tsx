@@ -60,7 +60,7 @@ export function WorkspaceSelector() {
                 {activeWorkspace?.logo && (
                   <AvatarImage src={activeWorkspace.logo} alt={activeWorkspace.name} />
                 )}
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold text-xs">
+                <AvatarFallback className="rounded-lg bg-primary/15 text-primary dark:text-indigo-300 font-bold text-xs">
                   {activeWorkspace?.name ? activeWorkspace.name.substring(0, 2).toUpperCase() : 'WS'}
                 </AvatarFallback>
               </Avatar>
@@ -75,7 +75,7 @@ export function WorkspaceSelector() {
               </div>
             </div>
 
-            <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground/70" />
+            <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           </button>
         </DropdownMenuTrigger>
 

@@ -2,11 +2,21 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { Eye, EyeOff, Lock, Mail, Sparkles, User as UserIcon } from 'lucide-react';
+import {
+  AtSign,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Phone,
+  Sparkles,
+  User as UserIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,11 +27,18 @@ import { AuthDivider } from './auth-divider';
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const emailParam = searchParams.get('email');
+
+  const usernameEditedRef = useRef(false);
   const registerMutation = useRegister();
 
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<RegisterInput>({
@@ -29,7 +46,7 @@ export function RegisterForm() {
     defaultValues: {
       username: '',
       name: '',
-      email: '',
+      email: emailParam || '',
       phone: '',
       password: '',
       confirmPassword: '',
@@ -39,17 +56,44 @@ export function RegisterForm() {
   const passwordValue = watch('password', '');
   const passwordLength = passwordValue.length;
 
-  const onSubmit = (data: RegisterInput) => {
-    // If username is empty, auto-generate from email prefix
-    if (!data.username && data.email) {
-      data.username = data.email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    if (!usernameEditedRef.current && newName.trim()) {
+      const generated = newName
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '_')
+        .slice(0, 24);
+      if (generated.length >= 3) {
+        setValue('username', generated, { shouldValidate: true });
+      }
     }
-    registerMutation.mutate(data);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    if (!usernameEditedRef.current && newEmail.includes('@')) {
+      const prefix = newEmail
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '_')
+        .slice(0, 24);
+      if (prefix.length >= 3) {
+        setValue('username', prefix, { shouldValidate: true });
+      }
+    }
+  };
+
+  const onSubmit = (data: RegisterInput) => {
+    const payload: RegisterInput = {
+      ...data,
+      phone: data.phone?.trim() ? data.phone.trim() : undefined,
+    };
+    registerMutation.mutate(payload);
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row">
-      {/* ─── Left Hero Side (Desktop Only - Image 1) ─── */}
+    <main className="w-full min-h-screen flex flex-col lg:flex-row">
+      {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Decorative Glow */}
         <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/30 rounded-full blur-3xl pointer-events-none" />
@@ -62,9 +106,9 @@ export function RegisterForm() {
         {/* Center Copy & Showcase Mockup */}
         <div className="space-y-8 my-auto max-w-lg mx-auto text-left">
           <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <p className="text-4xl font-extrabold tracking-tight text-white leading-tight">
               Collaborate in real-time, across any distance.
-            </h1>
+            </p>
             <p className="text-sm text-white/70 leading-relaxed font-normal">
               Experience frictionless teamwork with our proprietary sync engine. From wireframes to deep work, SyncSpace keeps your team in flow.
             </p>
@@ -84,7 +128,7 @@ export function RegisterForm() {
             {/* Document Content with Live Cursors */}
             <div className="p-4 rounded-xl bg-white/5 space-y-2 relative text-xs text-white/80">
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Collaborate simultaneously with shared state, live cursor tracking, and instant task updates.
               </p>
               {/* Simulated Live Cursors */}
               <div className="absolute top-3 right-12 px-2 py-0.5 rounded bg-emerald-500 text-black font-bold text-[9px] shadow-sm flex items-center gap-1">
@@ -104,9 +148,9 @@ export function RegisterForm() {
       </div>
 
       {/* ─── Right Form Side (Mobile & Desktop) ─── */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-12 min-h-screen bg-background">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-4 sm:p-8 lg:p-12 min-h-screen bg-background">
         {/* Brand Header */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="lg:hidden flex items-center gap-2 mb-6">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-extrabold text-base shadow-xs">
             S
           </div>
@@ -116,7 +160,7 @@ export function RegisterForm() {
         </div>
 
         {/* Form Container */}
-        <div className="w-full max-w-100 mx-auto my-auto space-y-5">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto my-auto space-y-5">
           <div className="space-y-1 text-left">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
               Create your workspace
@@ -138,19 +182,59 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
-                <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <UserIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  autoComplete="name"
+                  placeholder="Alex Johnson"
                   className="pl-10 h-11"
                   error={!!errors.name}
-                  {...register('name')}
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
+                  {...register('name', {
+                    onChange: handleNameChange,
+                  })}
                 />
               </div>
               {errors.name && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="name-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            {/* Username / Handle */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="username">Username Handle</Label>
+                <span className="text-[11px] text-muted-foreground">Unique identifier</span>
+              </div>
+              <div className="relative">
+                <AtSign className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="alexj"
+                  className="pl-10 h-11 font-mono text-sm"
+                  error={!!errors.username}
+                  aria-invalid={!!errors.username}
+                  aria-describedby={errors.username ? 'username-error' : 'username-desc'}
+                  {...register('username', {
+                    onChange: () => {
+                      usernameEditedRef.current = true;
+                    },
+                  })}
+                />
+              </div>
+              {errors.username ? (
+                <p id="username-error" role="alert" className="text-xs text-danger font-medium mt-1">
+                  {errors.username.message}
+                </p>
+              ) : (
+                <p id="username-desc" className="text-[11px] text-muted-foreground">
+                  Letters, numbers, underscores, and hyphens (3–30 characters).
                 </p>
               )}
             </div>
@@ -159,45 +243,76 @@ export function RegisterForm() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Work Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@company.com"
+                  autoComplete="email"
+                  placeholder="alex@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
-                  {...register('email')}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  {...register('email', {
+                    onChange: handleEmailChange,
+                  })}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="email-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
             </div>
 
-            {/* Hidden Username Field (auto-filled if empty) */}
-            <input type="hidden" {...register('username')} />
-            <input type="hidden" {...register('confirmPassword')} value={passwordValue} />
+            {/* Phone (Optional) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone">Phone Number</Label>
+                <span className="text-[11px] text-muted-foreground">Optional</span>
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+1 (555) 123-4567"
+                  className="pl-10 h-11"
+                  error={!!errors.phone}
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? 'phone-error' : undefined}
+                  {...register('phone')}
+                />
+              </div>
+              {errors.phone && (
+                <p id="phone-error" role="alert" className="text-xs text-danger font-medium mt-1">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
 
             {/* Password */}
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.password}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register('password')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-muted-foreground/60 hover:text-foreground transition-colors"
-                  tabIndex={-1}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -215,12 +330,49 @@ export function RegisterForm() {
                 <div className={`h-1 rounded-full ${passwordLength >= 10 ? 'bg-emerald-500' : 'bg-muted'}`} />
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Enter at least 8 characters
+                Minimum 6 characters (8+ recommended)
               </p>
 
               {errors.password && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  className="pl-10 pr-10 h-11"
+                  error={!!errors.confirmPassword}
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
+                  {...register('confirmPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
+              {errors.confirmPassword && (
+                <p id="confirm-password-error" role="alert" className="text-xs text-danger font-medium mt-1">
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>
@@ -228,7 +380,7 @@ export function RegisterForm() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-11 font-semibold shadow-xs rounded-lg mt-2"
+              className="w-full h-11 font-semibold shadow-xs rounded-lg mt-2 cursor-pointer"
               isLoading={registerMutation.isPending}
             >
               Create Account
@@ -246,7 +398,11 @@ export function RegisterForm() {
           <div className="border-t border-border/40 pt-4 text-center text-xs text-muted-foreground">
             Already have an account?{' '}
             <Link
-              href="/login"
+              href={
+                redirectParam
+                  ? `/login?redirect=${encodeURIComponent(redirectParam)}`
+                  : '/login'
+              }
               className="font-bold text-primary hover:underline transition-all"
             >
               Log in
@@ -258,11 +414,15 @@ export function RegisterForm() {
         <div className="w-full max-w-100 mx-auto pt-6 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace Technologies.</div>
           <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer">Security</span>
-            <span className="hover:text-foreground cursor-pointer">Help Center</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

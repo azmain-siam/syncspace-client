@@ -46,19 +46,20 @@ export function CreateWorkspaceModal({
     },
   });
 
-  React.useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
       reset();
     }
-  }, [open, reset]);
+    onOpenChange(newOpen);
+  };
 
   const onSubmit = (data: CreateWorkspaceInput) => {
     createWorkspaceMutation.mutate(data);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] rounded-2xl">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-[420px] rounded-2xl max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1">
             <Building2 className="h-5 w-5" />
@@ -94,7 +95,7 @@ export function CreateWorkspaceModal({
               <span className="text-[11px] text-muted-foreground">(Optional)</span>
             </div>
             <div className="relative">
-              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground/60" />
+              <ImageIcon className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="ws-logo"
                 type="url"
@@ -111,18 +112,18 @@ export function CreateWorkspaceModal({
             )}
           </div>
 
-          <div className="pt-2 flex justify-end gap-3">
+          <div className="pt-2 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="h-11 rounded-lg"
+              className="h-10 sm:h-11 rounded-lg w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="h-11 font-semibold rounded-lg shadow-xs"
+              className="h-10 sm:h-11 font-semibold rounded-lg shadow-xs w-full sm:w-auto"
               isLoading={createWorkspaceMutation.isPending}
             >
               Create Workspace

@@ -2,12 +2,19 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Bell, Menu, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileMenu } from '@/features/workspace/components/user-profile-menu';
+import { useSocket } from '@/providers/socket-provider';
+import { NotificationPopover } from '@/features/notification';
+import dynamic from 'next/dynamic';
 import { Breadcrumb } from './breadcrumb';
-import { SearchCommandModal } from './search-command-modal';
 import { ThemeToggle } from './theme-toggle';
+
+const SearchCommandModal = dynamic(
+  () => import('./search-command-modal').then((mod) => mod.SearchCommandModal),
+  { ssr: false },
+);
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -15,6 +22,7 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle }: HeaderProps) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const { isConnected } = useSocket();
 
   // Global Keyboard Shortcut: Ctrl+K / Cmd+K
   useEffect(() => {
@@ -31,14 +39,14 @@ export function Header({ onMenuToggle }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between gap-4 selection:bg-primary/20 selection:text-primary">
+      <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 selection:bg-primary/20 selection:text-primary">
         {/* Left Section: Mobile Menu Trigger + Breadcrumb */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
           <Button
             variant="ghost"
             size="icon"
             onClick={onMenuToggle}
-            className="lg:hidden h-9 w-9 rounded-lg"
+            className="lg:hidden h-9 w-9 shrink-0 rounded-lg"
             aria-label="Open navigation menu"
           >
             <Menu className="h-5 w-5" />
@@ -73,21 +81,26 @@ export function Header({ onMenuToggle }: HeaderProps) {
           </Button>
 
           {/* Online Presence Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live
-          </div>
+          {isConnected ? (
+            <div
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-500/20"
+              title="Real-time WebSocket connection active"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live
+            </div>
+          ) : (
+            <div
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-medium border border-amber-500/20"
+              title="Connecting to real-time gateway..."
+            >
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              Offline
+            </div>
+          )}
 
-          {/* Notification Bell */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-9 w-9 rounded-lg text-muted-foreground hover:text-foreground"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
-          </Button>
+          {/* In-App Notification Dropdown Popover */}
+          <NotificationPopover />
 
           {/* Theme Toggle */}
           <ThemeToggle />

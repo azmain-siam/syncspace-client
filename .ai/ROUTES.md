@@ -26,6 +26,7 @@ All routes under `(dashboard)` wrap within `WorkspaceAppLayout` requiring a vali
 | `/` | `WorkspaceRedirect` | Home | Redirects to default workspace dashboard (`/workspaces/:workspaceSlug`) |
 | `/workspaces/create` | `CreateWorkspaceModal` | Workspaces > New | Create new workspace |
 | `/workspaces/:workspaceSlug` | `DashboardView` | Workspace > Dashboard | High-level analytics summary KPIs |
+| `/workspaces/:workspaceSlug/tasks` | `WorkspaceTasksView` | Workspace > Tasks | Cross-project flat task explorer |
 | `/workspaces/:workspaceSlug/projects` | `ProjectsListView` | Workspace > Projects | Workspace projects overview grid |
 | `/workspaces/:workspaceSlug/projects/:projectSlug` | `ProjectDetailView` | Workspace > Projects > Project | Project overview & boards list |
 | `/workspaces/:workspaceSlug/projects/:projectSlug/boards/:boardSlug` | `BoardKanbanView` | Workspace > Projects > Project > Board | Interactive Kanban Board |

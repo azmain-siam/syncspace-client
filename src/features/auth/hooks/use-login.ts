@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
 import { authApi, type LoginResponseData } from '../api/auth.api';
 import type { LoginInput } from '../schemas/login.schema';
 import { useAuthStore } from '../stores/use-auth-store';
@@ -23,12 +24,25 @@ export function useLogin() {
       setAuth(user, tokens.accessToken, tokens.refreshToken);
       queryClient.setQueryData(['user', 'me'], user);
       toast.success(response.message || 'Signed in successfully!');
-      router.push('/dashboard');
+      let destination = '/dashboard';
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const redirectParam = params.get('redirect');
+        if (
+          redirectParam &&
+          redirectParam.startsWith('/') &&
+          !redirectParam.startsWith('//')
+        ) {
+          destination = redirectParam;
+        }
+      }
+      router.push(destination);
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        'Failed to sign in. Please check your credentials.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to sign in. Please check your credentials.',
+      );
       toast.error(errorMessage);
     },
   });

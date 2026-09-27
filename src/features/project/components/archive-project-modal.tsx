@@ -1,17 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import type { Project } from '@/types/domain';
 import { useArchiveProject } from '../hooks/use-archive-project';
 
 interface ArchiveProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   workspaceId: string;
-  project: Project | null;
+  project: { id: string; title: string } | null;
 }
 
 export function ArchiveProjectModal({
@@ -34,8 +33,8 @@ export function ArchiveProjectModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[440px] rounded-2xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2 text-danger">
-            <AlertTriangle className="h-5 w-5" /> Archive Project
+          <DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
+            <Archive className="h-5 w-5 text-muted-foreground" /> Archive Project
           </DialogTitle>
         </DialogHeader>
 
@@ -57,7 +56,7 @@ export function ArchiveProjectModal({
             </Button>
             <Button
               type="button"
-              variant="destructive"
+              variant="default"
               onClick={handleArchive}
               className="h-11 rounded-lg font-semibold"
               isLoading={archiveMutation.isPending}

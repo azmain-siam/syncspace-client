@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
+import { formatApiErrorMessage } from '@/lib/api/api-error';
 import { authApi } from '../api/auth.api';
 import type { ResetPasswordInput } from '../schemas/reset-password.schema';
 
@@ -18,14 +19,16 @@ export function useResetPassword() {
     onSuccess: (response) => {
       toast.success(
         response.message ||
+          response.data?.message ||
           'Password reset successfully! You can now sign in with your new password.',
       );
       router.push('/login');
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        'Failed to reset password. The link may have expired.';
+      const errorMessage = formatApiErrorMessage(
+        error,
+        'Failed to reset password. The link may have expired.',
+      );
       toast.error(errorMessage);
     },
   });

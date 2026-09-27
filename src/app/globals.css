@@ -1,111 +1,113 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @layer base {
   :root {
-    /* ─── Light Mode: "Stark Studio" (DESIGN.md) ─── */
+    /* ─── Light Mode ─── */
 
-    /* Surfaces (M3 Tonal Layering) */
-    --background: #fcf8ff;                        /* Canvas */
-    --foreground: #1b1b23;                        /* On-Surface Text */
+    /* Surfaces */
+    --background: #f8fafc;                        /* Crisp, modern canvas */
+    --foreground: #0f172a;                        /* Slate 900: High-contrast, sharp text */
 
-    --card: #ffffff;                              /* Container Lowest */
-    --card-foreground: #1b1b23;
+    --card: #ffffff;                              /* Container */
+    --card-foreground: #0f172a;
 
     --popover: #ffffff;
-    --popover-foreground: #1b1b23;
+    --popover-foreground: #0f172a;
 
     /* Primary: Electric Indigo */
-    --primary: #4648d4;
+    --primary: #4f46e5;                           /* Indigo 600 */
     --primary-foreground: #ffffff;
-    --primary-container: #6063ee;
-    --on-primary-container: #fffbff;
+    --primary-container: #e0e7ff;
+    --on-primary-container: #3730a3;
 
-    /* Secondary: Emerald Green */
-    --secondary: #006c49;
-    --secondary-foreground: #ffffff;
-    --secondary-container: #6cf8bb;
-    --on-secondary-container: #00714d;
+    /* Secondary: Slate */
+    --secondary: #f1f5f9;                         /* Slate 100 */
+    --secondary-foreground: #0f172a;              /* Slate 900 */
+    --secondary-container: #e2e8f0;
+    --on-secondary-container: #1e293b;
 
-    /* Tertiary: Warm Amber */
-    --tertiary: #904900;
-    --tertiary-container: #b55d00;
+    /* Tertiary: Amber */
+    --tertiary: #b45309;
+    --tertiary-container: #fef3c7;
 
     /* Muted & Accents */
-    --muted: #f5f2fe;                             /* Container Low */
-    --muted-foreground: #464554;                    /* On-Surface Variant */
+    --muted: #f1f5f9;                             /* Slate 100 */
+    --muted-foreground: #475569;                  /* Slate 600: 7.0:1 AAA contrast on white */
 
-    --accent: #efecf8;                            /* Container Standard */
-    --accent-foreground: #1b1b23;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
 
-    /* Semantic Feedback */
-    --success: #e6f9f0;
-    --success-foreground: #00714d;
+    /* Semantic Feedback (True semantic colors, not faint background tints) */
+    --success: #16a34a;                           /* Emerald 600 */
+    --success-foreground: #ffffff;
 
-    --warning: #fff4e5;
-    --warning-foreground: #904900;
+    --warning: #d97706;                           /* Amber 600 */
+    --warning-foreground: #ffffff;
 
-    --danger: #ffdad6;
-    --danger-foreground: #93000a;
+    --danger: #dc2626;                            /* Red 600: High contrast, unmistakably clear */
+    --danger-foreground: #ffffff;
 
-    --destructive: #ba1a1a;
+    --destructive: #dc2626;
     --destructive-foreground: #ffffff;
 
     /* Structural outlines */
-    --border: #e2e8f0;                            /* Neutral Border */
-    --input: #e2e8f0;
-    --outline: #767586;
-    --outline-variant: #c7c4d7;
-    --ring: #4648d4;
+    --border: #e2e8f0;                            /* Slate 200 */
+    --input: #cbd5e1;                             /* Slate 300 */
+    --outline: #94a3b8;
+    --outline-variant: #e2e8f0;
+    --ring: #4f46e5;
     --radius: 0.5rem;                             /* 8px Standard Base Radius */
   }
 
   .dark {
-    /* ─── Dark Mode: "Midnight Workshop" ─── */
+    /* ─── Dark Mode ─── */
 
     /* Surfaces */
-    --background: #09090b;                        /* Dark Canvas */
-    --foreground: #f4f4f5;                        /* Crisp Text */
+    --background: #09090b;                        /* Zinc 950: Deep dark canvas */
+    --foreground: #f8fafc;                        /* Slate 50: Crisp, bright, high-contrast text */
 
-    --card: #18181b;                              /* Dark Container */
-    --card-foreground: #f4f4f5;
+    --card: #141417;                              /* Elevated dark container */
+    --card-foreground: #f8fafc;
 
-    --popover: #27272a;                           /* Elevated Surface */
-    --popover-foreground: #f4f4f5;
+    --popover: #1c1c21;                           /* Clean elevated surface */
+    --popover-foreground: #f8fafc;
 
-    /* Primary: Electric Indigo */
-    --primary: #4648d4;
+    /* Primary: Electric Indigo (bright & luminous in dark) */
+    --primary: #6366f1;                           /* Indigo 500 */
     --primary-foreground: #ffffff;
-    --primary-container: #6063ee;
+    --primary-container: #312e81;
 
     /* Secondary */
-    --secondary: #4edea3;
-    --secondary-foreground: #002113;
+    --secondary: #27272a;                         /* Zinc 800 */
+    --secondary-foreground: #f8fafc;
 
     /* Muted */
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
+    --muted: #222226;
+    --muted-foreground: #94a3b8;                  /* Slate 400: 7.7:1 AAA contrast on dark background */
 
     /* Accent */
     --accent: #27272a;
-    --accent-foreground: #f4f4f5;
+    --accent-foreground: #f8fafc;
 
     /* Semantic Feedback */
-    --success: #003824;
-    --success-foreground: #4edea3;
+    --success: #22c55e;                           /* Emerald 500 */
+    --success-foreground: #000000;
 
-    --warning: #4a2300;
-    --warning-foreground: #ffb783;
+    --warning: #f59e0b;                           /* Amber 500 */
+    --warning-foreground: #000000;
 
-    --danger: #680007;
-    --danger-foreground: #ffb4ab;
+    --danger: #ef4444;                            /* Red 500: Luminous, high-contrast, unmistakable */
+    --danger-foreground: #ffffff;
 
-    --destructive: #ffb4ab;
-    --destructive-foreground: #690005;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
 
     /* Structural */
     --border: #27272a;
-    --input: #27272a;
-    --ring: #4648d4;
+    --input: #3f3f46;                             /* Zinc 700: Clearly defined input outlines */
+    --ring: #6366f1;
   }
 }
 
@@ -149,12 +151,39 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: 0.25rem;                      /* 4px */
-  --radius-DEFAULT: 0.5rem;                  /* 8px Base */
-  --radius-md: 0.75rem;                      /* 12px */
-  --radius-lg: 1.0rem;                       /* 16px Container */
-  --radius-xl: 1.5rem;                       /* 24px */
+  --radius-xs: 0.25rem;                      /* 4px */
+  --radius-sm: 0.375rem;                     /* 6px */
+  --radius-md: 0.5rem;                       /* 8px Base */
+  --radius-lg: 0.75rem;                      /* 12px */
+  --radius-xl: 1.0rem;                       /* 16px */
+  --radius-2xl: 1.5rem;                      /* 24px Container */
+  --radius-3xl: 2.0rem;                      /* 32px */
   --radius-full: 9999px;                     /* Full Pill */
+}
+
+/* Global button and interactive cursor styles */
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* Base typography and body defaults */
+html {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -162,5 +191,235 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans, system-ui, sans-serif);
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Syntax Highlighting for Code Blocks (rehype-highlight / lowlight) */
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.hljs {
+  color: var(--foreground);
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #7c3aed; /* Violet 600 */
+}
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-built_in,
+.dark .hljs-name,
+.dark .hljs-tag {
+  color: #c084fc; /* Violet 400 */
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #059669; /* Emerald 600 */
+}
+.dark .hljs-string,
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-attribute,
+.dark .hljs-literal,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable,
+.dark .hljs-type,
+.dark .hljs-addition {
+  color: #34d399; /* Emerald 400 */
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #64748b; /* Slate 500 */
+  font-style: italic;
+}
+.dark .hljs-comment,
+.dark .hljs-quote,
+.dark .hljs-deletion,
+.dark .hljs-meta {
+  color: #94a3b8; /* Slate 400 */
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: #d97706; /* Amber 600 */
+}
+.dark .hljs-number,
+.dark .hljs-symbol,
+.dark .hljs-bullet {
+  color: #fbbf24; /* Amber 400 */
+}
+
+.hljs-function,
+.hljs-title.function_ {
+  color: #2563eb; /* Blue 600 */
+}
+.dark .hljs-function,
+.dark .hljs-title.function_ {
+  color: #60a5fa; /* Blue 400 */
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* Tiptap Editor & ProseMirror Styling */
+.tiptap {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.tiptap ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  height: 1.5em;
   margin: 0;
 }
+
+.tiptap ul[data-type="taskList"] li > label input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 0.25rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.tiptap ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tiptap ul[data-type="taskList"] li > div > p {
+  margin: 0 !important;
+  line-height: 1.5em;
+}
+
+.tiptap ul[data-type="taskList"] li[data-checked="true"] > div > p {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+}
+
+.tiptap ul[data-type="taskList"] ul[data-type="taskList"] {
+  padding-left: 1.25rem;
+  margin: 0.25rem 0;
+}
+
+/* ── Preview / react-markdown task list alignment ─────────────────────── */
+/* remark-gfm emits: ul.contains-task-list > li.task-list-item            */
+/* The prose plugin adds margins to <p> inside <li>, which pushes the     */
+/* text down relative to the checkbox. Strip those margins here.          */
+li.task-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  margin-top: 0.125rem;
+  margin-bottom: 0.125rem;
+}
+
+li.task-list-item > p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Also cover the prose plugin's own :before / :after bullets */
+li.task-list-item::before,
+li.task-list-item::after {
+  display: none !important;
+}
+
+/* Checkbox inside task list */
+li.task-list-item input[type="checkbox"] {
+  flex-shrink: 0;
+  margin: 0;
+  align-self: center;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.tiptap table td,
+.tiptap table th {
+  min-width: 1em;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tiptap table th {
+  font-weight: 600;
+  text-align: left;
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+
+.tiptap table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(79, 70, 229, 0.08);
+  pointer-events: none;
+}
+
+
