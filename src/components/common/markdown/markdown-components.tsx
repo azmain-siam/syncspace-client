@@ -125,14 +125,22 @@ export const markdownComponents: Components = {
 
   li: ({ className, children, ...props }) => {
     const isTaskItem = className?.includes('task-list-item');
+    if (isTaskItem) {
+      // Flatten children: react-markdown wraps the label text in a <p>,
+      // which adds top/bottom margin and causes the checkbox to misalign.
+      // We render the children directly inside an aligned flex row.
+      return (
+        <li
+          className={cn('flex items-center gap-2 list-none my-0.5', className)}
+          {...props}
+        >
+          {children}
+        </li>
+      );
+    }
     return (
       <li
-        className={cn(
-          isTaskItem
-            ? 'flex items-start gap-2 list-none'
-            : 'leading-relaxed text-xs text-foreground/90',
-          className,
-        )}
+        className={cn('leading-relaxed text-xs text-foreground/90', className)}
         {...props}
       >
         {children}
@@ -149,7 +157,7 @@ export const markdownComponents: Components = {
           checked={checked}
           disabled
           aria-label="Task checklist item"
-          className="h-3.5 w-3.5 rounded border-border text-primary accent-primary mt-0.5 shrink-0 cursor-default pointer-events-none"
+          className="h-3.5 w-3.5 shrink-0 rounded border-border text-primary accent-primary m-0 cursor-default pointer-events-none self-center"
           {...props}
         />
       );
