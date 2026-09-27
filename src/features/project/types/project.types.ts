@@ -1,4 +1,5 @@
 import type { UserMinimal } from '@/features/dashboard/types/dashboard.types';
+import type { TaskPriority, TaskStatus } from '@/types/domain';
 
 export type ProjectVisibility = 'PUBLIC' | 'PRIVATE';
 export const ProjectVisibility = {
@@ -121,4 +122,73 @@ export interface ProjectDetail extends ProjectSummary {
   statusUpdates: ProjectStatusUpdate[];
   boards: ProjectBoardSummary[];
   sprints: ProjectSprintSummary[];
+}
+
+export interface ProjectTaskItem {
+  id: string;
+  title: string;
+  key?: string | null;
+  taskNumber?: number | null;
+  description?: string | null;
+  priority: TaskPriority;
+  status: TaskStatus;
+  dueDate?: string | null;
+  order: number;
+  isBacklog?: boolean;
+  storyPoints?: number | null;
+  estimatedHours?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  assignee?: UserMinimal | null;
+  column?: {
+    id: string;
+    title: string;
+    order?: number;
+    board?: {
+      id: string;
+      title: string;
+    };
+  };
+  labels?: {
+    id: string;
+    name: string;
+    color: string;
+  }[];
+  checklists?: {
+    id: string;
+    title: string;
+    isCompleted: boolean;
+    order: number;
+  }[];
+  checklistProgress?: {
+    total: number;
+    completed: number;
+    percentage: number;
+  };
+  _count?: {
+    comments?: number;
+    attachments?: number;
+    checklists?: number;
+  };
+  commentsCount?: number;
+  attachmentsCount?: number;
+}
+
+export interface ProjectTasksResponse {
+  project?: {
+    id: string;
+    title: string;
+    key: string;
+    slug: string;
+    workspaceId: string;
+  };
+  tasks: ProjectTaskItem[];
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }

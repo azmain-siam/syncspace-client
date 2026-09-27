@@ -7,6 +7,8 @@ import type {
   ProjectHealth,
   ProjectLink,
   ProjectStatusUpdate,
+  ProjectTaskItem,
+  ProjectTasksResponse,
 } from '../types/project.types';
 
 export const projectApi = {
@@ -91,8 +93,8 @@ export const projectApi = {
   getProjectTasks: async (
     workspaceId: string,
     projectId: string,
-  ): Promise<ApiResponse<Task[]>> => {
-    const response = await apiClient.get<ApiResponse<Task[]>>(
+  ): Promise<ApiResponse<ProjectTasksResponse | ProjectTaskItem[]>> => {
+    const response = await apiClient.get<ApiResponse<ProjectTasksResponse | ProjectTaskItem[]>>(
       `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
     );
     return response.data;
