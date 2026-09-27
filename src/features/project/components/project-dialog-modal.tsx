@@ -78,6 +78,7 @@ const projectFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional().or(z.literal('')),
+  brief: z.string().optional().or(z.literal('')),
   icon: z.string().optional().or(z.literal('')),
   color: z
     .string()
@@ -166,6 +167,7 @@ export function ProjectDialogModal({
       title: '',
       key: '',
       description: '',
+      brief: '',
       icon: 'folder',
       color: '#4648d4',
       visibility: ProjectVisibility.PUBLIC,
@@ -197,6 +199,7 @@ export function ProjectDialogModal({
           title: projectToEdit.title,
           key: projectToEdit.key || '',
           description: projectToEdit.description || '',
+          brief: projectToEdit.brief || '',
           icon: projectToEdit.icon || 'folder',
           color: projectToEdit.color || '#4648d4',
           visibility: projectToEdit.visibility || ProjectVisibility.PUBLIC,
@@ -214,6 +217,7 @@ export function ProjectDialogModal({
           title: '',
           key: '',
           description: '',
+          brief: '',
           icon: 'folder',
           color: '#4648d4',
           visibility: ProjectVisibility.PUBLIC,
@@ -248,6 +252,7 @@ export function ProjectDialogModal({
       repoUrl: data.repoUrl || undefined,
       icon: data.icon || undefined,
       description: data.description || undefined,
+      brief: data.brief || (projectToEdit?.brief ?? undefined),
     };
 
     if (isEditing && projectToEdit) {

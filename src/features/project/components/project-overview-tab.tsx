@@ -1,28 +1,45 @@
 'use client';
-
 import * as React from 'react';
 import {
   Activity,
   Calendar,
   Clock,
+  Copy,
   FileText,
   Key,
+  Layers,
   Lock,
+  MoreHorizontal,
   Pencil,
   Plus,
   Shield,
   Sparkles,
+  Target,
+  Trash2,
   Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ProjectHealth, ProjectStatus } from '@/types/domain';
 import type { ProjectDetail, ProjectMemberRole } from '../types/project.types';
 import { useProjectStatusUpdates } from '../hooks/use-project-status-updates';
+import { useUpdateProject } from '../hooks/use-update-project';
 import { ProjectHealthBadge } from './project-health-badge';
 import { ProjectLinksWidget } from './project-links-widget';
+import { MarkdownRenderer } from './project-brief-modal';
+import {
+  PROJECT_BRIEF_TEMPLATES,
+  calculateBriefStats,
+} from '../lib/project-brief-templates';
 
 interface ProjectOverviewTabProps {
   project: ProjectDetail;
@@ -30,6 +47,7 @@ interface ProjectOverviewTabProps {
   canManage?: boolean;
   onPostStatusUpdate?: () => void;
   onEditProject?: () => void;
+  onEditBrief?: (templateId?: string) => void;
   className?: string;
 }
 
@@ -77,75 +95,13 @@ function getRoleBadgeStyle(role: ProjectMemberRole) {
   }
 }
 
-// Lightweight Markdown Renderer for Brief
-function MarkdownBriefViewer({ content }: { content: string }) {
-  const lines = content.split('\n');
-
-  return (
-    <div className="space-y-3 text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal">
-      {lines.map((line, idx) => {
-        const trimmed = line.trim();
-
-        if (trimmed.startsWith('# ')) {
-          return (
-            <h2 key={idx} className="text-base sm:text-lg font-bold text-foreground mt-4 pt-1 border-b border-border/40 pb-1">
-              {trimmed.slice(2)}
-            </h2>
-          );
-        }
-
-        if (trimmed.startsWith('## ')) {
-          return (
-            <h3 key={idx} className="text-sm sm:text-base font-bold text-foreground mt-3">
-              {trimmed.slice(3)}
-            </h3>
-          );
-        }
-
-        if (trimmed.startsWith('### ')) {
-          return (
-            <h4 key={idx} className="text-xs sm:text-sm font-bold text-foreground mt-2">
-              {trimmed.slice(4)}
-            </h4>
-          );
-        }
-
-        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-          return (
-            <div key={idx} className="flex items-start gap-2 pl-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <span>{trimmed.slice(2)}</span>
-            </div>
-          );
-        }
-
-        if (trimmed.startsWith('> ')) {
-          return (
-            <blockquote
-              key={idx}
-              className="border-l-2 border-primary/60 bg-muted/30 px-3 py-1.5 rounded-r-lg italic text-muted-foreground"
-            >
-              {trimmed.slice(2)}
-            </blockquote>
-          );
-        }
-
-        if (!trimmed) {
-          return <div key={idx} className="h-2" />;
-        }
-
-        return <p key={idx}>{line}</p>;
-      })}
-    </div>
-  );
-}
-
 export function ProjectOverviewTab({
   project,
   workspaceId,
   canManage = false,
   onPostStatusUpdate,
   onEditProject,
+  onEditBrief,
   className,
 }: ProjectOverviewTabProps) {
   const { data: statusUpdatesResponse } = useProjectStatusUpdates(
@@ -153,6 +109,26 @@ export function ProjectOverviewTab({
     project.id,
   );
   const statusUpdates = statusUpdatesResponse?.data || project.statusUpdates || [];
+  const updateProjectMutation = useUpdateProject(workspaceId, project.id);
+
+  const briefStats = React.useMemo(() => calculateBriefStats(project.brief), [project.brief]);
+
+  const handleCopyBrief = async () => {
+    if (project.brief) {
+      await navigator.clipboard.writeText(project.brief);
+      toast.success('Project brief copied to clipboard');
+    }
+  };
+
+  const handleClearBrief = async () => {
+    if (
+      window.confirm(
+        'Are you sure you want to clear the project brief? This action cannot be undone.',
+      )
+    ) {
+      await updateProjectMutation.mutateAsync({ brief: '' });
+    }
+  };
 
   return (
     <div className={cn('grid grid-cols-1 lg:grid-cols-12 gap-6', className)}>
@@ -168,27 +144,64 @@ export function ProjectOverviewTab({
               <h3 className="font-bold text-sm text-foreground">
                 Scope & Objectives
               </h3>
+              {project.brief && (
+                <span className="text-[10px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border/60 hidden sm:inline">
+                  {briefStats.words} words · ~{briefStats.minutes} min read
+                </span>
+              )}
             </div>
 
             {canManage && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onEditProject}
-                className="h-7 rounded-lg gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs hover:bg-muted"
-              >
-                <Pencil className="h-3 w-3" />
-                <span>Edit Brief</span>
-              </Button>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => (onEditBrief ? onEditBrief() : onEditProject?.())}
+                  className="h-7 rounded-lg gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs hover:bg-muted"
+                >
+                  <Pencil className="h-3 w-3" />
+                  <span>{project.brief ? 'Edit Brief' : 'Write Brief'}</span>
+                </Button>
+
+                {project.brief && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem
+                        onClick={() => void handleCopyBrief()}
+                        className="gap-2 text-xs cursor-pointer"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                        <span>Copy Markdown</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => void handleClearBrief()}
+                        className="gap-2 text-xs text-destructive focus:text-destructive cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Clear Brief</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
             )}
           </div>
 
           {project.brief ? (
-            <div className="bg-muted/20 rounded-xl p-4 border border-border/40">
-              <MarkdownBriefViewer content={project.brief} />
+            <div className="bg-muted/15 rounded-xl p-5 border border-border/40 overflow-hidden">
+              <MarkdownRenderer content={project.brief} />
             </div>
           ) : (
-            <div className="text-center py-8 px-4 rounded-xl border border-dashed border-border/70 bg-muted/20 space-y-2.5">
+            <div className="text-center py-7 px-4 rounded-xl border border-dashed border-border/70 bg-muted/15 space-y-4">
               <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
                 <FileText className="h-5 w-5" />
               </div>
@@ -200,16 +213,44 @@ export function ProjectOverviewTab({
                   Clarify technical goals, architecture decisions, and core delivery milestones for this initiative.
                 </p>
               </div>
+
               {canManage && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={onEditProject}
-                  className="rounded-lg gap-1.5 text-xs font-semibold cursor-pointer"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Write Project Brief</span>
-                </Button>
+                <div className="space-y-3 pt-1">
+                  <Button
+                    size="sm"
+                    onClick={() => (onEditBrief ? onEditBrief() : onEditProject?.())}
+                    className="rounded-lg gap-1.5 text-xs font-semibold cursor-pointer shadow-xs"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Write Project Brief</span>
+                  </Button>
+
+                  <div className="pt-2 border-t border-border/50 max-w-lg mx-auto">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
+                      Or start with an enterprise template
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
+                      {PROJECT_BRIEF_TEMPLATES.map((tmpl) => (
+                        <button
+                          key={tmpl.id}
+                          type="button"
+                          onClick={() => onEditBrief?.(tmpl.id)}
+                          className="p-2.5 rounded-xl border border-border/70 bg-card hover:border-primary/50 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                        >
+                          <div className="font-bold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
+                            {tmpl.id === 'prd' && <FileText className="h-3 w-3 text-primary" />}
+                            {tmpl.id === 'rfc' && <Layers className="h-3 w-3 text-primary" />}
+                            {tmpl.id === 'charter' && <Target className="h-3 w-3 text-primary" />}
+                            <span>{tmpl.title}</span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-snug">
+                            {tmpl.subtitle}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}

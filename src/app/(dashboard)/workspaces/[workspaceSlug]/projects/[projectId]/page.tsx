@@ -46,6 +46,14 @@ const ProjectStatusUpdateModal = dynamic(
   { ssr: false },
 );
 
+const ProjectBriefModal = dynamic(
+  () =>
+    import('@/features/project/components/project-brief-modal').then(
+      (mod) => mod.ProjectBriefModal,
+    ),
+  { ssr: false },
+);
+
 import { useProjectDetail } from '@/features/project/hooks/use-project-detail';
 import { KanbanBoard } from '@/features/board/components';
 import { SprintBacklogView } from '@/features/sprint';
@@ -99,6 +107,13 @@ function ProjectDetailsContent({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
   const [statusUpdateModalOpen, setStatusUpdateModalOpen] = useState(false);
+  const [briefModalOpen, setBriefModalOpen] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>(undefined);
+
+  const handleOpenBriefEditor = (templateId?: string) => {
+    setSelectedTemplateId(templateId);
+    setBriefModalOpen(true);
+  };
 
   const isLoading = workspaceLoading || projectLoading;
 
@@ -250,6 +265,7 @@ function ProjectDetailsContent({
             canManage={permissions.canEditProject}
             onPostStatusUpdate={() => setStatusUpdateModalOpen(true)}
             onEditProject={() => setEditModalOpen(true)}
+            onEditBrief={handleOpenBriefEditor}
           />
         )}
 
@@ -290,6 +306,19 @@ function ProjectDetailsContent({
           workspaceId={workspaceId}
           projectId={project.id}
           currentHealth={project.health}
+          projectTitle={project.title}
+        />
+      )}
+
+      {/* Project Brief Specification Modal */}
+      {briefModalOpen && (
+        <ProjectBriefModal
+          open={briefModalOpen}
+          onOpenChange={setBriefModalOpen}
+          workspaceId={workspaceId}
+          projectId={project.id}
+          initialBrief={project.brief}
+          initialTemplateId={selectedTemplateId}
           projectTitle={project.title}
         />
       )}

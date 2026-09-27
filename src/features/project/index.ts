@@ -18,4 +18,6 @@ export * from './components/project-tasks-tab';
 export * from './hooks/use-project-status-updates';
 export * from './hooks/use-project-links';
 export * from './hooks/use-project-tasks';
+export * from './components/project-brief-modal';
 export * from './lib/project-icons';
+export * from './lib/project-brief-templates';

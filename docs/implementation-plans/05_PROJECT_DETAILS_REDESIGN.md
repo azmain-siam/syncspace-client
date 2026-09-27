@@ -167,4 +167,9 @@ All 7 sub-phases of the Single Project Details Redesign have been successfully c
 4. **`ProjectOverviewTab`**: 2-column layout with Markdown brief reader, chronological executive status history timeline, team roster, and project metadata.
 5. **`ProjectTasksTab` & `useProjectTasks`**: Linear-class dense task table with live search, status filter pills ribbon, priority selector, due date intelligence, and slide-over `TaskDetailSheet`.
 6. **Unified Assembly**: Integrated 4-tab App Router experience with URL synchronization and layout-matched skeletons.
-7. **Strict Quality Gates**: Zero `any` types, 0 TypeScript errors, 0 ESLint errors, and clean Turbopack production build.
+7. **Enterprise Project Brief Specification Suite**:
+   - `ProjectBriefModal`: Full-featured Markdown editor with live preview, split view, rich formatting toolbar (headings, bold, lists, quotes, tables, checklists), and keyboard shortcuts (`Ctrl+Enter`).
+   - `PROJECT_BRIEF_TEMPLATES`: Pre-built enterprise templates (Product PRD, Technical RFC, Milestone Delivery Charter) with 1-click quick-start insertion.
+   - `ProjectOverviewTab`: Telemetry badge (`words · read time`), copy markdown action, clear brief confirmation, and quick template starter cards in empty state.
+8. **Strict Quality Gates**: Zero `any` types, 0 TypeScript errors, 0 ESLint errors, and clean Turbopack production build.
+
