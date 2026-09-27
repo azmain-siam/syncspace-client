@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import { useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -27,6 +28,10 @@ import { AuthDivider } from './auth-divider';
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const emailParam = searchParams.get('email');
+
   const usernameEditedRef = useRef(false);
   const registerMutation = useRegister();
 
@@ -41,7 +46,7 @@ export function RegisterForm() {
     defaultValues: {
       username: '',
       name: '',
-      email: '',
+      email: emailParam || '',
       phone: '',
       password: '',
       confirmPassword: '',
@@ -87,7 +92,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row">
+    <main className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Decorative Glow */}
@@ -101,9 +106,9 @@ export function RegisterForm() {
         {/* Center Copy & Showcase Mockup */}
         <div className="space-y-8 my-auto max-w-lg mx-auto text-left">
           <div className="space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <p className="text-4xl font-extrabold tracking-tight text-white leading-tight">
               Collaborate in real-time, across any distance.
-            </h1>
+            </p>
             <p className="text-sm text-white/70 leading-relaxed font-normal">
               Experience frictionless teamwork with our proprietary sync engine. From wireframes to deep work, SyncSpace keeps your team in flow.
             </p>
@@ -181,16 +186,19 @@ export function RegisterForm() {
                 <Input
                   id="name"
                   type="text"
+                  autoComplete="name"
                   placeholder="Alex Johnson"
                   className="pl-10 h-11"
                   error={!!errors.name}
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
                   {...register('name', {
                     onChange: handleNameChange,
                   })}
                 />
               </div>
               {errors.name && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="name-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.name.message}
                 </p>
               )}
@@ -207,9 +215,12 @@ export function RegisterForm() {
                 <Input
                   id="username"
                   type="text"
+                  autoComplete="username"
                   placeholder="alexj"
                   className="pl-10 h-11 font-mono text-sm"
                   error={!!errors.username}
+                  aria-invalid={!!errors.username}
+                  aria-describedby={errors.username ? 'username-error' : 'username-desc'}
                   {...register('username', {
                     onChange: () => {
                       usernameEditedRef.current = true;
@@ -218,11 +229,11 @@ export function RegisterForm() {
                 />
               </div>
               {errors.username ? (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="username-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.username.message}
                 </p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">
+                <p id="username-desc" className="text-[11px] text-muted-foreground">
                   Letters, numbers, underscores, and hyphens (3–30 characters).
                 </p>
               )}
@@ -236,16 +247,19 @@ export function RegisterForm() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="alex@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   {...register('email', {
                     onChange: handleEmailChange,
                   })}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="email-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
@@ -262,14 +276,17 @@ export function RegisterForm() {
                 <Input
                   id="phone"
                   type="tel"
+                  autoComplete="tel"
                   placeholder="+1 (555) 123-4567"
                   className="pl-10 h-11"
                   error={!!errors.phone}
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? 'phone-error' : undefined}
                   {...register('phone')}
                 />
               </div>
               {errors.phone && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="phone-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.phone.message}
                 </p>
               )}
@@ -283,9 +300,12 @@ export function RegisterForm() {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.password}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register('password')}
                 />
                 <button
@@ -314,7 +334,7 @@ export function RegisterForm() {
               </p>
 
               {errors.password && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.password.message}
                 </p>
               )}
@@ -328,9 +348,12 @@ export function RegisterForm() {
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.confirmPassword}
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
                   {...register('confirmPassword')}
                 />
                 <button
@@ -348,7 +371,7 @@ export function RegisterForm() {
               </div>
 
               {errors.confirmPassword && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="confirm-password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -375,7 +398,11 @@ export function RegisterForm() {
           <div className="border-t border-border/40 pt-4 text-center text-xs text-muted-foreground">
             Already have an account?{' '}
             <Link
-              href="/login"
+              href={
+                redirectParam
+                  ? `/login?redirect=${encodeURIComponent(redirectParam)}`
+                  : '/login'
+              }
               className="font-bold text-primary hover:underline transition-all"
             >
               Log in
@@ -387,11 +414,15 @@ export function RegisterForm() {
         <div className="w-full max-w-100 mx-auto pt-6 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace Technologies.</div>
           <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer">Security</span>
-            <span className="hover:text-foreground cursor-pointer">Help Center</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

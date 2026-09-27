@@ -59,7 +59,7 @@ export function CreateWorkspaceModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[420px] rounded-2xl">
+      <DialogContent className="sm:max-w-[420px] rounded-2xl max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1">
             <Building2 className="h-5 w-5" />

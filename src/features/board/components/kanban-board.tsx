@@ -20,10 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/features/auth/stores/use-auth-store';
-import { useWorkspaceStore } from '@/features/workspace/stores/use-workspace-store';
-import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
-import { WorkspaceRole, type ApiResponse, type BoardColumn } from '@/types/domain';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
+import type { ApiResponse, BoardColumn } from '@/types/domain';
 
 import {
   useProjectBoards,
@@ -47,10 +45,19 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { DragDropProvider, DragOverlay, type DragStartEvent, type DragEndEvent } from '@dnd-kit/react';
 import { useMoveTask, useDeleteTask } from '@/features/task/hooks';
-import { CreateTaskModal } from '@/features/task/components/create-task-modal';
-import { TaskDetailSheet } from '@/features/task/components/task-detail-sheet';
+import dynamic from 'next/dynamic';
 import { TaskCard } from '@/features/task/components/task-card';
 import type { Task, PaginatedTasksResponse } from '@/features/task/types/task.types';
+
+const CreateTaskModal = dynamic(
+  () => import('@/features/task/components/create-task-modal').then((mod) => mod.CreateTaskModal),
+  { ssr: false },
+);
+
+const TaskDetailSheet = dynamic(
+  () => import('@/features/task/components/task-detail-sheet').then((mod) => mod.TaskDetailSheet),
+  { ssr: false },
+);
 
 interface KanbanBoardProps {
   workspaceId: string;
@@ -58,18 +65,14 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
-  // Current user & RBAC
-  const currentUser = useAuthStore((state) => state.user);
-  const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
-  const { data: membersResponse } = useWorkspaceMembers(workspaceId);
+  // Centralized RBAC
+  const permissions = useWorkspacePermissions(workspaceId);
+  const canManageBoard = permissions.canManageBoardStructure;
 
-  const canManage = useMemo(() => {
-    if (!currentUser) return false;
-    if (activeWorkspace?.ownerId === currentUser.id) return true;
-    const members = membersResponse?.data || [];
-    const member = members.find((m) => m.userId === currentUser.id);
-    return member?.role === WorkspaceRole.OWNER || member?.role === WorkspaceRole.ADMIN;
-  }, [currentUser, activeWorkspace, membersResponse]);
+  // Routing & URL synchronization
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const boardParam = searchParams.get('board');
 
   // Project Boards
   const {
@@ -83,11 +86,21 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
 
   const activeBoardId = useMemo(() => {
+    if (boardParam && boards.some((b) => b.id === boardParam)) {
+      return boardParam;
+    }
     if (selectedBoardId && boards.some((b) => b.id === selectedBoardId)) {
       return selectedBoardId;
     }
     return boards[0]?.id || null;
-  }, [boards, selectedBoardId]);
+  }, [boards, boardParam, selectedBoardId]);
+
+  const handleSelectBoard = (boardId: string) => {
+    setSelectedBoardId(boardId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('board', boardId);
+    window.history.replaceState(null, '', `${pathname}?${params.toString()}`);
+  };
 
   const activeBoard = useMemo(
     () => boards.find((b) => b.id === activeBoardId) || null,
@@ -159,8 +172,6 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   const [createTaskColumnId, setCreateTaskColumnId] = useState<string>('');
 
   // Task Detail Drawer state & URL synchronization
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const taskParam = searchParams.get('task') || searchParams.get('taskId');
   const [clientTaskId, setClientTaskId] = useState<string | null>(null);
 
@@ -257,7 +268,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   );
 
   const handleMoveTaskToColumn = (task: Task, targetColumnId: string) => {
-    if (!canManage) return;
+    if (!permissions.canMoveTask) return;
     const targetCol = columns.find((c) => c.id === targetColumnId);
     const targetOrder = targetCol?.tasks?.length || 0;
     moveTaskMutation.mutate({
@@ -268,7 +279,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
   };
 
   const handleDeleteTask = (task: Task) => {
-    if (!canManage) return;
+    if (!permissions.canDeleteTask(task.createdBy)) return;
     deleteTaskMutation.mutate(task.id);
   };
 
@@ -362,13 +373,14 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
 
   // DragDropProvider event handlers
   const handleDragStart = (event: DragStartEvent) => {
-    if (!canManage) return;
     const { source } = event.operation;
     if (!source) return;
     if (source.type === 'item') {
+      if (!permissions.canMoveTask) return;
       setActiveTaskId(String(source.id));
       setActiveColumnId(null);
     } else if (source.type === 'column') {
+      if (!canManageBoard) return;
       setActiveColumnId(String(source.id));
       setActiveTaskId(null);
     }
@@ -379,13 +391,14 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     setActiveTaskId(null);
     setActiveColumnId(null);
 
-    if (event.canceled || !canManage) return;
+    if (event.canceled) return;
 
     const { source, target } = event.operation;
     if (!source || !target) return;
 
     // 1. Column Reordering
     if (source.type === 'column') {
+      if (!canManageBoard) return;
       const sourceColumnId = String(source.id).replace('column-droppable-', '');
       let targetColumnId = String(target.id).replace('column-droppable-', '');
 
@@ -422,6 +435,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
 
     // 2. Task Moving / Reordering
     if (source.type === 'item') {
+      if (!permissions.canMoveTask) return;
       const taskId = String(source.id);
       let targetColumnId: string | null = null;
       let targetOrder = 0;
@@ -541,7 +555,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
     return (
       <>
         <BoardEmptyState
-          canManage={canManage}
+          canManage={canManageBoard}
           onCreateBoard={() => setCreateBoardOpen(true)}
         />
         <CreateBoardModal
@@ -570,7 +584,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
             return (
               <button
                 key={board.id}
-                onClick={() => setSelectedBoardId(board.id)}
+                onClick={() => handleSelectBoard(board.id)}
                 className={`group flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-xs font-bold'
@@ -584,7 +598,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           })}
 
           {/* New Board Button */}
-          {canManage && (
+          {canManageBoard && (
             <Button
               variant="outline"
               size="sm"
@@ -600,7 +614,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
         {/* Board Header Actions */}
         {activeBoard && (
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            {canManage && (
+            {canManageBoard && (
               <Button
                 variant="default"
                 size="sm"
@@ -612,7 +626,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
               </Button>
             )}
 
-            {canManage && (
+            {canManageBoard && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -713,7 +727,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
               Create your first workflow stage column (e.g. &quot;To Do&quot;, &quot;In Progress&quot;, &quot;Done&quot;) to start organizing tasks.
             </p>
           </div>
-          {canManage && (
+          {canManageBoard && (
             <Button
               onClick={() => setCreateColumnOpen(true)}
               className="h-10 rounded-xl px-5 text-xs font-semibold gap-2 shadow-xs"
@@ -741,7 +755,10 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
                 column={column}
                 index={index}
                 totalColumns={columns.length}
-                canManage={canManage}
+                canManage={canManageBoard}
+                canCreateTask={permissions.canCreateTask}
+                canMoveTask={permissions.canMoveTask}
+                canDeleteTask={permissions.canDeleteTask}
                 onEditColumn={(col) => setColumnToEdit(col)}
                 onDeleteColumn={(col) => setColumnToDelete(col)}
                 onMoveColumn={handleMoveColumn}
@@ -757,7 +774,7 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
             ))}
 
             {/* Quick Add Column Card */}
-            {canManage && (
+            {canManageBoard && (
               <button
                 type="button"
                 onClick={() => setCreateColumnOpen(true)}
@@ -862,26 +879,31 @@ export function KanbanBoard({ workspaceId, projectId }: KanbanBoardProps) {
           />
 
           {/* Create Task Modal */}
-          <CreateTaskModal
-            open={createTaskModalOpen}
-            onOpenChange={setCreateTaskModalOpen}
-            workspaceId={workspaceId}
-            projectId={projectId}
-            boardId={activeBoard.id}
-            columnId={createTaskColumnId || columns[0]?.id || ''}
-            columns={columns.map((c) => ({ id: c.id, title: c.title }))}
-          />
+          {createTaskModalOpen && (
+            <CreateTaskModal
+              open={createTaskModalOpen}
+              onOpenChange={setCreateTaskModalOpen}
+              workspaceId={workspaceId}
+              projectId={projectId}
+              boardId={activeBoard.id}
+              columnId={createTaskColumnId || columns[0]?.id || ''}
+              columns={columns.map((c) => ({ id: c.id, title: c.title }))}
+            />
+          )}
 
           {/* Task Detail Sheet */}
-          <TaskDetailSheet
-            taskIdOrKey={selectedTaskIdOrKey}
-            open={taskDetailOpen}
-            onOpenChange={handleCloseTaskDetail}
-            workspaceId={workspaceId}
-            projectId={projectId}
-            boardId={activeBoard.id}
-            canManage={canManage}
-          />
+          {taskDetailOpen && (
+            <TaskDetailSheet
+              taskIdOrKey={selectedTaskIdOrKey}
+              open={taskDetailOpen}
+              onOpenChange={handleCloseTaskDetail}
+              workspaceId={workspaceId}
+              projectId={projectId}
+              boardId={activeBoard.id}
+              columns={columns.map((c) => ({ id: c.id, title: c.title }))}
+              canManage={permissions.canEditTask}
+            />
+          )}
         </>
       )}
     </div>

@@ -87,7 +87,7 @@ export default function WorkspaceSettingsPage({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Settings Navigation Header */}
       <WorkspaceSettingsNav
         workspaceSlug={workspaceSlug}

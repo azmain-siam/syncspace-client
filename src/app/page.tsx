@@ -6,7 +6,6 @@ import {
   BarChart3,
   Check,
   CheckCircle2,
-  Code2,
   Cpu,
   Globe,
   Layers,
@@ -226,8 +225,10 @@ export default function Home() {
         </SheetContent>
       </Sheet>
 
-      {/* ─── 2. Hero Section ─── */}
-      <section className="relative px-4 sm:px-6 pt-12 sm:pt-16 pb-16 sm:pb-20 max-w-6xl mx-auto flex flex-col items-center text-center w-full">
+      {/* ─── Main Content Landmark ─── */}
+      <main id="main-content" className="flex-1">
+        {/* ─── 2. Hero Section ─── */}
+        <section className="relative px-4 sm:px-6 pt-12 sm:pt-16 pb-16 sm:pb-20 max-w-6xl mx-auto flex flex-col items-center text-center w-full">
         {/* Top Pill Tag */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-xs font-semibold mb-8 shadow-xs">
           <Sparkles className="h-3.5 w-3.5" /> The Workspace for Teams
@@ -437,27 +438,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 3. Trust Bar ─── */}
+      {/* ─── 3. Capabilities Highlight Bar ─── */}
       <section className="py-10 sm:py-12 border-y border-border/60 bg-muted/30 text-center px-4 sm:px-6 w-full overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-6 sm:mb-8">
-            TRUSTED BY HIGH-PERFORMING TEAMS AT
+            ENGINEERED FOR HIGH-VELOCITY AGILE TEAMS
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all">
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
-              <Cpu className="h-4 w-4 sm:h-5 sm:w-5" /> Acme Corp
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-14 text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Real-time WebSockets
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
-              <Zap className="h-4 w-4 sm:h-5 sm:w-5" /> Vercel
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground">
+              <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Interactive Kanban
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
-              <Globe className="h-4 w-4 sm:h-5 sm:w-5" /> Supabase
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground">
+              <Cpu className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Sprint Planning &amp; SP
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
-              <Layers className="h-4 w-4 sm:h-5 sm:w-5" /> Linear
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Velocity Analytics
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold tracking-tight">
-              <Code2 className="h-4 w-4 sm:h-5 sm:w-5" /> Raycast
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-tight text-foreground">
+              <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> Role Governance
             </div>
           </div>
         </div>
@@ -835,8 +836,7 @@ export default function Home() {
                   SSO & Audit Logs
                 </li>
                 <li className="flex items-center gap-2.5 text-foreground">
-                  <Check className="h-4 w-4 text-emerald-500 shrink-0" /> 99.9%
-                  SLA Uptime
+                  <Check className="h-4 w-4 text-emerald-500 shrink-0" /> High Availability &amp; Resilient Sync
                 </li>
                 <li className="flex items-center gap-2.5 text-foreground">
                   <Check className="h-4 w-4 text-emerald-500 shrink-0" /> Custom
@@ -875,13 +875,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* ─── 8. Footer ─── */}
       <footer
         id="company"
         className="border-t border-border bg-card py-16 px-6 text-sm"
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 sm:gap-10">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand Col */}
           <div className="col-span-2 sm:col-span-3 md:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
@@ -893,8 +894,8 @@ export default function Home() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
-              The workspace for the next generation of teams. Real-time
-              collaboration, Kanban boards, and workflow clarity.
+              The modern workspace for agile engineering and product teams. Real-time
+              collaboration, interactive Kanban boards, and workflow clarity.
             </p>
           </div>
 
@@ -939,60 +940,27 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Platform Links */}
+          {/* Legal Links */}
           <div className="space-y-3">
             <div className="text-xs font-bold uppercase tracking-wider text-foreground">
-              PLATFORM
+              LEGAL &amp; POLICIES
             </div>
             <ul className="space-y-2 text-xs font-medium text-muted-foreground">
               <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Realtime Gateway
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  REST API
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Security
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Status Page
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div className="space-y-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-foreground">
-              COMPANY
-            </div>
-            <ul className="space-y-2 text-xs font-medium text-muted-foreground">
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  About Us
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
-                  Careers
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-foreground cursor-pointer">
+                <Link
+                  href="/privacy"
+                  className="hover:text-foreground transition-colors"
+                >
                   Privacy Policy
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="hover:text-foreground cursor-pointer">
+                <Link
+                  href="/terms"
+                  className="hover:text-foreground transition-colors"
+                >
                   Terms of Service
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -1003,10 +971,12 @@ export default function Home() {
             © {new Date().getFullYear()} SyncSpace Inc. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
-            <span className="hover:text-foreground cursor-pointer">
-              Privacy
-            </span>
-            <span className="hover:text-foreground cursor-pointer">Terms</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>
           </div>
         </div>
       </footer>

@@ -44,7 +44,8 @@ export function ColumnActionMenu({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-lg transition-colors"
+          onClick={(e) => e.stopPropagation()}
+          className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-lg transition-colors cursor-pointer"
           aria-label="Column options"
         >
           <MoreVertical className="h-4 w-4" />

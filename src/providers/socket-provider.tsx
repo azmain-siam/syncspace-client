@@ -27,6 +27,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const token = accessToken || getStoredAccessToken();
 
     if (!token) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setSocket(null);
+        setIsConnected(false);
+      }
       return;
     }
 

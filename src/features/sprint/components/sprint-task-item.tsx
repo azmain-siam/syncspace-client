@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { SprintTask, Sprint } from '../types/sprint.types';
 import { useAssignTaskToSprint } from '../hooks/use-sprint-mutations';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from '@/lib/constants/task-theme';
 
 interface SprintTaskItemProps {
   task: SprintTask;
@@ -38,20 +39,20 @@ const PRIORITY_BADGES: Record<
   { label: string; className: string }
 > = {
   URGENT: {
-    label: 'Urgent',
-    className: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+    label: TASK_PRIORITY_CONFIG.URGENT.label,
+    className: TASK_PRIORITY_CONFIG.URGENT.badgeClass,
   },
   HIGH: {
-    label: 'High',
-    className: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    label: TASK_PRIORITY_CONFIG.HIGH.label,
+    className: TASK_PRIORITY_CONFIG.HIGH.badgeClass,
   },
   MEDIUM: {
-    label: 'Medium',
-    className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    label: TASK_PRIORITY_CONFIG.MEDIUM.label,
+    className: TASK_PRIORITY_CONFIG.MEDIUM.badgeClass,
   },
   LOW: {
-    label: 'Low',
-    className: 'bg-muted text-muted-foreground border-border',
+    label: TASK_PRIORITY_CONFIG.LOW.label,
+    className: TASK_PRIORITY_CONFIG.LOW.badgeClass,
   },
 };
 
@@ -60,20 +61,20 @@ const STATUS_BADGES: Record<
   { label: string; className: string }
 > = {
   DONE: {
-    label: 'Done',
-    className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    label: TASK_STATUS_CONFIG.DONE.label,
+    className: TASK_STATUS_CONFIG.DONE.badgeClass,
   },
   REVIEW: {
-    label: 'In Review',
-    className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+    label: TASK_STATUS_CONFIG.REVIEW.label,
+    className: TASK_STATUS_CONFIG.REVIEW.badgeClass,
   },
   IN_PROGRESS: {
-    label: 'In Progress',
-    className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    label: TASK_STATUS_CONFIG.IN_PROGRESS.label,
+    className: TASK_STATUS_CONFIG.IN_PROGRESS.badgeClass,
   },
   TODO: {
-    label: 'To Do',
-    className: 'bg-muted text-muted-foreground border-border',
+    label: TASK_STATUS_CONFIG.TODO.label,
+    className: TASK_STATUS_CONFIG.TODO.badgeClass,
   },
 };
 

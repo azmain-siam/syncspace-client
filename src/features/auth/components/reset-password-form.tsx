@@ -38,7 +38,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
+    <main className="w-full min-h-screen bg-muted/20 flex flex-col justify-between items-center p-4 sm:p-6 text-foreground">
       {/* Top Brand Mark */}
       <div className="pt-6 pb-2 text-center flex flex-col items-center gap-2">
         <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-xs">
@@ -160,13 +160,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <footer className="w-full max-w-5xl py-6 border-t border-border/60 text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="font-extrabold text-foreground tracking-tight">SyncSpace</div>
         <div className="flex flex-wrap items-center gap-6">
-          <span className="hover:text-foreground cursor-pointer">Privacy Policy</span>
-          <span className="hover:text-foreground cursor-pointer">Terms of Service</span>
-          <span className="hover:text-foreground cursor-pointer">Security</span>
-          <span className="hover:text-foreground cursor-pointer">Help Center</span>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
         </div>
         <div>© {new Date().getFullYear()} SyncSpace Technologies. All rights reserved.</div>
       </footer>
-    </div>
+    </main>
   );
 }

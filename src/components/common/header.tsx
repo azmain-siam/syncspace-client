@@ -7,9 +7,14 @@ import { Button } from '@/components/ui/button';
 import { UserProfileMenu } from '@/features/workspace/components/user-profile-menu';
 import { useSocket } from '@/providers/socket-provider';
 import { NotificationPopover } from '@/features/notification';
+import dynamic from 'next/dynamic';
 import { Breadcrumb } from './breadcrumb';
-import { SearchCommandModal } from './search-command-modal';
 import { ThemeToggle } from './theme-toggle';
+
+const SearchCommandModal = dynamic(
+  () => import('./search-command-modal').then((mod) => mod.SearchCommandModal),
+  { ssr: false },
+);
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -34,7 +39,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between gap-4 selection:bg-primary/20 selection:text-primary">
+      <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-card/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 selection:bg-primary/20 selection:text-primary">
         {/* Left Section: Mobile Menu Trigger + Breadcrumb */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
           <Button

@@ -24,7 +24,19 @@ export function useLogin() {
       setAuth(user, tokens.accessToken, tokens.refreshToken);
       queryClient.setQueryData(['user', 'me'], user);
       toast.success(response.message || 'Signed in successfully!');
-      router.push('/dashboard');
+      let destination = '/dashboard';
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const redirectParam = params.get('redirect');
+        if (
+          redirectParam &&
+          redirectParam.startsWith('/') &&
+          !redirectParam.startsWith('//')
+        ) {
+          destination = redirectParam;
+        }
+      }
+      router.push(destination);
     },
     onError: (error) => {
       const errorMessage = formatApiErrorMessage(

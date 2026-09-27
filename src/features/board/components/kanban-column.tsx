@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GripVertical, Plus } from 'lucide-react';
+import { GripVertical, Loader2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,9 @@ interface KanbanColumnProps {
   index: number;
   totalColumns: number;
   canManage: boolean;
+  canCreateTask?: boolean;
+  canMoveTask?: boolean;
+  canDeleteTask?: (taskCreatorId?: string | null) => boolean;
   onEditColumn: (column: BoardColumn) => void;
   onDeleteColumn: (column: BoardColumn) => void;
   onMoveColumn: (fromIndex: number, toIndex: number) => void;
@@ -34,6 +37,9 @@ export function KanbanColumn({
   index,
   totalColumns,
   canManage,
+  canCreateTask,
+  canMoveTask,
+  canDeleteTask,
   onEditColumn,
   onDeleteColumn,
   onMoveColumn,
@@ -43,8 +49,15 @@ export function KanbanColumn({
   onMoveTaskToColumn,
   onDeleteTask,
 }: KanbanColumnProps) {
-  // Query column tasks from the dedicated API
-  const { data: columnTasksResponse, isLoading: tasksLoading } = useColumnTasks(column.id);
+  const allowCreate = canCreateTask ?? canManage;
+  const allowMove = canMoveTask ?? canManage;
+
+  // Pagination limit state to prevent silent truncation of large columns
+  const [limit, setLimit] = React.useState(30);
+
+  // Query column tasks from the dedicated API with configurable limit
+  const { data: columnTasksResponse, isLoading: tasksLoading, isFetching: tasksFetching } =
+    useColumnTasks(column.id, { limit });
 
   const tasks: Task[] = React.useMemo(() => {
     if (columnTasksResponse?.data?.tasks) {
@@ -53,7 +66,9 @@ export function KanbanColumn({
     return (column.tasks as unknown as Task[]) || [];
   }, [columnTasksResponse, column.tasks]);
 
-  const taskCount = tasks.length;
+  const totalCount = columnTasksResponse?.data?.meta?.total ?? tasks.length;
+  const hasMore =
+    (columnTasksResponse?.data?.meta?.hasNextPage ?? false) || tasks.length < totalCount;
 
   const {
     ref: sortableRef,
@@ -98,18 +113,13 @@ export function KanbanColumn({
         (isColumnDropTarget || isTaskDropTarget) && 'ring-2 ring-primary/70 border-primary/80 bg-primary/5',
       )}
     >
-      {/* Column Header (serves as drag handle for column) */}
-      <div
-        ref={canManage ? handleRef : undefined}
-        className={cn(
-          'flex items-center justify-between gap-2 p-3.5 border-b border-border/60 select-none',
-          canManage && 'cursor-grab active:cursor-grabbing',
-        )}
-      >
+      {/* Column Header */}
+      <div className="flex items-center justify-between gap-2 p-3.5 border-b border-border/60 select-none">
         <div className="flex items-center gap-2 min-w-0">
           {canManage && (
             <div
-              className="text-muted-foreground/50 group-hover/column:text-muted-foreground transition-colors -ml-1 p-0.5 rounded hover:bg-muted"
+              ref={handleRef}
+              className="text-muted-foreground/50 group-hover/column:text-muted-foreground transition-colors -ml-1 p-0.5 rounded hover:bg-muted cursor-grab active:cursor-grabbing"
               title="Drag to reorder column"
             >
               <GripVertical className="h-4 w-4" />
@@ -127,14 +137,11 @@ export function KanbanColumn({
             variant="secondary"
             className="h-5 min-w-5 px-1.5 rounded-full text-[11px] font-semibold text-muted-foreground bg-muted/80 flex items-center justify-center shrink-0"
           >
-            {taskCount}
+            {totalCount}
           </Badge>
         </div>
 
-        <div
-          className="flex items-center gap-1 shrink-0"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center gap-1 shrink-0">
           <ColumnActionMenu
             onEdit={() => onEditColumn(column)}
             onDelete={() => onDeleteColumn(column)}
@@ -152,23 +159,23 @@ export function KanbanColumn({
         ref={droppableRef}
         className={cn(
           'flex-1 overflow-y-auto p-2.5 space-y-2.5 scrollbar-thin min-h-[140px] rounded-b-2xl transition-colors',
-          isTaskDropTarget && taskCount === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
+          isTaskDropTarget && tasks.length === 0 && 'bg-primary/10 ring-2 ring-primary/60 border-primary border-dashed',
         )}
       >
         {tasksLoading && tasks.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
             Loading tasks...
           </div>
-        ) : taskCount === 0 ? (
+        ) : tasks.length === 0 ? (
           <div
-            onClick={() => canManage && onAddTask?.(column.id)}
+            onClick={() => allowCreate && onAddTask?.(column.id)}
             className="flex flex-col items-center justify-center h-48 rounded-xl border border-dashed border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors p-4 text-center cursor-pointer group/empty"
           >
             <p className="text-xs font-medium text-muted-foreground group-hover/empty:text-foreground transition-colors">
               No tasks in this stage
             </p>
             <p className="text-[11px] text-muted-foreground/70 mt-1">
-              {canManage ? 'Click to add a task or drag here' : 'Empty stage'}
+              {allowCreate ? 'Click to add a task or drag here' : 'Empty stage'}
             </p>
           </div>
         ) : (
@@ -179,19 +186,44 @@ export function KanbanColumn({
                 task={task}
                 index={taskIdx}
                 columnId={column.id}
-                canManage={canManage}
+                canManage={allowMove}
                 onSelectTask={onSelectTask}
                 availableColumns={availableColumns}
                 onMoveToColumn={onMoveTaskToColumn}
-                onDeleteTask={onDeleteTask}
+                onDeleteTask={
+                  onDeleteTask && (canDeleteTask ? canDeleteTask(task.createdBy) : true)
+                    ? onDeleteTask
+                    : undefined
+                }
               />
             ))}
+
+            {/* Load More Button for Columns with >30 Tasks */}
+            {hasMore && (
+              <div className="pt-1.5 pb-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLimit((prev) => prev + 30)}
+                  disabled={tasksFetching}
+                  className="w-full h-8 text-[11px] font-semibold text-muted-foreground hover:text-foreground border-dashed rounded-xl"
+                >
+                  {tasksFetching ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin mr-1.5" /> Loading...
+                    </>
+                  ) : (
+                    `Load more (${tasks.length} of ${totalCount})`
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Column Footer */}
-      {canManage && (
+      {allowCreate && (
         <div className="p-2.5 pt-0">
           <Button
             variant="ghost"

@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
 import { taskApi } from '../api/task.api';
+import { taskKeys, columnKeys } from './task-keys';
 import type { Task, UpdateTaskRequest } from '../types/task.types';
 
 export function useUpdateTask(
@@ -23,9 +24,9 @@ export function useUpdateTask(
       const taskId = variables.taskId;
 
       // Invalidate specific task cache
-      queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       if (response.data?.key) {
-        queryClient.invalidateQueries({ queryKey: ['tasks', response.data.key] });
+        queryClient.invalidateQueries({ queryKey: taskKeys.detail(response.data.key) });
       }
 
       // Invalidate board details if projectId and boardId are provided
@@ -35,10 +36,16 @@ export function useUpdateTask(
         });
       }
 
-      // Invalidate column tasks
-      queryClient.invalidateQueries({
-        queryKey: ['columns'],
-      });
+      // Invalidate column tasks specifically for this task's column
+      if (response.data?.columnId) {
+        queryClient.invalidateQueries({
+          queryKey: columnKeys.columnTasks(response.data.columnId),
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: columnKeys.all,
+        });
+      }
 
       // Invalidate personal inbox
       queryClient.invalidateQueries({

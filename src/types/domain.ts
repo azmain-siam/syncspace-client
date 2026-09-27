@@ -24,12 +24,26 @@ export const ProjectStatus = {
   ARCHIVED: 'ARCHIVED',
 } as const;
 
-export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type ProjectPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'CRITICAL';
 export const ProjectPriority = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
   HIGH: 'HIGH',
+  URGENT: 'URGENT',
   CRITICAL: 'CRITICAL',
+} as const;
+
+export type ProjectHealth = 'ON_TRACK' | 'AT_RISK' | 'OFF_TRACK';
+export const ProjectHealth = {
+  ON_TRACK: 'ON_TRACK',
+  AT_RISK: 'AT_RISK',
+  OFF_TRACK: 'OFF_TRACK',
+} as const;
+
+export type ProjectVisibility = 'PUBLIC' | 'PRIVATE';
+export const ProjectVisibility = {
+  PUBLIC: 'PUBLIC',
+  PRIVATE: 'PRIVATE',
 } as const;
 
 export type ProjectMemberRole = 'MANAGER' | 'LEAD' | 'MEMBER' | 'VIEWER';
@@ -179,22 +193,44 @@ export interface WorkspaceInvitation {
   invitedBy?: User;
 }
 
+export interface ProjectCountMeta {
+  projectMembers: number;
+  boards: number;
+  sprints: number;
+  links: number;
+}
+
 export interface Project {
   id: string;
   workspaceId: string;
   title: string;
+  key?: string | null;
   slug?: string | null;
   description?: string | null;
+  brief?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  visibility?: ProjectVisibility;
   status: ProjectStatus;
   priority: ProjectPriority;
+  health?: ProjectHealth;
+  leadId?: string | null;
+  lead?: {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string | null;
+  } | null;
   createdById: string;
   startDate?: string | null;
   dueDate?: string | null;
-  color?: string | null;
+  repoUrl?: string | null;
+  metadata?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
-  createdBy?: User;
+  createdBy?: User | { id: string; name: string; email: string; avatar?: string | null };
   boards?: Board[];
+  _count?: ProjectCountMeta;
 }
 
 export interface Board {

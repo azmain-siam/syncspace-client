@@ -134,8 +134,7 @@ export function useAssignTaskToSprint(projectId: string) {
     onSuccess: (res, { taskId, data }) => {
       queryClient.invalidateQueries({ queryKey: ['project-sprints', projectId] });
       queryClient.invalidateQueries({ queryKey: ['project-backlog', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
       if (data.sprintId) {
         queryClient.invalidateQueries({ queryKey: ['sprint', data.sprintId] });
       }

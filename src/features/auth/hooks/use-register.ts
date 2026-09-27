@@ -23,7 +23,15 @@ export function useRegister() {
           'Registration successful! Please check your email to verify your account.',
         { duration: 6000 },
       );
-      router.push('/login');
+      let destination = '/login';
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const redirectParam = params.get('redirect');
+        if (redirectParam) {
+          destination = `/login?redirect=${encodeURIComponent(redirectParam)}`;
+        }
+      }
+      router.push(destination);
     },
     onError: (error) => {
       const errorMessage = formatApiErrorMessage(

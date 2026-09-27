@@ -35,10 +35,23 @@ import { useAuthStore } from '@/features/auth/stores/use-auth-store';
 import { useWorkspaceMembers } from '../hooks/use-workspace-members';
 import { useRemoveMember } from '../hooks/use-remove-member';
 import { useUpdateMemberRole } from '../hooks/use-update-member-role';
-import { InviteMemberModal } from './invite-member-modal';
-import { TransferOwnershipModal } from './transfer-ownership-modal';
-import { RemoveMemberDialog } from './remove-member-dialog';
+import dynamic from 'next/dynamic';
 import { useWorkspacePresence } from '@/features/realtime';
+
+const InviteMemberModal = dynamic(
+  () => import('./invite-member-modal').then((mod) => mod.InviteMemberModal),
+  { ssr: false },
+);
+
+const TransferOwnershipModal = dynamic(
+  () => import('./transfer-ownership-modal').then((mod) => mod.TransferOwnershipModal),
+  { ssr: false },
+);
+
+const RemoveMemberDialog = dynamic(
+  () => import('./remove-member-dialog').then((mod) => mod.RemoveMemberDialog),
+  { ssr: false },
+);
 
 export function MembersTable({ workspaceId }: { workspaceId: string }) {
   const { isUserOnline } = useWorkspacePresence(workspaceId);
@@ -334,36 +347,42 @@ export function MembersTable({ workspaceId }: { workspaceId: string }) {
       </Table>
 
       {/* Invite Member Modal */}
-      <InviteMemberModal
-        workspaceId={workspaceId}
-        open={inviteModalOpen}
-        onOpenChange={setInviteModalOpen}
-      />
+      {inviteModalOpen && (
+        <InviteMemberModal
+          workspaceId={workspaceId}
+          open={inviteModalOpen}
+          onOpenChange={setInviteModalOpen}
+        />
+      )}
 
       {/* Transfer Ownership Modal */}
-      <TransferOwnershipModal
-        workspaceId={workspaceId}
-        member={transferMember}
-        open={!!transferMember}
-        onOpenChange={(open) => {
-          if (!open) setTransferMember(null);
-        }}
-      />
+      {transferMember && (
+        <TransferOwnershipModal
+          workspaceId={workspaceId}
+          member={transferMember}
+          open={!!transferMember}
+          onOpenChange={(open) => {
+            if (!open) setTransferMember(null);
+          }}
+        />
+      )}
 
       {/* Remove Member Confirmation Dialog */}
-      <RemoveMemberDialog
-        member={memberToRemove}
-        open={!!memberToRemove}
-        onOpenChange={(open) => {
-          if (!open) setMemberToRemove(null);
-        }}
-        onConfirm={() => {
-          if (memberToRemove) {
-            removeMemberMutation.mutate(memberToRemove.userId);
-          }
-        }}
-        isLoading={removeMemberMutation.isPending}
-      />
+      {memberToRemove && (
+        <RemoveMemberDialog
+          member={memberToRemove}
+          open={!!memberToRemove}
+          onOpenChange={(open) => {
+            if (!open) setMemberToRemove(null);
+          }}
+          onConfirm={() => {
+            if (memberToRemove) {
+              removeMemberMutation.mutate(memberToRemove.userId);
+            }
+          }}
+          isLoading={removeMemberMutation.isPending}
+        />
+      )}
     </div>
   );
 }

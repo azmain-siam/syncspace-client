@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/use-login";
 import { useResendVerification } from "../hooks/use-resend-verification";
@@ -27,6 +28,10 @@ import { SocialAuthButtons } from "./social-auth-buttons";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const emailParam = searchParams.get("email");
+
   const loginMutation = useLogin();
   const resendMutation = useResendVerification();
 
@@ -38,7 +43,7 @@ export function LoginForm() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      email: emailParam || "",
       password: "",
     },
   });
@@ -72,7 +77,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col lg:flex-row">
+    <main className="w-full min-h-screen flex flex-col lg:flex-row">
       {/* ─── Left Hero Side (Desktop Only) ─── */}
       <div className="hidden lg:flex w-1/2 bg-linear-to-br from-[#1e1b4b] via-[#0f172a] to-[#020617] text-white p-12 flex-col justify-between relative overflow-hidden border-r border-white/10">
         {/* Top Logo */}
@@ -124,9 +129,9 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-3xl font-extrabold tracking-tight text-white">
+            <p className="text-3xl font-extrabold tracking-tight text-white">
               Master your workflow.
-            </h2>
+            </p>
             <p className="text-sm text-white/70 leading-relaxed">
               Experience a high-fidelity workspace designed for focused
               engineering and creative teams.
@@ -224,14 +229,17 @@ export function LoginForm() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="name@company.com"
                   className="pl-10 h-11"
                   error={!!errors.email}
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                   {...register("email")}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="email-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
@@ -253,9 +261,12 @@ export function LoginForm() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="pl-10 pr-10 h-11"
                   error={!!errors.password}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   {...register("password")}
                 />
                 <button
@@ -272,7 +283,7 @@ export function LoginForm() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-danger font-medium mt-1">
+                <p id="password-error" role="alert" className="text-xs text-danger font-medium mt-1">
                   {errors.password.message}
                 </p>
               )}
@@ -292,7 +303,11 @@ export function LoginForm() {
           <div className="text-center text-xs text-muted-foreground pt-2">
             Don&apos;t have an account?{" "}
             <Link
-              href="/register"
+              href={
+                redirectParam
+                  ? `/register?redirect=${encodeURIComponent(redirectParam)}`
+                  : "/register"
+              }
               className="font-bold text-primary hover:underline transition-all"
             >
               Sign up
@@ -304,13 +319,15 @@ export function LoginForm() {
         <div className="w-full max-w-100 mx-auto pt-8 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
           <div>© {new Date().getFullYear()} SyncSpace</div>
           <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy
-            </span>
-            <span className="hover:text-foreground cursor-pointer">Terms</span>
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

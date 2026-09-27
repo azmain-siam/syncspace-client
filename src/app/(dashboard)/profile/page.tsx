@@ -60,7 +60,7 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Top Header & Breadcrumb / Back Link */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
         <div className="space-y-1 text-left">

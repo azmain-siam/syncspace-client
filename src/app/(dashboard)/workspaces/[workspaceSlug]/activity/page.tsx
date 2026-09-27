@@ -93,7 +93,7 @@ export default function WorkspaceActivityPage({
 
   if (wsLoading && !workspace) {
     return (
-      <div className="space-y-4 max-w-5xl mx-auto">
+      <div className="w-full space-y-4">
         <div className="h-20 w-1/3 bg-card animate-pulse rounded-2xl border border-border" />
         <div className="h-96 w-full bg-card animate-pulse rounded-2xl border border-border" />
       </div>
@@ -101,7 +101,7 @@ export default function WorkspaceActivityPage({
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">

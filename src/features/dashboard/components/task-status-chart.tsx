@@ -7,10 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { TaskDistributionResponse } from '../types/dashboard.types';
 import type { TaskStatus } from '@/types/domain';
+import { DashboardQueryError } from './dashboard-query-state';
 
 interface TaskStatusChartProps {
   distribution?: TaskDistributionResponse;
   isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
+  onSelectStatus?: (status: TaskStatus) => void;
 }
 
 interface StatusConfig {
@@ -25,28 +29,28 @@ const STATUS_CONFIGS: Record<TaskStatus, StatusConfig> = {
   DONE: {
     label: 'Done',
     colorClass: 'bg-emerald-500 text-emerald-500',
-    bgTintClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    borderClass: 'border-emerald-500/20',
+    bgTintClass: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-400',
+    borderClass: 'border-emerald-500/25',
     icon: CheckCircle2,
   },
   IN_PROGRESS: {
     label: 'In Progress',
-    colorClass: 'bg-amber-500 text-amber-500',
-    bgTintClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-    borderClass: 'border-amber-500/20',
+    colorClass: 'bg-blue-500 text-blue-500',
+    bgTintClass: 'bg-blue-500/10 text-blue-700 dark:text-blue-400',
+    borderClass: 'border-blue-500/20',
     icon: Clock,
   },
   REVIEW: {
     label: 'In Review',
-    colorClass: 'bg-indigo-500 text-indigo-500',
-    bgTintClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-    borderClass: 'border-indigo-500/20',
+    colorClass: 'bg-amber-500 text-amber-500',
+    bgTintClass: 'bg-amber-500/10 text-amber-800 dark:text-amber-400',
+    borderClass: 'border-amber-500/25',
     icon: Eye,
   },
   TODO: {
     label: 'To Do',
     colorClass: 'bg-slate-400 dark:bg-slate-500 text-slate-500',
-    bgTintClass: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+    bgTintClass: 'bg-slate-500/10 text-slate-700 dark:text-slate-300',
     borderClass: 'border-slate-500/20',
     icon: Circle,
   },
@@ -54,7 +58,13 @@ const STATUS_CONFIGS: Record<TaskStatus, StatusConfig> = {
 
 const ORDERED_STATUSES: TaskStatus[] = ['DONE', 'IN_PROGRESS', 'REVIEW', 'TODO'];
 
-export function TaskStatusChart({ distribution, isLoading }: TaskStatusChartProps) {
+export function TaskStatusChart({
+  distribution,
+  isLoading,
+  isError,
+  onRetry,
+  onSelectStatus,
+}: TaskStatusChartProps) {
   if (isLoading) {
     return (
       <Card className="rounded-2xl border-border bg-card p-6 space-y-4 animate-pulse">
@@ -70,7 +80,11 @@ export function TaskStatusChart({ distribution, isLoading }: TaskStatusChartProp
     );
   }
 
-  const rawByStatus = distribution?.byStatus || [];
+  if (isError || !distribution) {
+    return <DashboardQueryError title="status distribution" onRetry={onRetry} />;
+  }
+
+  const rawByStatus = distribution.byStatus || [];
   const statusMap = new Map<TaskStatus, number>();
   let totalTasks = 0;
 
@@ -132,9 +146,13 @@ export function TaskStatusChart({ distribution, isLoading }: TaskStatusChartProp
             const Icon = config.icon;
 
             return (
-              <div
+              <button
+                type="button"
                 key={status}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors"
+                onClick={() => onSelectStatus?.(status)}
+                disabled={!onSelectStatus || count === 0}
+                aria-label={`View ${count} ${config.label} tasks`}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors text-left disabled:opacity-60 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className={cn('p-1.5 rounded-lg border', config.bgTintClass, config.borderClass)}>
@@ -159,7 +177,7 @@ export function TaskStatusChart({ distribution, isLoading }: TaskStatusChartProp
                     <span className="text-muted-foreground text-[11px]">({percentage}%)</span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

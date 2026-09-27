@@ -14,6 +14,7 @@ import {
   MessageSquare,
   MoreVertical,
   Paperclip,
+  Kanban,
   Trash2,
   User,
 } from 'lucide-react';
@@ -35,16 +36,30 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { CommentThread } from '@/features/comment';
 import { TaskActivityHistory } from '@/features/safety';
 import { useWorkspaceMembers } from '@/features/workspace/hooks/use-workspace-members';
+import { useWorkspacePermissions } from '@/features/workspace/hooks/use-workspace-permissions';
 import { cn } from '@/lib/utils';
 import { useDeleteTask } from '../hooks/use-delete-task';
 import { useTaskDetails } from '../hooks/use-task-details';
 import { useUpdateTask } from '../hooks/use-update-task';
 import { useTaskRealtime } from '../hooks/use-task-realtime';
 import type { Task, TaskPriority, TaskStatus } from '../types/task.types';
+import { useMoveTask } from '../hooks/use-move-task';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG } from '@/lib/constants/task-theme';
+import { mapColumnTitleToTaskStatus } from '../utils/task-status-mapper';
 import { TaskAttachments } from './task-attachments';
 import { TaskChecklists } from './task-checklists';
 import { TaskLinks } from './task-links';
@@ -56,69 +71,13 @@ interface TaskDetailSheetProps {
   workspaceId: string;
   projectId: string;
   boardId?: string;
+  columns?: { id: string; title: string }[];
   canManage?: boolean;
+  canDelete?: boolean;
   onTaskDeleted?: () => void;
 }
 
-const PRIORITY_CONFIG: Record<
-  TaskPriority,
-  { label: string; bg: string; text: string; border: string }
-> = {
-  URGENT: {
-    label: 'Urgent',
-    bg: 'bg-red-500/10',
-    text: 'text-red-600 dark:text-red-400',
-    border: 'border-red-500/30',
-  },
-  HIGH: {
-    label: 'High',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-500/30',
-  },
-  MEDIUM: {
-    label: 'Medium',
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-600 dark:text-blue-400',
-    border: 'border-blue-500/30',
-  },
-  LOW: {
-    label: 'Low',
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-600 dark:text-slate-400',
-    border: 'border-slate-500/30',
-  },
-};
 
-const STATUS_CONFIG: Record<
-  TaskStatus,
-  { label: string; bg: string; text: string; border: string }
-> = {
-  TODO: {
-    label: 'To Do',
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-600 dark:text-slate-400',
-    border: 'border-slate-500/30',
-  },
-  IN_PROGRESS: {
-    label: 'In Progress',
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-600 dark:text-blue-400',
-    border: 'border-blue-500/30',
-  },
-  REVIEW: {
-    label: 'In Review',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-500/30',
-  },
-  DONE: {
-    label: 'Completed',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    border: 'border-emerald-500/30',
-  },
-};
 
 export function TaskDetailSheet({
   taskIdOrKey,
@@ -127,19 +86,24 @@ export function TaskDetailSheet({
   workspaceId,
   projectId,
   boardId,
+  columns,
   canManage = true,
+  canDelete,
   onTaskDeleted,
 }: TaskDetailSheetProps) {
+  const permissions = useWorkspacePermissions(workspaceId);
   const { data: taskResponse, isLoading, error } = useTaskDetails(
     open ? taskIdOrKey : null,
   );
   const task: Task | undefined = taskResponse?.data;
+  const canDeleteResolved = canDelete ?? (task ? permissions.canDeleteTask(task.createdBy) : false);
 
   // Subscribe to real-time task room events (task updates, comments, reactions)
   useTaskRealtime(open ? task?.id || taskIdOrKey : null);
 
   const updateMutation = useUpdateTask(workspaceId, projectId, boardId);
   const deleteMutation = useDeleteTask(workspaceId, projectId, boardId);
+  const moveTaskMutation = useMoveTask(workspaceId, projectId, boardId || '');
   const { data: membersResponse } = useWorkspaceMembers(workspaceId);
   const members = membersResponse?.data || [];
 
@@ -148,6 +112,7 @@ export function TaskDetailSheet({
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [copiedKey, setCopiedKey] = React.useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<
     'comments' | 'checklists' | 'attachments' | 'links' | 'activity'
   >('comments');
@@ -186,6 +151,18 @@ export function TaskDetailSheet({
     updateMutation.mutate({
       taskId: task.id,
       data: { status },
+    });
+  };
+
+  const handleMoveToColumn = (targetColumnId: string) => {
+    if (!task || !canManage) return;
+    const targetCol = columns?.find((c) => c.id === targetColumnId);
+    const targetStatus = mapColumnTitleToTaskStatus(targetCol?.title);
+    moveTaskMutation.mutate({
+      taskId: task.id,
+      targetColumnId,
+      targetOrder: 0,
+      status: targetStatus,
     });
   };
 
@@ -231,15 +208,19 @@ export function TaskDetailSheet({
   };
 
   const handleDelete = () => {
-    if (!task || !canManage) return;
-    if (confirm(`Are you sure you want to delete task ${task.key}?`)) {
-      deleteMutation.mutate(task.id, {
-        onSuccess: () => {
-          onOpenChange(false);
-          onTaskDeleted?.();
-        },
-      });
-    }
+    if (!task || !canDeleteResolved) return;
+    setShowDeleteAlert(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!task) return;
+    deleteMutation.mutate(task.id, {
+      onSuccess: () => {
+        setShowDeleteAlert(false);
+        onOpenChange(false);
+        onTaskDeleted?.();
+      },
+    });
   };
 
   const formattedDueDate = task?.dueDate
@@ -300,38 +281,73 @@ export function TaskDetailSheet({
                   )}
                 </button>
 
-                {/* Status Selector */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild disabled={!canManage}>
-                    <button
-                      type="button"
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
-                        STATUS_CONFIG[task.status]?.bg,
-                        STATUS_CONFIG[task.status]?.text,
-                        STATUS_CONFIG[task.status]?.border,
-                      )}
-                    >
-                      {STATUS_CONFIG[task.status]?.label}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map((st) => (
-                      <DropdownMenuItem
-                        key={st}
-                        onClick={() => handleStatusChange(st)}
-                        className="text-xs cursor-pointer flex items-center justify-between"
+                {/* Stage / Column Selector (Authoritative on Board) */}
+                {columns && columns.length > 0 ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild disabled={!canManage}>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold border transition-colors cursor-pointer',
+                          TASK_STATUS_CONFIG[task.status]?.badgeClass,
+                        )}
                       >
-                        <span className={STATUS_CONFIG[st].text}>
-                          {STATUS_CONFIG[st].label}
-                        </span>
-                        {task.status === st && <Check className="size-3 text-primary" />}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        <Kanban className="size-3" />
+                        <span>{columns.find((c) => c.id === task.columnId)?.title || TASK_STATUS_CONFIG[task.status]?.label}</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuLabel className="text-xs">Stage / Column</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {columns.map((col) => {
+                        const colStatus = mapColumnTitleToTaskStatus(col.title);
+                        return (
+                          <DropdownMenuItem
+                            key={col.id}
+                            onClick={() => handleMoveToColumn(col.id)}
+                            className="text-xs cursor-pointer flex items-center justify-between"
+                          >
+                            <span className={TASK_STATUS_CONFIG[colStatus]?.badgeClass ? cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_STATUS_CONFIG[colStatus]?.badgeClass) : undefined}>
+                              {col.title}
+                            </span>
+                            {task.columnId === col.id && <Check className="size-3 text-primary" />}
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  /* Fallback Status Selector when board columns are not available */
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild disabled={!canManage}>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
+                          TASK_STATUS_CONFIG[task.status]?.badgeClass,
+                        )}
+                      >
+                        {TASK_STATUS_CONFIG[task.status]?.label}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {(Object.keys(TASK_STATUS_CONFIG) as TaskStatus[]).map((st) => (
+                        <DropdownMenuItem
+                          key={st}
+                          onClick={() => handleStatusChange(st)}
+                          className="text-xs cursor-pointer flex items-center justify-between"
+                        >
+                          <span className={cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_STATUS_CONFIG[st].badgeClass)}>
+                            {TASK_STATUS_CONFIG[st].label}
+                          </span>
+                          {task.status === st && <Check className="size-3 text-primary" />}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
 
                 {/* Priority Selector */}
                 <DropdownMenu>
@@ -340,25 +356,23 @@ export function TaskDetailSheet({
                       type="button"
                       className={cn(
                         'inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium border transition-colors cursor-pointer',
-                        PRIORITY_CONFIG[task.priority]?.bg,
-                        PRIORITY_CONFIG[task.priority]?.text,
-                        PRIORITY_CONFIG[task.priority]?.border,
+                        TASK_PRIORITY_CONFIG[task.priority]?.badgeClass,
                       )}
                     >
-                      {PRIORITY_CONFIG[task.priority]?.label}
+                      {TASK_PRIORITY_CONFIG[task.priority]?.label}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
                     <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {(Object.keys(PRIORITY_CONFIG) as TaskPriority[]).map((pr) => (
+                    {(Object.keys(TASK_PRIORITY_CONFIG) as TaskPriority[]).map((pr) => (
                       <DropdownMenuItem
                         key={pr}
                         onClick={() => handlePriorityChange(pr)}
                         className="text-xs cursor-pointer flex items-center justify-between"
                       >
-                        <span className={PRIORITY_CONFIG[pr].text}>
-                          {PRIORITY_CONFIG[pr].label}
+                        <span className={cn('px-1.5 py-0.5 rounded text-[11px] font-medium border', TASK_PRIORITY_CONFIG[pr].badgeClass)}>
+                          {TASK_PRIORITY_CONFIG[pr].label}
                         </span>
                         {task.priority === pr && <Check className="size-3 text-primary" />}
                       </DropdownMenuItem>
@@ -376,32 +390,34 @@ export function TaskDetailSheet({
                   </span>
                 )}
 
-                {canManage && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
-                        <MoreVertical className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={handleCopyKey}
-                        className="text-xs cursor-pointer"
-                      >
-                        <Copy className="size-3.5 mr-2" />
-                        Copy Task Key
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={handleDelete}
-                        className="text-xs text-destructive focus:text-destructive cursor-pointer"
-                      >
-                        <Trash2 className="size-3.5 mr-2" />
-                        Delete Task
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={handleCopyKey}
+                      className="text-xs cursor-pointer"
+                    >
+                      <Copy className="size-3.5 mr-2" />
+                      Copy Task Key
+                    </DropdownMenuItem>
+                    {canDeleteResolved && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={handleDelete}
+                          className="text-xs text-destructive focus:text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="size-3.5 mr-2" />
+                          Delete Task
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -410,6 +426,7 @@ export function TaskDetailSheet({
               {/* Task Title */}
               <div>
                 <Input
+                  aria-label="Task title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={handleTitleBlur}
@@ -520,6 +537,8 @@ export function TaskDetailSheet({
                     <Layers className="size-3" /> Story Points
                   </span>
                   <Input
+                    id="task-sheet-story-points"
+                    aria-label="Story Points"
                     type="number"
                     min="0"
                     max="100"
@@ -534,10 +553,11 @@ export function TaskDetailSheet({
 
               {/* Description */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-foreground">
+                <Label htmlFor="task-sheet-desc" className="text-xs font-semibold text-foreground">
                   Description
                 </Label>
                 <Textarea
+                  id="task-sheet-desc"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onBlur={handleDescriptionBlur}
@@ -665,6 +685,30 @@ export function TaskDetailSheet({
           </div>
         )}
       </SheetContent>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete task{' '}
+              <span className="font-semibold text-foreground">{task?.key}</span>?
+              This action cannot be undone and will permanently remove this task and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete Task'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   );
 }

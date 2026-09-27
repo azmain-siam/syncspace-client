@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/domain';
 import { taskApi } from '../api/task.api';
+import { taskKeys } from './task-keys';
 
 export function useDeleteTask(
   workspaceId: string,
@@ -20,7 +21,7 @@ export function useDeleteTask(
     mutationFn: (taskId: string) => taskApi.deleteTask(taskId),
     onSuccess: (response, taskId) => {
       // Remove specific task cache
-      queryClient.removeQueries({ queryKey: ['tasks', taskId] });
+      queryClient.removeQueries({ queryKey: taskKeys.detail(taskId) });
 
       // Invalidate board details if projectId and boardId are provided
       if (projectId && boardId) {

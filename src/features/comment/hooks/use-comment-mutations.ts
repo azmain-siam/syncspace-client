@@ -8,6 +8,7 @@ import { formatApiErrorMessage } from '@/lib/api/api-error';
 import type { ApiResponse } from '@/types/domain';
 import { useAuthStore } from '@/features/auth/stores/use-auth-store';
 import { commentApi } from '../api/comment.api';
+import { taskKeys } from '@/features/task/hooks/task-keys';
 import type {
   PaginatedCommentsResponse,
   AggregatedReaction,
@@ -30,8 +31,7 @@ export function useCreateComment(taskId: string) {
       // Invalidate comments for this task
       queryClient.invalidateQueries({ queryKey: ['task-comments', taskId] });
       // Invalidate task details to update comment count badge
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       toast.success('Comment added');
     },
     onError: (error) => {
@@ -119,8 +119,7 @@ export function useDeleteComment(taskId: string) {
         },
       );
       queryClient.invalidateQueries({ queryKey: ['task-comments', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
       toast.success('Comment deleted');
     },
     onError: (error) => {

@@ -61,7 +61,7 @@ export function TransferOwnershipModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[440px] rounded-2xl">
+      <DialogContent className="sm:max-w-[440px] rounded-2xl max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-1">
             <Crown className="h-6 w-6" />
