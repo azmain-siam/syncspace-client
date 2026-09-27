@@ -36,7 +36,7 @@ import { useProjectStatusUpdates } from '../hooks/use-project-status-updates';
 import { useUpdateProject } from '../hooks/use-update-project';
 import { ProjectHealthBadge } from './project-health-badge';
 import { ProjectLinksWidget } from './project-links-widget';
-import { MarkdownRenderer } from './project-brief-modal';
+import { MarkdownContent } from '@/components/common/markdown';
 import {
   PROJECT_BRIEF_TEMPLATES,
   calculateBriefStats,
@@ -200,7 +200,7 @@ export function ProjectOverviewTab({
 
           {project.brief ? (
             <div className="bg-muted/15 rounded-xl p-5 border border-border/40 overflow-hidden">
-              <MarkdownRenderer content={project.brief} />
+              <MarkdownContent content={project.brief} />
             </div>
           ) : (
             <div className="text-center py-7 px-4 rounded-xl border border-dashed border-border/70 bg-muted/15 space-y-4">
@@ -373,8 +373,8 @@ export function ProjectOverviewTab({
                     </div>
 
                     {/* Message Body */}
-                    <div className="p-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs text-foreground/90 whitespace-pre-wrap leading-relaxed">
-                      {update.message}
+                    <div className="p-3.5 rounded-xl border border-border/60 bg-muted/20 text-xs text-foreground/90 leading-relaxed">
+                      <MarkdownContent content={update.message} compact />
                     </div>
                   </div>
                 );

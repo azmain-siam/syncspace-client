@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @layer base {
   :root {
@@ -197,3 +198,177 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Syntax Highlighting for Code Blocks (rehype-highlight / lowlight) */
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.hljs {
+  color: var(--foreground);
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #7c3aed; /* Violet 600 */
+}
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-built_in,
+.dark .hljs-name,
+.dark .hljs-tag {
+  color: #c084fc; /* Violet 400 */
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #059669; /* Emerald 600 */
+}
+.dark .hljs-string,
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-attribute,
+.dark .hljs-literal,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable,
+.dark .hljs-type,
+.dark .hljs-addition {
+  color: #34d399; /* Emerald 400 */
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #64748b; /* Slate 500 */
+  font-style: italic;
+}
+.dark .hljs-comment,
+.dark .hljs-quote,
+.dark .hljs-deletion,
+.dark .hljs-meta {
+  color: #94a3b8; /* Slate 400 */
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: #d97706; /* Amber 600 */
+}
+.dark .hljs-number,
+.dark .hljs-symbol,
+.dark .hljs-bullet {
+  color: #fbbf24; /* Amber 400 */
+}
+
+.hljs-function,
+.hljs-title.function_ {
+  color: #2563eb; /* Blue 600 */
+}
+.dark .hljs-function,
+.dark .hljs-title.function_ {
+  color: #60a5fa; /* Blue 400 */
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* Tiptap Editor & ProseMirror Styling */
+.tiptap {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  user-select: none;
+  margin-top: 0.2rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.tiptap ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.tiptap table td,
+.tiptap table th {
+  min-width: 1em;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tiptap table th {
+  font-weight: 600;
+  text-align: left;
+  background-color: var(--muted);
+  color: var(--foreground);
+}
+
+.tiptap table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(79, 70, 229, 0.08);
+  pointer-events: none;
+}
+
+
